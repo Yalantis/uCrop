@@ -2,16 +2,25 @@
 
 #### This project aims to provide an ultimate and flexible image cropping experience. Made in [Yalantis] (https://yalantis.com/?utm_source=github)
 
+<img src="https://github.com/Yalantis/uCrop/blob/master/preview.png" alt="alt text" style="width:200;height:200">
+
 # Usage
 
 *For a working implementation, please have a look at the Sample Project - sample*
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:[latest version]' ```
+    ``` compile 'com.yalantis:ucrop:1.0.0' ```
     
+2. Add UCropActivity into your AndroidManifest.xml
 
-2. The uCrop configuration is created using the builder pattern.
+    ```
+    <activity
+        android:name="com.yalantis.ucrop.UCropActivity"
+        android:screenOrientation="portrait"/>
+    ```
+
+3. The uCrop configuration is created using the builder pattern.
 
 	```java
     UCrop.of(sourceUri, destinationUri)
@@ -21,7 +30,7 @@
     ```
 
 
-3. Override `onActivityResult` method and handle uCrop result.
+4. Override `onActivityResult` method and handle uCrop result.
 
     ```java
     @Override
@@ -36,6 +45,8 @@
 
 
 # Customization
+
+If you want to let your users choose crop ratio dynamically, just do not call `withAspectRatio(x, y)`.
 
 uCrop builder class has method `withOptions(UCrop.Options option)` which extends library configurations.
 
