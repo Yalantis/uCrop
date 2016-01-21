@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:showIn="@layout/ucrop_activity_photobox"
+                tools:visibility="gone">
+
+    <TextView
+        android:id="@+id/text_view_scale"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:textColor="@android:color/black"
+        android:textSize="13sp"
+        tools:text="100%"/>
+
+    <com.yalantis.ucrop.view.widget.HorizontalProgressWheelView
+        android:id="@+id/scale_scroll_wheel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/text_view_scale"/>
+
+</RelativeLayout>

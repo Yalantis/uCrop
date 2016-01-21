@@ -1,0 +1,12 @@
+<resources>
+
+    <dimen name="ucrop_default_crop_grid_stoke_size">1dp</dimen>
+    <dimen name="ucrop_default_crop_frame_stoke_size">1dp</dimen>
+
+    <dimen name="ucrop_size_dot_scale_text_view">8dp</dimen>
+
+    <dimen name="ucrop_height_horizontal_wheel_progress_line">20dp</dimen>
+    <dimen name="ucrop_width_horizontal_wheel_progress_line">2dp</dimen>
+    <dimen name="ucrop_margin_horizontal_wheel_progress_line">10dp</dimen>
+
+</resources>

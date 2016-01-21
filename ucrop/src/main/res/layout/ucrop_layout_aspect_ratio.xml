@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="horizontal"
+    tools:ignore="HardcodedText"
+    tools:showIn="@layout/ucrop_activity_photobox"
+    tools:visibility="gone">
+
+    <FrameLayout
+        android:id="@+id/crop_aspect_ratio_1_1"
+        style="@style/ucrop_WrapperIconState">
+
+        <com.yalantis.ucrop.view.widget.AspectRatioTextView
+            style="@style/ucrop_TextViewCropAspectRatio"
+            app:ucrop_artv_ratio_x="1"
+            app:ucrop_artv_ratio_y="1"/>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/crop_aspect_ratio_3_4"
+        style="@style/ucrop_WrapperIconState">
+
+        <com.yalantis.ucrop.view.widget.AspectRatioTextView
+            style="@style/ucrop_TextViewCropAspectRatio"
+            app:ucrop_artv_ratio_x="4"
+            app:ucrop_artv_ratio_y="3"/>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/crop_aspect_ratio_original"
+        style="@style/ucrop_WrapperIconState">
+
+        <com.yalantis.ucrop.view.widget.AspectRatioTextView
+            style="@style/ucrop_TextViewCropAspectRatio"
+            android:textAllCaps="true"
+            app:ucrop_artv_ratio_title="@string/ucrop_label_original"/>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/crop_aspect_ratio_3_2"
+        style="@style/ucrop_WrapperIconState">
+
+        <com.yalantis.ucrop.view.widget.AspectRatioTextView
+            style="@style/ucrop_TextViewCropAspectRatio"
+            app:ucrop_artv_ratio_x="3"
+            app:ucrop_artv_ratio_y="2"/>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/crop_aspect_ratio_16_9"
+        style="@style/ucrop_WrapperIconState">
+
+        <com.yalantis.ucrop.view.widget.AspectRatioTextView
+            style="@style/ucrop_TextViewCropAspectRatio"
+            app:ucrop_artv_ratio_x="16"
+            app:ucrop_artv_ratio_y="9"/>
+
+    </FrameLayout>
+
+
+</LinearLayout>
