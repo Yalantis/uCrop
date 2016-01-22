@@ -83,8 +83,15 @@ public abstract class CropImageView extends TransformImageView {
     @Nullable
     public Bitmap cropImage() throws Exception {
         Bitmap viewBitmap = getViewBitmap();
+        if (viewBitmap == null) {
+            return null;
+        }
+
+        cancelAllAnimations();
+        setImageToWrapCropBounds(false);
+
         RectF currentImageRect = RectUtils.trapToRect(mCurrentImageCorners);
-        if (viewBitmap == null || currentImageRect.isEmpty() || !isImageWrapCropBounds()) {
+        if (currentImageRect.isEmpty()) {
             return null;
         }
 
@@ -126,12 +133,7 @@ public abstract class CropImageView extends TransformImageView {
         int width = (int) (mCropRect.width() / currentScale);
         int height = (int) (mCropRect.height() / currentScale);
 
-        Bitmap croppedBitmap = Bitmap.createBitmap(viewBitmap, left, top, width, height);
-        // Bitmap.createBitmap may return the same object in this case
-        if (croppedBitmap != viewBitmap) {
-            viewBitmap.recycle();
-        }
-        return croppedBitmap;
+        return Bitmap.createBitmap(viewBitmap, left, top, width, height);
     }
 
     /**
@@ -277,6 +279,10 @@ public abstract class CropImageView extends TransformImageView {
         removeCallbacks(mZoomImageToPositionRunnable);
     }
 
+    public void setImageToWrapCropBounds() {
+        setImageToWrapCropBounds(true);
+    }
+
     /**
      * If image doesn't fill the crop bounds it must be translated and scaled properly to fill those.
      * <p/>
@@ -285,7 +291,7 @@ public abstract class CropImageView extends TransformImageView {
      * Scale value must be calculated only if image won't fill the crop bounds after it's translated to the
      * crop bounds rectangle center. Using temporary variables this method checks this case.
      */
-    public void setImageToWrapCropBounds() {
+    public void setImageToWrapCropBounds(boolean animate) {
         if (!isImageWrapCropBounds()) {
 
             float currentX = mCurrentImageCenter[0];
@@ -318,9 +324,17 @@ public abstract class CropImageView extends TransformImageView {
                 deltaScale *= 1.01;
                 deltaScale = deltaScale * currentScale - currentScale;
             }
-            post(mWrapCropBoundsRunnable = new WrapCropBoundsRunnable(
-                    CropImageView.this, mImageToWrapCropBoundsAnimDuration, currentX, currentY, deltaX, deltaY,
-                    currentScale, deltaScale, willImageWrapCropBoundsAfterTranslate));
+
+            if (animate) {
+                post(mWrapCropBoundsRunnable = new WrapCropBoundsRunnable(
+                        CropImageView.this, mImageToWrapCropBoundsAnimDuration, currentX, currentY, deltaX, deltaY,
+                        currentScale, deltaScale, willImageWrapCropBoundsAfterTranslate));
+            } else {
+                postTranslate(deltaX, deltaY);
+                if (!willImageWrapCropBoundsAfterTranslate) {
+                    zoomInImage(currentScale + deltaScale, mCropRect.centerX(), mCropRect.centerY());
+                }
+            }
         }
     }
 
