@@ -2,7 +2,7 @@
 
 #### This project aims to provide an ultimate and flexible image cropping experience. Made in [Yalantis] (https://yalantis.com/?utm_source=github)
 
-<img src="https://github.com/Yalantis/uCrop/blob/master/preview.png" alt="alt text" style="width:200;height:200">
+<img src="https://d13yacurqjgara.cloudfront.net/users/221935/screenshots/2474295/animation.gif" alt="alt text" style="width:200;height:200">
 
 # Usage
 
@@ -12,7 +12,7 @@
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:1.0.0' ```
+    ``` compile 'com.yalantis:ucrop:1.0.1' ```
     
 2. Add UCropActivity into your AndroidManifest.xml
 
