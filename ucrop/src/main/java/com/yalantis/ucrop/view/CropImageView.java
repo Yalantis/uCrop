@@ -127,8 +127,10 @@ public abstract class CropImageView extends TransformImageView {
         int height = (int) (mCropRect.height() / currentScale);
 
         Bitmap croppedBitmap = Bitmap.createBitmap(viewBitmap, left, top, width, height);
-        viewBitmap.recycle();
-
+        // Bitmap.createBitmap may return the same object in this case
+        if (croppedBitmap != viewBitmap) {
+            viewBitmap.recycle();
+        }
         return croppedBitmap;
     }
 
