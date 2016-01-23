@@ -19,6 +19,9 @@
         <attr name="ucrop_frame_color" format="color"/>
         <attr name="ucrop_show_frame" format="boolean"/>
 
+        <attr name="ucrop_show_round_profile" format="boolean"/>
+        <attr name="ucrop_round_profile_overlay_color" format="color"/>
+
     </declare-styleable>
 
     <declare-styleable name="ucrop_AspectRatioTextView">

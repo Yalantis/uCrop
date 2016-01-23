@@ -29,7 +29,9 @@
         android:layout_below="@+id/toolbar"
         android:background="@android:color/black"
         android:padding="16dp"
-        app:ucrop_show_frame="true"/>
+        app:ucrop_show_frame="true"
+        app:ucrop_show_grid="false"
+        app:ucrop_show_round_profile="true"/>
 
     <FrameLayout
         android:id="@+id/wrapper_controls"
