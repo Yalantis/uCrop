@@ -13,6 +13,6 @@
     <color name="ucrop_color_default_crop_grid">#ffffff</color>
     <color name="ucrop_color_default_crop_frame">#ffffff</color>
     <color name="ucrop_color_default_overlay">#a0000000</color>
-	<color name="ucrop_color_default_round_profile_overlay">#2000</color>
+    <color name="ucrop_color_default_round_profile_overlay">#2000</color>
 
 </resources>
