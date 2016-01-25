@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.os.Build;
+import android.support.annotation.ColorInt;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.View;
@@ -23,6 +26,7 @@ public class OverlayView extends View {
 
     private static final boolean DEFAULT_SHOW_CROP_FRAME = false;
     private static final boolean DEFAULT_SHOW_CROP_GRID = true;
+    private static final boolean DEFAULT_OVAL_DIMMED_LAYER = false;
     private static final int DEFAULT_CROP_GRID_ROW_COUNT = 3;
     private static final int DEFAULT_CROP_GRID_COLUMN_COUNT = 3;
 
@@ -32,8 +36,11 @@ public class OverlayView extends View {
     private float mTargetAspectRatio;
     private float[] mGridPoints = null;
     private boolean mShowCropFrame, mShowCropGrid;
+    private boolean mOvalDimmedLayer;
     private int mDimmedColor;
-    private Paint mGridInnerLinePaint, mGridOuterLinePaint;
+    private Path mCircularPath = new Path();
+    private Paint mCropGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     protected int mThisWidth, mThisHeight;
 
@@ -51,17 +58,95 @@ public class OverlayView extends View {
     }
 
     /**
+     * Setter for {@link #mOvalDimmedLayer} variable.
+     *
+     * @param ovalDimmedLayer - set it to true if you want dimmed layer to be an oval
+     */
+    public void setOvalDimmedLayer(boolean ovalDimmedLayer) {
+        mOvalDimmedLayer = ovalDimmedLayer;
+    }
+
+    /**
+     * Setter for crop grid rows count.
+     * Resets {@link #mGridPoints} variable because it is not valid anymore.
+     */
+    public void setCropGridRowCount(@IntRange(from = 0) int cropGridRowCount) {
+        mCropGridRowCount = cropGridRowCount;
+        mGridPoints = null;
+    }
+
+    /**
+     * Setter for crop grid columns count.
+     * Resets {@link #mGridPoints} variable because it is not valid anymore.
+     */
+    public void setCropGridColumnCount(@IntRange(from = 0) int cropGridColumnCount) {
+        mCropGridColumnCount = cropGridColumnCount;
+        mGridPoints = null;
+    }
+
+    /**
+     * Setter for {@link #mShowCropFrame} variable.
+     *
+     * @param showCropFrame - set to true if you want to see a crop frame rectangle on top of an image
+     */
+    public void setShowCropFrame(boolean showCropFrame) {
+        mShowCropFrame = showCropFrame;
+    }
+
+    /**
+     * Setter for {@link #mShowCropGrid} variable.
+     *
+     * @param showCropGrid - set to true if you want to see a crop grid on top of an image
+     */
+    public void setShowCropGrid(boolean showCropGrid) {
+        mShowCropGrid = showCropGrid;
+    }
+
+    /**
+     * Setter for {@link #mDimmedColor} variable.
+     *
+     * @param dimmedColor - desired color of dimmed area around the crop bounds
+     */
+    public void setDimmedColor(@ColorInt int dimmedColor) {
+        mDimmedColor = dimmedColor;
+    }
+
+    /**
+     * Setter for crop frame stroke width
+     */
+    public void setCropFrameStrokeWidth(@IntRange(from = 0) int width) {
+        mCropFramePaint.setStrokeWidth(width);
+    }
+
+    /**
+     * Setter for crop grid stroke width
+     */
+    public void setCropGridStrokeWidth(@IntRange(from = 0) int width) {
+        mCropGridPaint.setStrokeWidth(width);
+    }
+
+    /**
+     * Setter for crop frame color
+     */
+    public void setCropFrameColor(@ColorInt int color) {
+        mCropFramePaint.setColor(color);
+    }
+
+    /**
+     * Setter for crop grid color
+     */
+    public void setCropGridColor(@ColorInt int color) {
+        mCropGridPaint.setColor(color);
+    }
+
+    /**
      * This method sets aspect ratio for crop bounds.
      *
      * @param targetAspectRatio - aspect ratio for image crop (e.g. 1.77(7) for 16:9)
      */
     public void setTargetAspectRatio(float targetAspectRatio) {
         mTargetAspectRatio = targetAspectRatio;
-
         setupCropBounds();
-        mGridPoints = null;
-
-        postInvalidate();
     }
 
     /**
@@ -80,6 +165,10 @@ public class OverlayView extends View {
             mCropViewRect.set(getPaddingLeft(), getPaddingTop() + halfDiff,
                     getPaddingLeft() + mThisWidth, getPaddingTop() + height + halfDiff);
         }
+
+        mGridPoints = null;
+        mCircularPath.reset();
+        mCircularPath.addOval(mCropViewRect, Path.Direction.CW);
     }
 
     protected void init() {
@@ -114,11 +203,16 @@ public class OverlayView extends View {
 
     /**
      * This method draws dimmed area around the crop bounds.
+     *
      * @param canvas - valid canvas object
      */
     protected void drawDimmedLayer(@NonNull Canvas canvas) {
         canvas.save();
-        canvas.clipRect(mCropViewRect, Region.Op.DIFFERENCE);
+        if (mOvalDimmedLayer) {
+            canvas.clipPath(mCircularPath, Region.Op.DIFFERENCE);
+        } else {
+            canvas.clipRect(mCropViewRect, Region.Op.DIFFERENCE);
+        }
         canvas.drawColor(mDimmedColor);
         canvas.restore();
     }
@@ -152,12 +246,12 @@ public class OverlayView extends View {
             }
 
             if (mGridPoints != null) {
-                canvas.drawLines(mGridPoints, mGridInnerLinePaint);
+                canvas.drawLines(mGridPoints, mCropGridPaint);
             }
         }
 
         if (mShowCropFrame) {
-            canvas.drawRect(mCropViewRect, mGridOuterLinePaint);
+            canvas.drawRect(mCropViewRect, mCropFramePaint);
         }
     }
 
@@ -167,6 +261,7 @@ public class OverlayView extends View {
      */
     @SuppressWarnings("deprecation")
     protected void processStyledAttributes(@NonNull TypedArray a) {
+        mOvalDimmedLayer = a.getBoolean(R.styleable.ucrop_UCropView_ucrop_oval_dimmed_layer, DEFAULT_OVAL_DIMMED_LAYER);
         mDimmedColor = a.getColor(R.styleable.ucrop_UCropView_ucrop_dimmed_color,
                 getResources().getColor(R.color.ucrop_color_default_dimmed));
 
@@ -186,10 +281,8 @@ public class OverlayView extends View {
                 getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_frame_stoke_size));
         int cropFrameColor = a.getColor(R.styleable.ucrop_UCropView_ucrop_frame_color,
                 getResources().getColor(R.color.ucrop_color_default_crop_frame));
-        mGridOuterLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mGridOuterLinePaint.setStrokeWidth(cropFrameStrokeSize);
-        mGridOuterLinePaint.setColor(cropFrameColor);
-        mGridOuterLinePaint.setStyle(Paint.Style.STROKE);
+        mCropFramePaint.setStrokeWidth(cropFrameStrokeSize);
+        mCropFramePaint.setColor(cropFrameColor);
     }
 
     /**
@@ -201,9 +294,8 @@ public class OverlayView extends View {
                 getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_grid_stoke_size));
         int cropGridColor = a.getColor(R.styleable.ucrop_UCropView_ucrop_grid_color,
                 getResources().getColor(R.color.ucrop_color_default_crop_grid));
-        mGridInnerLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mGridInnerLinePaint.setStrokeWidth(cropGridStrokeSize);
-        mGridInnerLinePaint.setColor(cropGridColor);
+        mCropGridPaint.setStrokeWidth(cropGridStrokeSize);
+        mCropGridPaint.setColor(cropGridColor);
 
         mCropGridRowCount = a.getInt(R.styleable.ucrop_UCropView_ucrop_grid_row_count, DEFAULT_CROP_GRID_ROW_COUNT);
         mCropGridColumnCount = a.getInt(R.styleable.ucrop_UCropView_ucrop_grid_column_count, DEFAULT_CROP_GRID_COLUMN_COUNT);

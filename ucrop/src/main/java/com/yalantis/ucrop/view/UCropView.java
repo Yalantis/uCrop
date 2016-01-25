@@ -31,6 +31,7 @@ public class UCropView extends FrameLayout {
             public void onCropBoundsChangedRotate(float cropRatio) {
                 if (mViewOverlay != null) {
                     mViewOverlay.setTargetAspectRatio(cropRatio);
+                    mViewOverlay.postInvalidate();
                 }
             }
         });
@@ -52,7 +53,7 @@ public class UCropView extends FrameLayout {
     }
 
     @NonNull
-    public View getOverlayView() {
+    public OverlayView getOverlayView() {
         return mViewOverlay;
     }
 

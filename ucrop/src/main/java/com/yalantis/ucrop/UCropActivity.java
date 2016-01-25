@@ -23,6 +23,7 @@ import android.widget.TextView;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.view.CropImageView;
 import com.yalantis.ucrop.view.GestureCropImageView;
+import com.yalantis.ucrop.view.OverlayView;
 import com.yalantis.ucrop.view.TransformImageView;
 import com.yalantis.ucrop.view.UCropView;
 import com.yalantis.ucrop.view.widget.AspectRatioTextView;
@@ -47,6 +48,7 @@ public class UCropActivity extends AppCompatActivity {
     private static final int ROTATE_WIDGET_SENSITIVITY_COEFFICIENT = 42;
 
     private GestureCropImageView mGestureCropImageView;
+    private OverlayView mOverlayView;
     private ViewGroup mWrapperStateAspectRatio, mWrapperStateRotate, mWrapperStateScale;
     private ViewGroup mLayoutAspectRatio, mLayoutRotate, mLayoutScale;
     private List<ViewGroup> mCropAspectRatioViews = new ArrayList<>();
@@ -93,6 +95,9 @@ public class UCropActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method extracts all data from the incoming intent and setups views properly.
+     */
     private void setImageData() {
         final Intent intent = getIntent();
 
@@ -168,6 +173,8 @@ public class UCropActivity extends AppCompatActivity {
 
         UCropView uCropView = (UCropView) findViewById(R.id.ucrop);
         mGestureCropImageView = uCropView.getCropImageView();
+        mOverlayView = uCropView.getOverlayView();
+
         mGestureCropImageView.setTransformImageListener(new TransformImageView.TransformImageListener() {
             @Override
             public void onRotate(float currentAngle) {

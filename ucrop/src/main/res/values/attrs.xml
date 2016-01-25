@@ -7,6 +7,7 @@
 
         <attr name="ucrop_max_scale_multiplier" format="float"/>
 
+        <attr name="ucrop_oval_dimmed_layer" format="boolean"/>
         <attr name="ucrop_dimmed_color" format="color"/>
 
         <attr name="ucrop_grid_stroke_size" format="dimension"/>
