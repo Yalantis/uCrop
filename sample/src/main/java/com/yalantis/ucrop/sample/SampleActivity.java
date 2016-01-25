@@ -228,6 +228,23 @@ public class SampleActivity extends BaseActivity {
         options.setMaxBitmapSize(640);
         * */
 
+
+       /*
+
+        Tune everything (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧
+
+        options.setMaxScaleMultiplier(5);
+        options.setImageToCropBoundsAnimDuration(666);
+        options.setDimmedLayerColor(Color.CYAN);
+        options.setOvalDimmedLayer(true);
+        options.setShowCropFrame(false);
+        options.setCropGridStrokeWidth(20);
+        options.setCropGridColor(Color.GREEN);
+        options.setCropGridColumnCount(2);
+        options.setCropGridRowCount(1);
+
+       */
+
         return uCrop.withOptions(options);
     }
 

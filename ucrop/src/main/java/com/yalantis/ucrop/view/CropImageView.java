@@ -26,18 +26,18 @@ import java.util.Arrays;
  */
 public abstract class CropImageView extends TransformImageView {
 
+    public static final int DEFAULT_MAX_BITMAP_SIZE = 0;
+    public static final int DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = 777;
+    public static final float DEFAULT_MAX_SCALE_MULTIPLIER = 10.0f;
     public static final float SOURCE_IMAGE_ASPECT_RATIO = 0f;
-
-    private static final int DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = 777;
-    private static final float DEFAULT_ASPECT_RATIO = SOURCE_IMAGE_ASPECT_RATIO;
-    private static final float DEFAULT_MAX_SCALE_MULTIPLIER = 10.0f;
+    public static final float DEFAULT_ASPECT_RATIO = SOURCE_IMAGE_ASPECT_RATIO;
 
     private final RectF mCropRect = new RectF();
 
     private final Matrix mTempMatrix = new Matrix();
 
     private float mTargetAspectRatio;
-    private float mMaxScaleMultiplier;
+    private float mMaxScaleMultiplier = DEFAULT_MAX_SCALE_MULTIPLIER;
 
     private CropBoundsChangeListener mCropBoundsChangeListener;
 
@@ -217,6 +217,15 @@ public abstract class CropImageView extends TransformImageView {
         } else {
             throw new IllegalArgumentException("Animation duration cannot be negative value.");
         }
+    }
+
+    /**
+     * This method sets multiplier that is used to calculate max image scale from min image scale.
+     *
+     * @param maxScaleMultiplier - (minScale * maxScaleMultiplier) = maxScale
+     */
+    public void setMaxScaleMultiplier(float maxScaleMultiplier) {
+        mMaxScaleMultiplier = maxScaleMultiplier;
     }
 
     /**
@@ -457,8 +466,6 @@ public abstract class CropImageView extends TransformImageView {
         } else {
             mTargetAspectRatio = targetAspectRatioX / targetAspectRatioY;
         }
-
-        mMaxScaleMultiplier = a.getFloat(R.styleable.ucrop_UCropView_ucrop_max_scale_multiplier, DEFAULT_MAX_SCALE_MULTIPLIER);
     }
 
     /**

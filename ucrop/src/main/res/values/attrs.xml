@@ -2,11 +2,11 @@
 
     <declare-styleable name="ucrop_UCropView">
 
+        <!--Crop image view-->
         <attr name="ucrop_aspect_ratio_x" format="float"/>
         <attr name="ucrop_aspect_ratio_y" format="float"/>
 
-        <attr name="ucrop_max_scale_multiplier" format="float"/>
-
+        <!--Overlay view-->
         <attr name="ucrop_oval_dimmed_layer" format="boolean"/>
         <attr name="ucrop_dimmed_color" format="color"/>
 

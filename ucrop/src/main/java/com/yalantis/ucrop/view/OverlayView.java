@@ -24,11 +24,11 @@ import com.yalantis.ucrop.R;
  */
 public class OverlayView extends View {
 
-    private static final boolean DEFAULT_SHOW_CROP_FRAME = false;
-    private static final boolean DEFAULT_SHOW_CROP_GRID = true;
-    private static final boolean DEFAULT_OVAL_DIMMED_LAYER = false;
-    private static final int DEFAULT_CROP_GRID_ROW_COUNT = 3;
-    private static final int DEFAULT_CROP_GRID_COLUMN_COUNT = 3;
+    public static final boolean DEFAULT_SHOW_CROP_FRAME = true;
+    public static final boolean DEFAULT_SHOW_CROP_GRID = true;
+    public static final boolean DEFAULT_OVAL_DIMMED_LAYER = false;
+    public static final int DEFAULT_CROP_GRID_ROW_COUNT = 2;
+    public static final int DEFAULT_CROP_GRID_COLUMN_COUNT = 2;
 
     private final RectF mCropViewRect = new RectF();
 
@@ -227,20 +227,20 @@ public class OverlayView extends View {
         if (mShowCropGrid) {
             if (mGridPoints == null && !mCropViewRect.isEmpty()) {
 
-                mGridPoints = new float[(mCropGridRowCount - 1) * 4 + (mCropGridColumnCount - 1) * 4];
+                mGridPoints = new float[(mCropGridRowCount) * 4 + (mCropGridColumnCount) * 4];
 
                 int index = 0;
-                for (int i = 0; i < mCropGridRowCount - 1; i++) {
+                for (int i = 0; i < mCropGridRowCount; i++) {
                     mGridPoints[index++] = mCropViewRect.left;
-                    mGridPoints[index++] = (mCropViewRect.height() * (((float) i + 1.0f) / (float) mCropGridRowCount)) + mCropViewRect.top;
+                    mGridPoints[index++] = (mCropViewRect.height() * (((float) i + 1.0f) / (float) (mCropGridRowCount + 1))) + mCropViewRect.top;
                     mGridPoints[index++] = mCropViewRect.right;
-                    mGridPoints[index++] = (mCropViewRect.height() * (((float) i + 1.0f) / (float) mCropGridRowCount)) + mCropViewRect.top;
+                    mGridPoints[index++] = (mCropViewRect.height() * (((float) i + 1.0f) / (float) (mCropGridRowCount + 1))) + mCropViewRect.top;
                 }
 
-                for (int i = 0; i < mCropGridColumnCount - 1; i++) {
-                    mGridPoints[index++] = (mCropViewRect.width() * (((float) i + 1.0f) / (float) mCropGridColumnCount)) + mCropViewRect.left;
+                for (int i = 0; i < mCropGridColumnCount; i++) {
+                    mGridPoints[index++] = (mCropViewRect.width() * (((float) i + 1.0f) / (float) (mCropGridColumnCount + 1))) + mCropViewRect.left;
                     mGridPoints[index++] = mCropViewRect.top;
-                    mGridPoints[index++] = (mCropViewRect.width() * (((float) i + 1.0f) / (float) mCropGridColumnCount)) + mCropViewRect.left;
+                    mGridPoints[index++] = (mCropViewRect.width() * (((float) i + 1.0f) / (float) (mCropGridColumnCount + 1))) + mCropViewRect.left;
                     mGridPoints[index++] = mCropViewRect.bottom;
                 }
             }
@@ -278,11 +278,12 @@ public class OverlayView extends View {
     @SuppressWarnings("deprecation")
     private void initCropFrameStyle(@NonNull TypedArray a) {
         int cropFrameStrokeSize = a.getDimensionPixelSize(R.styleable.ucrop_UCropView_ucrop_frame_stroke_size,
-                getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_frame_stoke_size));
+                getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_frame_stoke_width));
         int cropFrameColor = a.getColor(R.styleable.ucrop_UCropView_ucrop_frame_color,
                 getResources().getColor(R.color.ucrop_color_default_crop_frame));
         mCropFramePaint.setStrokeWidth(cropFrameStrokeSize);
         mCropFramePaint.setColor(cropFrameColor);
+        mCropFramePaint.setStyle(Paint.Style.STROKE);
     }
 
     /**
@@ -291,7 +292,7 @@ public class OverlayView extends View {
     @SuppressWarnings("deprecation")
     private void initCropGridStyle(@NonNull TypedArray a) {
         int cropGridStrokeSize = a.getDimensionPixelSize(R.styleable.ucrop_UCropView_ucrop_grid_stroke_size,
-                getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_grid_stoke_size));
+                getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_grid_stoke_width));
         int cropGridColor = a.getColor(R.styleable.ucrop_UCropView_ucrop_grid_color,
                 getResources().getColor(R.color.ucrop_color_default_crop_grid));
         mCropGridPaint.setStrokeWidth(cropGridStrokeSize);
