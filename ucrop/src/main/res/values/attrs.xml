@@ -1,13 +1,13 @@
 <resources>
 
-    <declare-styleable name="ucrop_CropImageView">
+    <declare-styleable name="ucrop_UCropView">
 
         <attr name="ucrop_aspect_ratio_x" format="float"/>
         <attr name="ucrop_aspect_ratio_y" format="float"/>
 
         <attr name="ucrop_max_scale_multiplier" format="float"/>
 
-        <attr name="ucrop_overlay_color" format="color"/>
+        <attr name="ucrop_dimmed_color" format="color"/>
 
         <attr name="ucrop_grid_stroke_size" format="dimension"/>
         <attr name="ucrop_grid_color" format="color"/>

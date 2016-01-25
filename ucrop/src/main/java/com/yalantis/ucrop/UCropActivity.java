@@ -24,6 +24,7 @@ import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.view.CropImageView;
 import com.yalantis.ucrop.view.GestureCropImageView;
 import com.yalantis.ucrop.view.TransformImageView;
+import com.yalantis.ucrop.view.UCropView;
 import com.yalantis.ucrop.view.widget.AspectRatioTextView;
 import com.yalantis.ucrop.view.widget.HorizontalProgressWheelView;
 
@@ -165,7 +166,8 @@ public class UCropActivity extends AppCompatActivity {
         }
         setStatusBarColor(getResources().getColor(R.color.ucrop_color_statusbar));
 
-        mGestureCropImageView = (GestureCropImageView) findViewById(R.id.image_view_crop);
+        UCropView uCropView = (UCropView) findViewById(R.id.ucrop);
+        mGestureCropImageView = uCropView.getCropImageView();
         mGestureCropImageView.setTransformImageListener(new TransformImageView.TransformImageListener() {
             @Override
             public void onRotate(float currentAngle) {

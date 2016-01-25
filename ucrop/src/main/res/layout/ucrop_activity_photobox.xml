@@ -21,14 +21,13 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <com.yalantis.ucrop.view.GestureCropImageView
-        android:id="@+id/image_view_crop"
+    <com.yalantis.ucrop.view.UCropView
+        android:id="@+id/ucrop"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/wrapper_controls"
         android:layout_below="@+id/toolbar"
         android:background="@android:color/black"
-        android:padding="16dp"
         app:ucrop_show_frame="true"/>
 
     <FrameLayout
