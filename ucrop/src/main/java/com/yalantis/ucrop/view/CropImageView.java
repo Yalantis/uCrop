@@ -4,8 +4,11 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.IntRange;
@@ -16,6 +19,7 @@ import android.util.AttributeSet;
 import com.yalantis.ucrop.R;
 import com.yalantis.ucrop.util.CubicEasing;
 import com.yalantis.ucrop.util.RectUtils;
+import com.yalantis.ucrop.util.Utils;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
@@ -32,6 +36,7 @@ public abstract class CropImageView extends TransformImageView {
 
     private static final boolean DEFAULT_SHOW_CROP_FRAME = false;
     private static final boolean DEFAULT_SHOW_CROP_GRID = true;
+    private static final boolean DEFAULT_SHOW_ROUND_PROFILE = false;
     private static final int DEFAULT_CROP_GRID_ROW_COUNT = 3;
     private static final int DEFAULT_CROP_GRID_COLUMN_COUNT = 3;
     private static final int DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = 777;
@@ -48,15 +53,20 @@ public abstract class CropImageView extends TransformImageView {
     private int mCropGridRowCount, mCropGridColumnCount;
     private float mTargetAspectRatio;
     private float[] mGridPoints = null;
-    private boolean mShowCropFrame, mShowCropGrid;
-    private Paint mDimmedPaint, mGridInnerLinePaint, mGridOuterLinePaint;
+    private boolean mShowCropFrame, mShowCropGrid, mShowRoundProfile;
+    private Paint mDimmedPaint, mGridInnerLinePaint, mGridOuterLinePaint, mRoundProfilePaint, mRoundProfileCirclePaint;
     private float mMaxScaleMultiplier;
+    private float mRoundProfileOffset;
 
     private Runnable mWrapCropBoundsRunnable, mZoomImageToPositionRunnable = null;
 
     private float mMaxScale, mMinScale;
     private int mMaxResultImageSizeX = 0, mMaxResultImageSizeY = 0;
     private long mImageToWrapCropBoundsAnimDuration = DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION;
+
+    private Bitmap mRoundProfileFrame;
+
+    Canvas mRoundProfileCanvas;
 
     public CropImageView(Context context) {
         this(context, null);
@@ -353,6 +363,7 @@ public abstract class CropImageView extends TransformImageView {
         super.onDraw(canvas);
         drawDimmedLayer(canvas);
         drawCropGrid(canvas);
+        drawRoundProfile(canvas);
     }
 
     /**
@@ -414,6 +425,19 @@ public abstract class CropImageView extends TransformImageView {
     }
 
     /**
+     * This method draws round profile
+     * If use MODE.Clear will let image black,
+     * So we need create a new image we will draw over the image.
+     *
+     * @param canvas - valid canvas object
+     */
+    protected void drawRoundProfile(@NonNull Canvas canvas) {
+        if (mShowRoundProfile) {
+            canvas.drawBitmap(mRoundProfileFrame, 0, 0, null);
+        }
+    }
+
+    /**
      * When image is laid out it must be centered properly to fit current crop bounds.
      */
     @Override
@@ -432,6 +456,7 @@ public abstract class CropImageView extends TransformImageView {
         }
 
         setupCropBounds();
+        setUpRoundProfile();
         setupInitialImagePosition(drawableWidth, drawableHeight);
         setImageMatrix(mCurrentImageMatrix);
 
@@ -541,6 +566,9 @@ public abstract class CropImageView extends TransformImageView {
 
         initCropGridStyle(a);
         mShowCropGrid = a.getBoolean(R.styleable.ucrop_CropImageView_ucrop_show_grid, DEFAULT_SHOW_CROP_GRID);
+
+        initRoundProfileStyle(a);
+        mShowRoundProfile = a.getBoolean(R.styleable.ucrop_CropImageView_ucrop_show_round_profile, DEFAULT_SHOW_ROUND_PROFILE);
     }
 
     /**
@@ -576,6 +604,24 @@ public abstract class CropImageView extends TransformImageView {
     }
 
     /**
+     * This method setups Paint object for the round profile.
+     */
+    @SuppressWarnings("deprecation")
+    private void initRoundProfileStyle(@NonNull TypedArray a) {
+        int roundProfileOverlayColor = a.getColor(R.styleable.ucrop_CropImageView_ucrop_grid_color,
+                getResources().getColor(R.color.ucrop_color_default_round_profile_overlay));
+        mRoundProfilePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mRoundProfilePaint.setColor(roundProfileOverlayColor);
+        mRoundProfilePaint.setStyle(Paint.Style.FILL);
+
+        mRoundProfileCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mRoundProfileCirclePaint.setColor(Color.TRANSPARENT);
+        mRoundProfileCirclePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT));
+
+        mRoundProfileOffset = Utils.convertPixelsToDp(mGridOuterLinePaint.getStrokeWidth(), getContext());
+    }
+
+    /**
      * This method setups crop bounds rectangles for given aspect ratio and view size.
      * {@link #mCropViewRect} is used to draw crop bounds - uses padding.
      * {@link #mCropRect} is used for crop calculations - doesn't use padding.
@@ -594,6 +640,20 @@ public abstract class CropImageView extends TransformImageView {
             mCropViewRect.set(getPaddingLeft(), getPaddingTop() + halfDiff,
                     getPaddingLeft() + mThisWidth, getPaddingTop() + height + halfDiff);
         }
+    }
+
+    /**
+     * This method setups round profile.
+     * {@link #mRoundProfileFrame} is new image to show round profile preview.
+     * {@link #mRoundProfileCanvas} is used to draw new image.
+     */
+    private void setUpRoundProfile() {
+        mRoundProfileFrame = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        mRoundProfileCanvas = new Canvas(mRoundProfileFrame);
+        mRoundProfileCanvas.drawRect(mCropViewRect, mRoundProfilePaint);
+        mRoundProfileCanvas.drawCircle(mCropViewRect.width() / 2 + mCropViewRect.left,
+                mCropViewRect.height() / 2 + mCropViewRect.top, mCropRect.width() / 2 - mRoundProfileOffset,
+                mRoundProfileCirclePaint);
     }
 
     /**
