@@ -64,7 +64,7 @@ public abstract class CropImageView extends TransformImageView {
     private int mMaxResultImageSizeX = 0, mMaxResultImageSizeY = 0;
     private long mImageToWrapCropBoundsAnimDuration = DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION;
 
-	private Bitmap mRoundProfileFrame;
+    private Bitmap mRoundProfileFrame;
 
     Canvas mRoundProfileCanvas;
 
