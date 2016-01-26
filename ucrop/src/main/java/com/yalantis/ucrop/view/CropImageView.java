@@ -56,7 +56,7 @@ public abstract class CropImageView extends TransformImageView {
     private boolean mShowCropFrame, mShowCropGrid, mShowRoundProfile;
     private Paint mDimmedPaint, mGridInnerLinePaint, mGridOuterLinePaint, mRoundProfilePaint, mRoundProfileCirclePaint;
     private float mMaxScaleMultiplier;
-	private float mRoundProfileOffset;
+    private float mRoundProfileOffset;
 
     private Runnable mWrapCropBoundsRunnable, mZoomImageToPositionRunnable = null;
 
@@ -66,7 +66,7 @@ public abstract class CropImageView extends TransformImageView {
 
 	private Bitmap mRoundProfileFrame;
 
-	private Canvas mRoundProfileCanvas;
+    Canvas mRoundProfileCanvas;
 
     public CropImageView(Context context) {
         this(context, null);
@@ -456,7 +456,7 @@ public abstract class CropImageView extends TransformImageView {
         }
 
         setupCropBounds();
-	    setUpRoundProfile();
+        setUpRoundProfile();
         setupInitialImagePosition(drawableWidth, drawableHeight);
         setImageMatrix(mCurrentImageMatrix);
 
@@ -618,7 +618,7 @@ public abstract class CropImageView extends TransformImageView {
         mRoundProfileCirclePaint.setColor(Color.TRANSPARENT);
         mRoundProfileCirclePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT));
 
-	    mRoundProfileOffset = Utils.convertPixelsToDp(mGridOuterLinePaint.getStrokeWidth(), getContext());
+        mRoundProfileOffset = Utils.convertPixelsToDp(mGridOuterLinePaint.getStrokeWidth(), getContext());
     }
 
     /**
@@ -642,19 +642,19 @@ public abstract class CropImageView extends TransformImageView {
         }
     }
 
-	/**
-	 * This method setups round profile.
-	 * {@link #mRoundProfileFrame} is new image to show round profile preview.
-	 * {@link #mRoundProfileCanvas} is used to draw new image.
-	 */
-	private void setUpRoundProfile() {
-		mRoundProfileFrame = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-		mRoundProfileCanvas = new Canvas(mRoundProfileFrame);
-		mRoundProfileCanvas.drawRect(mCropViewRect, mRoundProfilePaint);
-		mRoundProfileCanvas.drawCircle(mCropViewRect.width() / 2 + mCropViewRect.left,
-				mCropViewRect.height() / 2 + mCropViewRect.top, mCropRect.width() / 2 - mRoundProfileOffset,
-				mRoundProfileCirclePaint);
-	}
+    /**
+     * This method setups round profile.
+     * {@link #mRoundProfileFrame} is new image to show round profile preview.
+     * {@link #mRoundProfileCanvas} is used to draw new image.
+     */
+    private void setUpRoundProfile() {
+        mRoundProfileFrame = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        mRoundProfileCanvas = new Canvas(mRoundProfileFrame);
+        mRoundProfileCanvas.drawRect(mCropViewRect, mRoundProfilePaint);
+        mRoundProfileCanvas.drawCircle(mCropViewRect.width() / 2 + mCropViewRect.left,
+                mCropViewRect.height() / 2 + mCropViewRect.top, mCropRect.width() / 2 - mRoundProfileOffset,
+                mRoundProfileCirclePaint);
+    }
 
     /**
      * This Runnable is used to animate an image so it fills the crop bounds entirely.
