@@ -7,6 +7,7 @@
         <attr name="ucrop_aspect_ratio_y" format="float"/>
 
         <!--Overlay view-->
+        <attr name="ucrop_show_oval_crop_frame" format="boolean"/>
         <attr name="ucrop_oval_dimmed_layer" format="boolean"/>
         <attr name="ucrop_dimmed_color" format="color"/>
 

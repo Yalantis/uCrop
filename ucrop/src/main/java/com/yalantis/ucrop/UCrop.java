@@ -231,66 +231,121 @@ public class UCrop {
             return mOptionBundle;
         }
 
+        /**
+         * Set one of {@link android.graphics.Bitmap.CompressFormat} that will be used to save resulting Bitmap.
+         */
         public void setCompressionFormat(@NonNull Bitmap.CompressFormat format) {
             mOptionBundle.putString(EXTRA_COMPRESSION_FORMAT_NAME, format.name());
         }
 
+        /**
+         * Set compression quality [0-100] that will be used to save resulting Bitmap.
+         */
         public void setCompressionQuality(@IntRange(from = 0) int compressQuality) {
             mOptionBundle.putInt(EXTRA_COMPRESSION_QUALITY, compressQuality);
         }
 
+        /**
+         * If you want all gestures to be enabled simultaneously on all tabs (scale/rotate/crop ratio)
+         * set it to true.
+         */
         public void setGesturesAlwaysEnabled(boolean gesturesAlwaysEnabled) {
             mOptionBundle.putBoolean(EXTRA_GESTURES_ALWAYS_ENABLED, gesturesAlwaysEnabled);
         }
 
+        /**
+         * This method sets multiplier that is used to calculate max image scale from min image scale.
+         *
+         * @param maxScaleMultiplier - (minScale * maxScaleMultiplier) = maxScale
+         */
         public void setMaxScaleMultiplier(@FloatRange(from = 1.0, fromInclusive = false) float maxScaleMultiplier) {
             mOptionBundle.putFloat(EXTRA_MAX_SCALE_MULTIPLIER, maxScaleMultiplier);
         }
 
+        /**
+         * This method sets animation duration for image to wrap the crop bounds
+         *
+         * @param durationMillis - duration in milliseconds
+         */
         public void setImageToCropBoundsAnimDuration(@IntRange(from = 100) int durationMillis) {
             mOptionBundle.putInt(EXTRA_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION, durationMillis);
         }
 
+        /**
+         * Setter for max size for both width and height of bitmap that will be decoded from an input Uri and used in the view.
+         *
+         * @param maxBitmapSize - size in pixels
+         */
         public void setMaxBitmapSize(@IntRange(from = 100) int maxBitmapSize) {
             mOptionBundle.putInt(EXTRA_MAX_BITMAP_SIZE, maxBitmapSize);
         }
 
+        /**
+         * @param color - desired color of dimmed area around the crop bounds
+         */
         public void setDimmedLayerColor(@ColorInt int color) {
             mOptionBundle.putInt(EXTRA_DIMMED_LAYER_COLOR, color);
         }
 
+        /**
+         * @param isOval - set it to true if you want dimmed layer to have an oval inside
+         */
         public void setOvalDimmedLayer(boolean isOval) {
             mOptionBundle.putBoolean(EXTRA_OVAL_DIMMED_LAYER, isOval);
         }
 
+        /**
+         * @param show - set to true if you want to see a crop frame rectangle on top of an image
+         */
         public void setShowCropFrame(boolean show) {
             mOptionBundle.putBoolean(EXTRA_SHOW_CROP_FRAME, show);
         }
 
+        /**
+         * @param color - desired color of crop frame
+         */
         public void setCropFrameColor(@ColorInt int color) {
             mOptionBundle.putInt(EXTRA_CROP_FRAME_COLOR, color);
         }
 
+        /**
+         * @param width - desired width of crop frame line in pixels
+         */
         public void setCropFrameStrokeWidth(@IntRange(from = 0) int width) {
             mOptionBundle.putInt(EXTRA_CROP_FRAME_STROKE_WIDTH, width);
         }
 
+        /**
+         * @param show - set to true if you want to see a crop grid/guidelines on top of an image
+         */
         public void setShowCropGrid(boolean show) {
             mOptionBundle.putBoolean(EXTRA_SHOW_CROP_GRID, show);
         }
 
+        /**
+         * @param count - crop grid rows count.
+         */
         public void setCropGridRowCount(@IntRange(from = 0) int count) {
             mOptionBundle.putInt(EXTRA_CROP_GRID_ROW_COUNT, count);
         }
 
+        /**
+         * @param count - crop grid columns count.
+         */
         public void setCropGridColumnCount(@IntRange(from = 0) int count) {
             mOptionBundle.putInt(EXTRA_CROP_GRID_COLUMN_COUNT, count);
         }
 
+        /**
+         * @param color - desired color of crop grid/guidelines
+         */
         public void setCropGridColor(@ColorInt int color) {
             mOptionBundle.putInt(EXTRA_CROP_GRID_COLOR, color);
         }
 
+        /**
+         * @param width - desired width of crop grid lines in pixels
+         */
         public void setCropGridStrokeWidth(@IntRange(from = 0) int width) {
             mOptionBundle.putInt(EXTRA_CROP_GRID_STROKE_WIDTH, width);
         }

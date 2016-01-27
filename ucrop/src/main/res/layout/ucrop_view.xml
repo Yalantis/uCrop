@@ -7,13 +7,13 @@
 
     <com.yalantis.ucrop.view.GestureCropImageView
         android:id="@+id/image_view_crop"
-        android:padding="16dp"
+        android:padding="@dimen/ucrop_padding_crop_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
     <com.yalantis.ucrop.view.OverlayView
         android:id="@+id/view_overlay"
-        android:padding="16dp"
+        android:padding="@dimen/ucrop_padding_crop_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
