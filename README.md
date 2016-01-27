@@ -2,6 +2,8 @@
 
 #### This project aims to provide an ultimate and flexible image cropping experience. Made in [Yalantis] (https://yalantis.com/?utm_source=github)
 
+#### [How We Created uCrop] (https://yalantis.com/blog/how-we-created-ucrop-our-own-image-cropping-library-for-android/)
+
 <img src="https://d13yacurqjgara.cloudfront.net/users/221935/screenshots/2474295/animation.gif" alt="alt text" style="width:200;height:200">
 
 # Usage
@@ -12,7 +14,7 @@
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:1.0.1' ```
+    ``` compile 'com.yalantis:ucrop:1.1.0' ```
     
 2. Add UCropActivity into your AndroidManifest.xml
 
@@ -50,7 +52,7 @@
 
 If you want to let your users choose crop ratio dynamically, just do not call `withAspectRatio(x, y)`.
 
-uCrop builder class has method `withOptions(UCrop.Options option)` which extends library configurations.
+uCrop builder class has method `withOptions(UCrop.Options options)` which extends library configurations.
 
 Currently you can change:
 
@@ -58,7 +60,10 @@ Currently you can change:
    * image compression quality [0 - 100]. PNG which is lossless, will ignore the quality setting.
    * whether all gestures are enabled simultaneously
    * maximum size for Bitmap that is decoded from source Uri and used within crop view. If you want to override default behaviour.
-   * more coming... (e.g. color pallet) 
+   * toggle whether to show crop frame/guidelines
+   * setup color/width/count of crop frame/rows/columns
+   * choose whether you want rectangle or oval crop area
+   * and more...
     
 # Compatibility
   
@@ -66,6 +71,10 @@ Currently you can change:
   * Sample - Android ICS 4.0+
   
 # Changelog
+
+### Version: 1.1
+
+  * UCrop builder was updated and now UCrop.Options class has even more values to setup.
 
 ### Version: 1.0
 
