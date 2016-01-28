@@ -386,6 +386,8 @@ public class UCropActivity extends AppCompatActivity {
 
                 setResultUri(mOutputUri);
                 finish();
+            } else {
+                setResultException(new NullPointerException("CropImageView.cropImage() returned null."));
             }
         } catch (Exception e) {
             setResultException(e);

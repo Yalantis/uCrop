@@ -76,12 +76,12 @@ public abstract class CropImageView extends TransformImageView {
      * Then image is rotated accordingly.
      * Finally new Bitmap object is created and returned.
      *
-     * @return - cropped Bitmap object or null if any error occurs.
+     * @return - cropped Bitmap object or null if current Bitmap is invalid or image rectangle is empty.
      */
     @Nullable
-    public Bitmap cropImage() throws Exception {
+    public Bitmap cropImage() {
         Bitmap viewBitmap = getViewBitmap();
-        if (viewBitmap == null) {
+        if (viewBitmap == null || viewBitmap.isRecycled()) {
             return null;
         }
 
@@ -109,7 +109,9 @@ public abstract class CropImageView extends TransformImageView {
                 Bitmap resizedBitmap = Bitmap.createScaledBitmap(viewBitmap,
                         (int) (viewBitmap.getWidth() * resizeScale),
                         (int) (viewBitmap.getHeight() * resizeScale), false);
-                viewBitmap.recycle();
+                if (viewBitmap != resizedBitmap) {
+                    viewBitmap.recycle();
+                }
                 viewBitmap = resizedBitmap;
 
                 currentScale /= resizeScale;
@@ -122,7 +124,9 @@ public abstract class CropImageView extends TransformImageView {
 
             Bitmap rotatedBitmap = Bitmap.createBitmap(viewBitmap, 0, 0, viewBitmap.getWidth(), viewBitmap.getHeight(),
                     mTempMatrix, true);
-            viewBitmap.recycle();
+            if (viewBitmap != rotatedBitmap) {
+                viewBitmap.recycle();
+            }
             viewBitmap = rotatedBitmap;
         }
 
