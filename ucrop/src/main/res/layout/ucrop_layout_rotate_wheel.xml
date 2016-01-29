@@ -9,24 +9,18 @@
 
     <TextView
         android:id="@+id/text_view_rotate"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:textColor="@android:color/black"
-        android:textSize="13sp"
+        style="@style/ucrop_TextViewWidgetText"
         tools:text="100°"/>
 
     <com.yalantis.ucrop.view.widget.HorizontalProgressWheelView
         android:id="@+id/rotate_scroll_wheel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_toRightOf="@+id/wrapper_reset_rotate"
+        android:layout_below="@+id/text_view_rotate"
         android:layout_toEndOf="@+id/wrapper_reset_rotate"
         android:layout_toLeftOf="@+id/wrapper_rotate_by_angle"
-        android:layout_toStartOf="@+id/wrapper_rotate_by_angle"
-        android:layout_below="@+id/text_view_rotate"/>
+        android:layout_toRightOf="@+id/wrapper_reset_rotate"
+        android:layout_toStartOf="@+id/wrapper_rotate_by_angle"/>
 
     <FrameLayout
         android:id="@+id/wrapper_reset_rotate"
