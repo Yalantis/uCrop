@@ -8,8 +8,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Bundle;
+import android.support.annotation.ColorInt;
+import android.support.annotation.FloatRange;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,19 +25,21 @@ public class UCrop {
     public static final int REQUEST_CROP = 69;
     public static final int RESULT_ERROR = 96;
 
-    public static final String EXTRA_INPUT_URI = "InputUri";
-    public static final String EXTRA_OUTPUT_URI = "OutputUri";
-    public static final String EXTRA_ERROR = "Error";
+    private static final String EXTRA_PREFIX = BuildConfig.APPLICATION_ID;
 
-    public static final String EXTRA_ASPECT_RATIO_SET = "AspectRatioSet";
-    public static final String EXTRA_ASPECT_RATIO_X = "AspectRatioX";
-    public static final String EXTRA_ASPECT_RATIO_Y = "AspectRatioY";
+    public static final String EXTRA_INPUT_URI = EXTRA_PREFIX + ".InputUri";
+    public static final String EXTRA_OUTPUT_URI = EXTRA_PREFIX + ".OutputUri";
+    public static final String EXTRA_ERROR = EXTRA_PREFIX + ".Error";
 
-    public static final String EXTRA_MAX_SIZE_SET = "MaxSizeSet";
-    public static final String EXTRA_MAX_SIZE_X = "MaxSizeX";
-    public static final String EXTRA_MAX_SIZE_Y = "MaxSizeY";
+    public static final String EXTRA_ASPECT_RATIO_SET = EXTRA_PREFIX + ".AspectRatioSet";
+    public static final String EXTRA_ASPECT_RATIO_X = EXTRA_PREFIX + ".AspectRatioX";
+    public static final String EXTRA_ASPECT_RATIO_Y = EXTRA_PREFIX + ".AspectRatioY";
 
-    public static final String EXTRA_OPTIONS = "Options";
+    public static final String EXTRA_MAX_SIZE_SET = EXTRA_PREFIX + ".MaxSizeSet";
+    public static final String EXTRA_MAX_SIZE_X = EXTRA_PREFIX + ".MaxSizeX";
+    public static final String EXTRA_MAX_SIZE_Y = EXTRA_PREFIX + ".MaxSizeY";
+
+    public static final String EXTRA_OPTIONS = EXTRA_PREFIX + ".Options";
 
     private Intent mCropIntent;
 
@@ -95,7 +98,7 @@ public class UCrop {
     }
 
     public UCrop withOptions(@NonNull Options options) {
-        mCropIntent.putExtra(EXTRA_OPTIONS, options);
+        mCropIntent.putExtra(EXTRA_OPTIONS, options.getOptionBundle());
         return this;
     }
 
@@ -193,84 +196,159 @@ public class UCrop {
      * Class that helps to setup advanced configs that are not commonly used.
      * Use it with method {@link #withOptions(Options)}
      */
-    public static class Options implements Parcelable {
+    public static class Options {
 
-        private int mMaxBitmapSize;
-        private String mCompressionFormatName;
-        private int mCompressionQuality;
-        private boolean mGesturesAlwaysEnabled;
+        public static final String EXTRA_COMPRESSION_FORMAT_NAME = EXTRA_PREFIX + ".CompressionFormatName";
+        public static final String EXTRA_COMPRESSION_QUALITY = EXTRA_PREFIX + ".CompressionQuality";
+
+        public static final String EXTRA_GESTURES_ALWAYS_ENABLED = EXTRA_PREFIX + ".GesturesAlwaysEnabled";
+
+        public static final String EXTRA_MAX_BITMAP_SIZE = EXTRA_PREFIX + ".MaxBitmapSize";
+        public static final String EXTRA_MAX_SCALE_MULTIPLIER = EXTRA_PREFIX + ".MaxScaleMultiplier";
+        public static final String EXTRA_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = EXTRA_PREFIX + ".ImageToCropBoundsAnimDuration";
+
+        public static final String EXTRA_DIMMED_LAYER_COLOR = EXTRA_PREFIX + ".DimmedLayerColor";
+        public static final String EXTRA_OVAL_DIMMED_LAYER = EXTRA_PREFIX + ".OvalDimmedLayer";
+
+        public static final String EXTRA_SHOW_CROP_FRAME = EXTRA_PREFIX + ".ShowCropFrame";
+        public static final String EXTRA_CROP_FRAME_COLOR = EXTRA_PREFIX + ".CropFrameColor";
+        public static final String EXTRA_CROP_FRAME_STROKE_WIDTH = EXTRA_PREFIX + ".CropFrameStrokeWidth";
+
+        public static final String EXTRA_SHOW_CROP_GRID = EXTRA_PREFIX + ".ShowCropGrid";
+        public static final String EXTRA_CROP_GRID_ROW_COUNT = EXTRA_PREFIX + ".CropGridRowCount";
+        public static final String EXTRA_CROP_GRID_COLUMN_COUNT = EXTRA_PREFIX + ".CropGridColumnCount";
+        public static final String EXTRA_CROP_GRID_COLOR = EXTRA_PREFIX + ".CropGridColor";
+        public static final String EXTRA_CROP_GRID_STROKE_WIDTH = EXTRA_PREFIX + ".CropGridStrokeWidth";
+
+        private final Bundle mOptionBundle;
 
         public Options() {
-            // Set default values
-            mMaxBitmapSize = 0;
-            mCompressionFormatName = UCropActivity.DEFAULT_COMPRESS_FORMAT.name();
-            mCompressionQuality = UCropActivity.DEFAULT_COMPRESS_QUALITY;
-            mGesturesAlwaysEnabled = false;
+            mOptionBundle = new Bundle();
         }
 
-        public void setMaxBitmapSize(@IntRange(from = 100) int maxBitmapSize) {
-            mMaxBitmapSize = maxBitmapSize;
+        @NonNull
+        public Bundle getOptionBundle() {
+            return mOptionBundle;
         }
 
+        /**
+         * Set one of {@link android.graphics.Bitmap.CompressFormat} that will be used to save resulting Bitmap.
+         */
         public void setCompressionFormat(@NonNull Bitmap.CompressFormat format) {
-            mCompressionFormatName = format.name();
+            mOptionBundle.putString(EXTRA_COMPRESSION_FORMAT_NAME, format.name());
         }
 
-        public void setCompressionQuality(@IntRange(from = 1) int compressQuality) {
-            mCompressionQuality = compressQuality;
+        /**
+         * Set compression quality [0-100] that will be used to save resulting Bitmap.
+         */
+        public void setCompressionQuality(@IntRange(from = 0) int compressQuality) {
+            mOptionBundle.putInt(EXTRA_COMPRESSION_QUALITY, compressQuality);
         }
 
+        /**
+         * If you want all gestures to be enabled simultaneously on all tabs (scale/rotate/crop ratio)
+         * set it to true.
+         */
         public void setGesturesAlwaysEnabled(boolean gesturesAlwaysEnabled) {
-            mGesturesAlwaysEnabled = gesturesAlwaysEnabled;
+            mOptionBundle.putBoolean(EXTRA_GESTURES_ALWAYS_ENABLED, gesturesAlwaysEnabled);
         }
 
-        public int getMaxBitmapSize() {
-            return mMaxBitmapSize;
+        /**
+         * This method sets multiplier that is used to calculate max image scale from min image scale.
+         *
+         * @param maxScaleMultiplier - (minScale * maxScaleMultiplier) = maxScale
+         */
+        public void setMaxScaleMultiplier(@FloatRange(from = 1.0, fromInclusive = false) float maxScaleMultiplier) {
+            mOptionBundle.putFloat(EXTRA_MAX_SCALE_MULTIPLIER, maxScaleMultiplier);
         }
 
-        public String getCompressionFormatName() {
-            return mCompressionFormatName;
+        /**
+         * This method sets animation duration for image to wrap the crop bounds
+         *
+         * @param durationMillis - duration in milliseconds
+         */
+        public void setImageToCropBoundsAnimDuration(@IntRange(from = 100) int durationMillis) {
+            mOptionBundle.putInt(EXTRA_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION, durationMillis);
         }
 
-        public int getCompressionQuality() {
-            return mCompressionQuality;
+        /**
+         * Setter for max size for both width and height of bitmap that will be decoded from an input Uri and used in the view.
+         *
+         * @param maxBitmapSize - size in pixels
+         */
+        public void setMaxBitmapSize(@IntRange(from = 100) int maxBitmapSize) {
+            mOptionBundle.putInt(EXTRA_MAX_BITMAP_SIZE, maxBitmapSize);
         }
 
-        public boolean isGesturesAlwaysEnabled() {
-            return mGesturesAlwaysEnabled;
+        /**
+         * @param color - desired color of dimmed area around the crop bounds
+         */
+        public void setDimmedLayerColor(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_DIMMED_LAYER_COLOR, color);
         }
 
-        @Override
-        public int describeContents() {
-            return 0;
+        /**
+         * @param isOval - set it to true if you want dimmed layer to have an oval inside
+         */
+        public void setOvalDimmedLayer(boolean isOval) {
+            mOptionBundle.putBoolean(EXTRA_OVAL_DIMMED_LAYER, isOval);
         }
 
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeInt(mMaxBitmapSize);
-            dest.writeString(mCompressionFormatName);
-            dest.writeInt(mCompressionQuality);
-            dest.writeByte((byte) (mGesturesAlwaysEnabled ? 1 : 0));
+        /**
+         * @param show - set to true if you want to see a crop frame rectangle on top of an image
+         */
+        public void setShowCropFrame(boolean show) {
+            mOptionBundle.putBoolean(EXTRA_SHOW_CROP_FRAME, show);
         }
 
-        protected Options(Parcel in) {
-            mMaxBitmapSize = in.readInt();
-            mCompressionFormatName = in.readString();
-            mCompressionQuality = in.readInt();
-            mGesturesAlwaysEnabled = in.readByte() != 0;
+        /**
+         * @param color - desired color of crop frame
+         */
+        public void setCropFrameColor(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_CROP_FRAME_COLOR, color);
         }
 
-        public static final Creator<Options> CREATOR = new Creator<Options>() {
-            @Override
-            public Options createFromParcel(Parcel in) {
-                return new Options(in);
-            }
+        /**
+         * @param width - desired width of crop frame line in pixels
+         */
+        public void setCropFrameStrokeWidth(@IntRange(from = 0) int width) {
+            mOptionBundle.putInt(EXTRA_CROP_FRAME_STROKE_WIDTH, width);
+        }
 
-            @Override
-            public Options[] newArray(int size) {
-                return new Options[size];
-            }
-        };
+        /**
+         * @param show - set to true if you want to see a crop grid/guidelines on top of an image
+         */
+        public void setShowCropGrid(boolean show) {
+            mOptionBundle.putBoolean(EXTRA_SHOW_CROP_GRID, show);
+        }
+
+        /**
+         * @param count - crop grid rows count.
+         */
+        public void setCropGridRowCount(@IntRange(from = 0) int count) {
+            mOptionBundle.putInt(EXTRA_CROP_GRID_ROW_COUNT, count);
+        }
+
+        /**
+         * @param count - crop grid columns count.
+         */
+        public void setCropGridColumnCount(@IntRange(from = 0) int count) {
+            mOptionBundle.putInt(EXTRA_CROP_GRID_COLUMN_COUNT, count);
+        }
+
+        /**
+         * @param color - desired color of crop grid/guidelines
+         */
+        public void setCropGridColor(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_CROP_GRID_COLOR, color);
+        }
+
+        /**
+         * @param width - desired width of crop grid lines in pixels
+         */
+        public void setCropGridStrokeWidth(@IntRange(from = 0) int width) {
+            mOptionBundle.putInt(EXTRA_CROP_GRID_STROKE_WIDTH, width);
+        }
 
     }
 

@@ -23,7 +23,9 @@ import android.widget.TextView;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.view.CropImageView;
 import com.yalantis.ucrop.view.GestureCropImageView;
+import com.yalantis.ucrop.view.OverlayView;
 import com.yalantis.ucrop.view.TransformImageView;
+import com.yalantis.ucrop.view.UCropView;
 import com.yalantis.ucrop.view.widget.AspectRatioTextView;
 import com.yalantis.ucrop.view.widget.HorizontalProgressWheelView;
 
@@ -36,7 +38,6 @@ import java.util.List;
  */
 public class UCropActivity extends AppCompatActivity {
 
-    public static final int DEFAULT_MAX_BITMAP_SIZE = 0;
     public static final int DEFAULT_COMPRESS_QUALITY = 90;
     public static final Bitmap.CompressFormat DEFAULT_COMPRESS_FORMAT = Bitmap.CompressFormat.JPEG;
 
@@ -46,6 +47,7 @@ public class UCropActivity extends AppCompatActivity {
     private static final int ROTATE_WIDGET_SENSITIVITY_COEFFICIENT = 42;
 
     private GestureCropImageView mGestureCropImageView;
+    private OverlayView mOverlayView;
     private ViewGroup mWrapperStateAspectRatio, mWrapperStateRotate, mWrapperStateScale;
     private ViewGroup mLayoutAspectRatio, mLayoutRotate, mLayoutScale;
     private List<ViewGroup> mCropAspectRatioViews = new ArrayList<>();
@@ -53,7 +55,6 @@ public class UCropActivity extends AppCompatActivity {
 
     private Uri mOutputUri;
 
-    private int mMaxBitmapSize = DEFAULT_MAX_BITMAP_SIZE;
     private Bitmap.CompressFormat mCompressFormat = DEFAULT_COMPRESS_FORMAT;
     private int mCompressQuality = DEFAULT_COMPRESS_QUALITY;
     private boolean mGesturesAlwaysEnabled = false;
@@ -92,6 +93,9 @@ public class UCropActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method extracts all data from the incoming intent and setups views properly.
+     */
     private void setImageData() {
         final Intent intent = getIntent();
 
@@ -101,7 +105,6 @@ public class UCropActivity extends AppCompatActivity {
 
         if (inputUri != null && mOutputUri != null) {
             try {
-                mGestureCropImageView.setMaxBitmapSize(mMaxBitmapSize);
                 mGestureCropImageView.setImageUri(inputUri);
             } catch (Exception e) {
                 setResultException(e);
@@ -138,20 +141,46 @@ public class UCropActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method extracts {@link com.yalantis.ucrop.UCrop.Options #optionsBundle} from incoming intent
+     * and setups Activity, {@link OverlayView} and {@link CropImageView} properly.
+     */
+    @SuppressWarnings("deprecation")
     private void processOptions(@NonNull Intent intent) {
-        UCrop.Options options = intent.getParcelableExtra(UCrop.EXTRA_OPTIONS);
-        if (options != null) {
-            mMaxBitmapSize = options.getMaxBitmapSize();
-
-            String compressionFormatName = options.getCompressionFormatName();
+        Bundle optionsBundle = intent.getBundleExtra(UCrop.EXTRA_OPTIONS);
+        if (optionsBundle != null) {
+            // Bitmap compression options
+            String compressionFormatName = optionsBundle.getString(UCrop.Options.EXTRA_COMPRESSION_FORMAT_NAME);
             Bitmap.CompressFormat compressFormat = null;
             if (!TextUtils.isEmpty(compressionFormatName)) {
                 compressFormat = Bitmap.CompressFormat.valueOf(compressionFormatName);
             }
             mCompressFormat = (compressFormat == null) ? DEFAULT_COMPRESS_FORMAT : compressFormat;
 
-            mCompressQuality = options.getCompressionQuality();
-            mGesturesAlwaysEnabled = options.isGesturesAlwaysEnabled();
+            mCompressQuality = optionsBundle.getInt(UCrop.Options.EXTRA_COMPRESSION_QUALITY, UCropActivity.DEFAULT_COMPRESS_QUALITY);
+
+            // Gestures options
+            mGesturesAlwaysEnabled = optionsBundle.getBoolean(UCrop.Options.EXTRA_GESTURES_ALWAYS_ENABLED, false);
+
+            // Crop image view options
+            mGestureCropImageView.setMaxBitmapSize(optionsBundle.getInt(UCrop.Options.EXTRA_MAX_BITMAP_SIZE, CropImageView.DEFAULT_MAX_BITMAP_SIZE));
+            mGestureCropImageView.setMaxScaleMultiplier(optionsBundle.getFloat(UCrop.Options.EXTRA_MAX_SCALE_MULTIPLIER, CropImageView.DEFAULT_MAX_SCALE_MULTIPLIER));
+            mGestureCropImageView.setImageToWrapCropBoundsAnimDuration(optionsBundle.getInt(UCrop.Options.EXTRA_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION, CropImageView.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION));
+
+
+            // Overlay view options
+            mOverlayView.setDimmedColor(optionsBundle.getInt(UCrop.Options.EXTRA_DIMMED_LAYER_COLOR, getResources().getColor(R.color.ucrop_color_default_dimmed)));
+            mOverlayView.setOvalDimmedLayer(optionsBundle.getBoolean(UCrop.Options.EXTRA_OVAL_DIMMED_LAYER, OverlayView.DEFAULT_OVAL_DIMMED_LAYER));
+
+            mOverlayView.setShowCropFrame(optionsBundle.getBoolean(UCrop.Options.EXTRA_SHOW_CROP_FRAME, OverlayView.DEFAULT_SHOW_CROP_FRAME));
+            mOverlayView.setCropFrameColor(optionsBundle.getInt(UCrop.Options.EXTRA_CROP_FRAME_COLOR, getResources().getColor(R.color.ucrop_color_default_crop_frame)));
+            mOverlayView.setCropFrameStrokeWidth(optionsBundle.getInt(UCrop.Options.EXTRA_CROP_FRAME_STROKE_WIDTH, getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_frame_stoke_width)));
+
+            mOverlayView.setShowCropGrid(optionsBundle.getBoolean(UCrop.Options.EXTRA_SHOW_CROP_GRID, OverlayView.DEFAULT_SHOW_CROP_GRID));
+            mOverlayView.setCropGridRowCount(optionsBundle.getInt(UCrop.Options.EXTRA_CROP_GRID_ROW_COUNT, OverlayView.DEFAULT_CROP_GRID_ROW_COUNT));
+            mOverlayView.setCropGridColumnCount(optionsBundle.getInt(UCrop.Options.EXTRA_CROP_GRID_COLUMN_COUNT, OverlayView.DEFAULT_CROP_GRID_COLUMN_COUNT));
+            mOverlayView.setCropGridColor(optionsBundle.getInt(UCrop.Options.EXTRA_CROP_GRID_COLOR, getResources().getColor(R.color.ucrop_color_default_crop_grid)));
+            mOverlayView.setCropGridStrokeWidth(optionsBundle.getInt(UCrop.Options.EXTRA_CROP_GRID_STROKE_WIDTH, getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_grid_stoke_width)));
         }
     }
 
@@ -165,7 +194,10 @@ public class UCropActivity extends AppCompatActivity {
         }
         setStatusBarColor(getResources().getColor(R.color.ucrop_color_statusbar));
 
-        mGestureCropImageView = (GestureCropImageView) findViewById(R.id.image_view_crop);
+        UCropView uCropView = (UCropView) findViewById(R.id.ucrop);
+        mGestureCropImageView = uCropView.getCropImageView();
+        mOverlayView = uCropView.getOverlayView();
+
         mGestureCropImageView.setTransformImageListener(new TransformImageView.TransformImageListener() {
             @Override
             public void onRotate(float currentAngle) {
@@ -354,6 +386,8 @@ public class UCropActivity extends AppCompatActivity {
 
                 setResultUri(mOutputUri);
                 finish();
+            } else {
+                setResultException(new NullPointerException("CropImageView.cropImage() returned null."));
             }
         } catch (Exception e) {
             setResultException(e);

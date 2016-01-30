@@ -1,6 +1,5 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -17,24 +16,22 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/ucrop_label_edit_photo"
-            android:textColor="@android:color/white"/>
+            android:textColor="@color/ucrop_color_title"/>
 
     </android.support.v7.widget.Toolbar>
 
-    <com.yalantis.ucrop.view.GestureCropImageView
-        android:id="@+id/image_view_crop"
+    <com.yalantis.ucrop.view.UCropView
+        android:id="@+id/ucrop"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/wrapper_controls"
         android:layout_below="@+id/toolbar"
-        android:background="@android:color/black"
-        android:padding="16dp"
-        app:ucrop_show_frame="true"/>
+        android:background="@color/ucrop_color_crop_background"/>
 
     <FrameLayout
         android:id="@+id/wrapper_controls"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="@dimen/ucrop_height_wrapper_controls"
         android:layout_above="@+id/wrapper_states"
         android:background="@color/ucrop_color_widget_background">
 
@@ -54,14 +51,14 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="3dp"
+        android:layout_height="@dimen/ucrop_height_divider_shadow"
         android:layout_above="@+id/wrapper_states"
         android:background="@drawable/ucrop_shadow_upside"/>
 
     <LinearLayout
         android:id="@+id/wrapper_states"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
+        android:layout_height="@dimen/ucrop_height_wrapper_states"
         android:layout_alignParentBottom="true"
         android:background="@color/ucrop_color_widget_background"
         android:baselineAligned="false"

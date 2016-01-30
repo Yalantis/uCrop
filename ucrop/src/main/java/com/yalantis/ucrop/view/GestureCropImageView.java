@@ -94,8 +94,8 @@ public class GestureCropImageView extends CropImageView {
     }
 
     @Override
-    protected void init(Context context, AttributeSet attrs, int defStyle) {
-        super.init(context, attrs, defStyle);
+    protected void init() {
+        super.init();
         setupGestureListeners();
     }
 

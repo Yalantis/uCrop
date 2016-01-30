@@ -8,13 +8,7 @@
 
     <TextView
         android:id="@+id/text_view_scale"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:textColor="@android:color/black"
-        android:textSize="13sp"
+        style="@style/ucrop_TextViewWidgetText"
         tools:text="100%"/>
 
     <com.yalantis.ucrop.view.widget.HorizontalProgressWheelView

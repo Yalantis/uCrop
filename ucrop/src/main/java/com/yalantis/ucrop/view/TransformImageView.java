@@ -51,6 +51,17 @@ public class TransformImageView extends ImageView {
     private int mMaxBitmapSize = 0;
     private Uri mImageUri;
 
+    /**
+     * Interface for rotation and scale change notifying.
+     */
+    public interface TransformImageListener {
+
+        void onRotate(float currentAngle);
+
+        void onScale(float currentScale);
+
+    }
+
     public TransformImageView(Context context) {
         this(context, null);
     }
@@ -61,7 +72,7 @@ public class TransformImageView extends ImageView {
 
     public TransformImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(context, attrs, defStyle);
+        init();
     }
 
     public void setTransformImageListener(TransformImageListener transformImageListener) {
@@ -209,7 +220,7 @@ public class TransformImageView extends ImageView {
         }
     }
 
-    protected void init(Context context, AttributeSet attrs, int defStyle) {
+    protected void init() {
         setScaleType(ScaleType.MATRIX);
     }
 
@@ -305,17 +316,6 @@ public class TransformImageView extends ImageView {
     private void updateCurrentImagePoints() {
         mCurrentImageMatrix.mapPoints(mCurrentImageCorners, mInitialImageCorners);
         mCurrentImageMatrix.mapPoints(mCurrentImageCenter, mInitialImageCenter);
-    }
-
-    /**
-     * Interface for rotation and scale change notifying.
-     */
-    public interface TransformImageListener {
-
-        void onRotate(float currentAngle);
-
-        void onScale(float currentScale);
-
     }
 
 }

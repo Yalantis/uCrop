@@ -3,9 +3,7 @@ package com.yalantis.ucrop.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.IntRange;
@@ -28,35 +26,36 @@ import java.util.Arrays;
  */
 public abstract class CropImageView extends TransformImageView {
 
+    public static final int DEFAULT_MAX_BITMAP_SIZE = 0;
+    public static final int DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = 777;
+    public static final float DEFAULT_MAX_SCALE_MULTIPLIER = 10.0f;
     public static final float SOURCE_IMAGE_ASPECT_RATIO = 0f;
-
-    private static final boolean DEFAULT_SHOW_CROP_FRAME = false;
-    private static final boolean DEFAULT_SHOW_CROP_GRID = true;
-    private static final int DEFAULT_CROP_GRID_ROW_COUNT = 3;
-    private static final int DEFAULT_CROP_GRID_COLUMN_COUNT = 3;
-    private static final int DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = 777;
-
-    private static final float DEFAULT_ASPECT_RATIO = SOURCE_IMAGE_ASPECT_RATIO;
-
-    private static final float DEFAULT_MAX_SCALE_MULTIPLIER = 10.0f;
+    public static final float DEFAULT_ASPECT_RATIO = SOURCE_IMAGE_ASPECT_RATIO;
 
     private final RectF mCropRect = new RectF();
-    private final RectF mCropViewRect = new RectF();
 
     private final Matrix mTempMatrix = new Matrix();
 
-    private int mCropGridRowCount, mCropGridColumnCount;
     private float mTargetAspectRatio;
-    private float[] mGridPoints = null;
-    private boolean mShowCropFrame, mShowCropGrid;
-    private Paint mDimmedPaint, mGridInnerLinePaint, mGridOuterLinePaint;
-    private float mMaxScaleMultiplier;
+    private float mMaxScaleMultiplier = DEFAULT_MAX_SCALE_MULTIPLIER;
+
+    private CropBoundsChangeListener mCropBoundsChangeListener;
 
     private Runnable mWrapCropBoundsRunnable, mZoomImageToPositionRunnable = null;
 
     private float mMaxScale, mMinScale;
     private int mMaxResultImageSizeX = 0, mMaxResultImageSizeY = 0;
     private long mImageToWrapCropBoundsAnimDuration = DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION;
+
+
+    /**
+     * Interface for crop bound change notifying.
+     */
+    public interface CropBoundsChangeListener {
+
+        void onCropBoundsChangedRotate(float cropRatio);
+
+    }
 
     public CropImageView(Context context) {
         this(context, null);
@@ -68,7 +67,6 @@ public abstract class CropImageView extends TransformImageView {
 
     public CropImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(context, attrs, defStyle);
     }
 
     /**
@@ -78,12 +76,12 @@ public abstract class CropImageView extends TransformImageView {
      * Then image is rotated accordingly.
      * Finally new Bitmap object is created and returned.
      *
-     * @return - cropped Bitmap object or null if any error occurs.
+     * @return - cropped Bitmap object or null if current Bitmap is invalid or image rectangle is empty.
      */
     @Nullable
-    public Bitmap cropImage() throws Exception {
+    public Bitmap cropImage() {
         Bitmap viewBitmap = getViewBitmap();
-        if (viewBitmap == null) {
+        if (viewBitmap == null || viewBitmap.isRecycled()) {
             return null;
         }
 
@@ -111,7 +109,9 @@ public abstract class CropImageView extends TransformImageView {
                 Bitmap resizedBitmap = Bitmap.createScaledBitmap(viewBitmap,
                         (int) (viewBitmap.getWidth() * resizeScale),
                         (int) (viewBitmap.getHeight() * resizeScale), false);
-                viewBitmap.recycle();
+                if (viewBitmap != resizedBitmap) {
+                    viewBitmap.recycle();
+                }
                 viewBitmap = resizedBitmap;
 
                 currentScale /= resizeScale;
@@ -124,7 +124,9 @@ public abstract class CropImageView extends TransformImageView {
 
             Bitmap rotatedBitmap = Bitmap.createBitmap(viewBitmap, 0, 0, viewBitmap.getWidth(), viewBitmap.getHeight(),
                     mTempMatrix, true);
-            viewBitmap.recycle();
+            if (viewBitmap != rotatedBitmap) {
+                viewBitmap.recycle();
+            }
             viewBitmap = rotatedBitmap;
         }
 
@@ -178,9 +180,16 @@ public abstract class CropImageView extends TransformImageView {
         }
 
         setupCropBounds();
-        mGridPoints = null;
-
         postInvalidate();
+    }
+
+    @Nullable
+    public CropBoundsChangeListener getCropBoundsChangeListener() {
+        return mCropBoundsChangeListener;
+    }
+
+    public void setCropBoundsChangeListener(@Nullable CropBoundsChangeListener cropBoundsChangeListener) {
+        mCropBoundsChangeListener = cropBoundsChangeListener;
     }
 
     /**
@@ -212,6 +221,15 @@ public abstract class CropImageView extends TransformImageView {
         } else {
             throw new IllegalArgumentException("Animation duration cannot be negative value.");
         }
+    }
+
+    /**
+     * This method sets multiplier that is used to calculate max image scale from min image scale.
+     *
+     * @param maxScaleMultiplier - (minScale * maxScaleMultiplier) = maxScale
+     */
+    public void setMaxScaleMultiplier(float maxScaleMultiplier) {
+        mMaxScaleMultiplier = maxScaleMultiplier;
     }
 
     /**
@@ -338,81 +356,6 @@ public abstract class CropImageView extends TransformImageView {
         }
     }
 
-    protected void init(Context context, AttributeSet attrs, int defStyle) {
-        super.init(context, attrs, defStyle);
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ucrop_CropImageView);
-        processStyledAttributes(a);
-        a.recycle();
-    }
-
-    /**
-     * Along with image there are dimmed layer, crop bounds and crop guidelines that must be drawn.
-     */
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        drawDimmedLayer(canvas);
-        drawCropGrid(canvas);
-    }
-
-    /**
-     * Could use
-     * <p/>
-     * canvas.save();
-     * canvas.clipRect(mCropViewRect, Region.Op.DIFFERENCE);
-     * canvas.drawColor(mOverlayColor);
-     * canvas.restore();
-     * <p/>
-     * but this won't properly work on number of devices with HW acceleration enabled.
-     * So lets just draw rectangles...
-     *
-     * @param canvas - current canvas
-     */
-    protected void drawDimmedLayer(@NonNull Canvas canvas) {
-        canvas.drawRect(0, mCropViewRect.top, mCropViewRect.left, mCropViewRect.bottom, mDimmedPaint);
-        canvas.drawRect(0, 0, canvas.getWidth(), mCropViewRect.top, mDimmedPaint);
-        canvas.drawRect(mCropViewRect.right, mCropViewRect.top, canvas.getWidth(), mCropViewRect.bottom, mDimmedPaint);
-        canvas.drawRect(0, mCropViewRect.bottom, canvas.getWidth(), canvas.getHeight(), mDimmedPaint);
-    }
-
-    /**
-     * This method draws crop bounds (empty rectangle)
-     * and crop guidelines (vertical and horizontal lines inside the crop bounds) if needed.
-     *
-     * @param canvas - valid canvas object
-     */
-    protected void drawCropGrid(@NonNull Canvas canvas) {
-        if (mShowCropGrid) {
-            if (mGridPoints == null && !mCropViewRect.isEmpty()) {
-
-                mGridPoints = new float[(mCropGridRowCount - 1) * 4 + (mCropGridColumnCount - 1) * 4];
-
-                int index = 0;
-                for (int i = 0; i < mCropGridRowCount - 1; i++) {
-                    mGridPoints[index++] = mCropViewRect.left;
-                    mGridPoints[index++] = (mCropViewRect.height() * (((float) i + 1.0f) / (float) mCropGridRowCount)) + mCropViewRect.top;
-                    mGridPoints[index++] = mCropViewRect.right;
-                    mGridPoints[index++] = (mCropViewRect.height() * (((float) i + 1.0f) / (float) mCropGridRowCount)) + mCropViewRect.top;
-                }
-
-                for (int i = 0; i < mCropGridColumnCount - 1; i++) {
-                    mGridPoints[index++] = (mCropViewRect.width() * (((float) i + 1.0f) / (float) mCropGridColumnCount)) + mCropViewRect.left;
-                    mGridPoints[index++] = mCropViewRect.top;
-                    mGridPoints[index++] = (mCropViewRect.width() * (((float) i + 1.0f) / (float) mCropGridColumnCount)) + mCropViewRect.left;
-                    mGridPoints[index++] = mCropViewRect.bottom;
-                }
-            }
-
-            if (mGridPoints != null) {
-                canvas.drawLines(mGridPoints, mGridInnerLinePaint);
-            }
-        }
-
-        if (mShowCropFrame) {
-            canvas.drawRect(mCropViewRect, mGridOuterLinePaint);
-        }
-    }
-
     /**
      * When image is laid out it must be centered properly to fit current crop bounds.
      */
@@ -518,67 +461,20 @@ public abstract class CropImageView extends TransformImageView {
      * Those are used to configure the view.
      */
     @SuppressWarnings("deprecation")
-    private void processStyledAttributes(@NonNull TypedArray a) {
-        float targetAspectRatioX = Math.abs(a.getFloat(R.styleable.ucrop_CropImageView_ucrop_aspect_ratio_x, DEFAULT_ASPECT_RATIO));
-        float targetAspectRatioY = Math.abs(a.getFloat(R.styleable.ucrop_CropImageView_ucrop_aspect_ratio_y, DEFAULT_ASPECT_RATIO));
+    protected void processStyledAttributes(@NonNull TypedArray a) {
+        float targetAspectRatioX = Math.abs(a.getFloat(R.styleable.ucrop_UCropView_ucrop_aspect_ratio_x, DEFAULT_ASPECT_RATIO));
+        float targetAspectRatioY = Math.abs(a.getFloat(R.styleable.ucrop_UCropView_ucrop_aspect_ratio_y, DEFAULT_ASPECT_RATIO));
 
         if (targetAspectRatioX == SOURCE_IMAGE_ASPECT_RATIO || targetAspectRatioY == SOURCE_IMAGE_ASPECT_RATIO) {
             mTargetAspectRatio = SOURCE_IMAGE_ASPECT_RATIO;
         } else {
             mTargetAspectRatio = targetAspectRatioX / targetAspectRatioY;
         }
-
-        mMaxScaleMultiplier = a.getFloat(R.styleable.ucrop_CropImageView_ucrop_max_scale_multiplier, DEFAULT_MAX_SCALE_MULTIPLIER);
-
-        int overlayColor = a.getColor(R.styleable.ucrop_CropImageView_ucrop_overlay_color,
-                getResources().getColor(R.color.ucrop_color_default_overlay));
-        mDimmedPaint = new Paint();
-        mDimmedPaint.setColor(overlayColor);
-        mDimmedPaint.setStyle(Paint.Style.FILL);
-
-        initCropFrameStyle(a);
-        mShowCropFrame = a.getBoolean(R.styleable.ucrop_CropImageView_ucrop_show_frame, DEFAULT_SHOW_CROP_FRAME);
-
-        initCropGridStyle(a);
-        mShowCropGrid = a.getBoolean(R.styleable.ucrop_CropImageView_ucrop_show_grid, DEFAULT_SHOW_CROP_GRID);
-    }
-
-    /**
-     * This method setups Paint object for the crop bounds.
-     */
-    @SuppressWarnings("deprecation")
-    private void initCropFrameStyle(@NonNull TypedArray a) {
-        int cropFrameStrokeSize = a.getDimensionPixelSize(R.styleable.ucrop_CropImageView_ucrop_frame_stroke_size,
-                getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_frame_stoke_size));
-        int cropFrameColor = a.getColor(R.styleable.ucrop_CropImageView_ucrop_frame_color,
-                getResources().getColor(R.color.ucrop_color_default_crop_frame));
-        mGridOuterLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mGridOuterLinePaint.setStrokeWidth(cropFrameStrokeSize);
-        mGridOuterLinePaint.setColor(cropFrameColor);
-        mGridOuterLinePaint.setStyle(Paint.Style.STROKE);
-    }
-
-    /**
-     * This method setups Paint object for the crop guidelines.
-     */
-    @SuppressWarnings("deprecation")
-    private void initCropGridStyle(@NonNull TypedArray a) {
-        int cropGridStrokeSize = a.getDimensionPixelSize(R.styleable.ucrop_CropImageView_ucrop_grid_stroke_size,
-                getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_grid_stoke_size));
-        int cropGridColor = a.getColor(R.styleable.ucrop_CropImageView_ucrop_grid_color,
-                getResources().getColor(R.color.ucrop_color_default_crop_grid));
-        mGridInnerLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mGridInnerLinePaint.setStrokeWidth(cropGridStrokeSize);
-        mGridInnerLinePaint.setColor(cropGridColor);
-
-        mCropGridRowCount = a.getInt(R.styleable.ucrop_CropImageView_ucrop_grid_row_count, DEFAULT_CROP_GRID_ROW_COUNT);
-        mCropGridColumnCount = a.getInt(R.styleable.ucrop_CropImageView_ucrop_grid_column_count, DEFAULT_CROP_GRID_COLUMN_COUNT);
     }
 
     /**
      * This method setups crop bounds rectangles for given aspect ratio and view size.
-     * {@link #mCropViewRect} is used to draw crop bounds - uses padding.
-     * {@link #mCropRect} is used for crop calculations - doesn't use padding.
+     * {@link #mCropRect} is used for crop calculations.
      */
     private void setupCropBounds() {
         int height = (int) (mThisWidth / mTargetAspectRatio);
@@ -586,13 +482,13 @@ public abstract class CropImageView extends TransformImageView {
             int width = (int) (mThisHeight * mTargetAspectRatio);
             int halfDiff = (mThisWidth - width) / 2;
             mCropRect.set(halfDiff, 0, width + halfDiff, mThisHeight);
-            mCropViewRect.set(getPaddingLeft() + halfDiff, getPaddingTop(),
-                    getPaddingLeft() + width + halfDiff, getPaddingTop() + mThisHeight);
         } else {
             int halfDiff = (mThisHeight - height) / 2;
             mCropRect.set(0, halfDiff, mThisWidth, height + halfDiff);
-            mCropViewRect.set(getPaddingLeft(), getPaddingTop() + halfDiff,
-                    getPaddingLeft() + mThisWidth, getPaddingTop() + height + halfDiff);
+        }
+
+        if (mCropBoundsChangeListener != null) {
+            mCropBoundsChangeListener.onCropBoundsChangedRotate(mTargetAspectRatio);
         }
     }
 
