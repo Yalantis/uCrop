@@ -1,0 +1,29 @@
+language: android
+
+before_script:
+ - "echo $JAVA_OPTS"
+ - "export JAVA_OPTS=-Xmx512m"
+
+android:
+  components:
+    - tools
+    - platform-tools
+    - build-tools-23.0.2
+    - android-23
+
+    - extra-android-m2repository
+
+jdk:
+  - oraclejdk7
+
+script:
+  - ./gradlew clean build --parallel
+
+notifications:
+  email: false
+
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.gradle

@@ -1,5 +1,6 @@
 package com.yalantis.ucrop.util;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,6 +25,7 @@ public class BitmapLoadUtils {
     private static final String TAG = "BitmapLoadUtils";
 
     @Nullable
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public static Bitmap decode(@NonNull Context context, @Nullable Uri uri,
                                 int requiredWidth, int requiredHeight) throws Exception {
         if (uri == null) {
