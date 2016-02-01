@@ -12,7 +12,7 @@ import com.yalantis.ucrop.R;
 public class UCropView extends FrameLayout {
 
     private final GestureCropImageView mGestureCropImageView;
-    private final OverlayView mViewOverlay;
+    final OverlayView mViewOverlay;
 
     public UCropView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);

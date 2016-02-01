@@ -43,14 +43,15 @@ public class UCropActivity extends AppCompatActivity {
 
     private static final String TAG = "UCropActivity";
 
-    private static final int SCALE_WIDGET_SENSITIVITY_COEFFICIENT = 15000;
-    private static final int ROTATE_WIDGET_SENSITIVITY_COEFFICIENT = 42;
+    static final int SCALE_WIDGET_SENSITIVITY_COEFFICIENT = 15000;
+    static final int ROTATE_WIDGET_SENSITIVITY_COEFFICIENT = 42;
 
-    private GestureCropImageView mGestureCropImageView;
+    List<ViewGroup> mCropAspectRatioViews = new ArrayList<>();
+    GestureCropImageView mGestureCropImageView;
+
     private OverlayView mOverlayView;
     private ViewGroup mWrapperStateAspectRatio, mWrapperStateRotate, mWrapperStateScale;
     private ViewGroup mLayoutAspectRatio, mLayoutRotate, mLayoutScale;
-    private List<ViewGroup> mCropAspectRatioViews = new ArrayList<>();
     private TextView mTextViewRotateAngle, mTextViewScalePercent;
 
     private Uri mOutputUri;
@@ -327,24 +328,24 @@ public class UCropActivity extends AppCompatActivity {
                 });
     }
 
-    private void setAngleText(float angle) {
+    void setAngleText(float angle) {
         if (mTextViewRotateAngle != null) {
             mTextViewRotateAngle.setText(String.format("%.1f°", angle));
         }
     }
 
-    private void setScaleText(float scale) {
+    void setScaleText(float scale) {
         if (mTextViewScalePercent != null) {
             mTextViewScalePercent.setText(String.format("%d%%", (int) (scale * 100)));
         }
     }
 
-    private void resetRotation() {
+    void resetRotation() {
         mGestureCropImageView.postRotate(-mGestureCropImageView.getCurrentAngle());
         mGestureCropImageView.setImageToWrapCropBounds();
     }
 
-    private void rotateByAngle(int angle) {
+    void rotateByAngle(int angle) {
         mGestureCropImageView.postRotate(angle);
         mGestureCropImageView.setImageToWrapCropBounds();
     }
@@ -362,7 +363,7 @@ public class UCropActivity extends AppCompatActivity {
         setWidgetState(R.id.state_scale);
     }
 
-    private void setWidgetState(@IdRes int stateViewId) {
+    void setWidgetState(@IdRes int stateViewId) {
         mWrapperStateAspectRatio.setSelected(stateViewId == R.id.state_aspect_ratio);
         mWrapperStateRotate.setSelected(stateViewId == R.id.state_rotate);
         mWrapperStateScale.setSelected(stateViewId == R.id.state_scale);

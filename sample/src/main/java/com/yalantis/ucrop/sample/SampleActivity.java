@@ -40,7 +40,8 @@ public class SampleActivity extends BaseActivity {
     private EditText mEditTextMaxWidth, mEditTextMaxHeight;
     private CheckBox mCheckBoxMaxSize;
     private SeekBar mSeekBarQuality;
-    private TextView mTextViewQuality;
+
+    TextView mTextViewQuality;
 
     private Uri mDestinationUri;
 
@@ -129,7 +130,7 @@ public class SampleActivity extends BaseActivity {
         });
     }
 
-    private void pickFromGallery() {
+    void pickFromGallery() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN // Permission was added in API Level 16
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
