@@ -10,6 +10,7 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.yalantis.ucrop.R;
 import com.yalantis.ucrop.util.CubicEasing;
@@ -27,7 +28,7 @@ import java.util.Arrays;
 public abstract class CropImageView extends TransformImageView {
 
     public static final int DEFAULT_MAX_BITMAP_SIZE = 0;
-    public static final int DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = 777;
+    public static final int DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = 500;
     public static final float DEFAULT_MAX_SCALE_MULTIPLIER = 10.0f;
     public static final float SOURCE_IMAGE_ASPECT_RATIO = 0f;
     public static final float DEFAULT_ASPECT_RATIO = SOURCE_IMAGE_ASPECT_RATIO;
@@ -509,6 +510,10 @@ public abstract class CropImageView extends TransformImageView {
         private final float mDeltaScale;
         private final boolean mWillBeImageInBoundsAfterTranslate;
 
+        private float mSpeedUpCoefficient = 1;
+
+        private static final String TAG = "WrapCropBoundsRunnable";
+
         public WrapCropBoundsRunnable(CropImageView cropImageView,
                                       long durationMs,
                                       float oldX, float oldY,
@@ -527,6 +532,10 @@ public abstract class CropImageView extends TransformImageView {
             mOldScale = oldScale;
             mDeltaScale = deltaScale;
             mWillBeImageInBoundsAfterTranslate = willBeImageInBoundsAfterTranslate;
+
+            if (mCenterDiffY != 0 && mCenterDiffX != 0){
+                mSpeedUpCoefficient = Math.abs(mCenterDiffX / mCenterDiffY);
+            }
         }
 
         @Override
@@ -539,8 +548,16 @@ public abstract class CropImageView extends TransformImageView {
             long now = System.currentTimeMillis();
             float currentMs = Math.min(mDurationMs, now - mStartTime);
 
-            float newX = CubicEasing.easeOut(currentMs, 0, mCenterDiffX, mDurationMs);
-            float newY = CubicEasing.easeOut(currentMs, 0, mCenterDiffY, mDurationMs);
+            float newX, newY;
+            if (mSpeedUpCoefficient > 1) {
+                newX = CubicEasing.easeOut(currentMs, 0, mCenterDiffX, mDurationMs);
+                newY = CubicEasing.easeOut(currentMs, 0, mCenterDiffY, mDurationMs / mSpeedUpCoefficient);
+                newY = (Math.abs(newY) > Math.abs(mCenterDiffY)) ? mCenterDiffY : newY;
+            } else {
+                newX = CubicEasing.easeOut(currentMs, 0, mCenterDiffX, mDurationMs * mSpeedUpCoefficient);
+                newX = (Math.abs(newX) > Math.abs(mCenterDiffX)) ? mCenterDiffX : newX;
+                newY = CubicEasing.easeOut(currentMs, 0, mCenterDiffY, mDurationMs);
+            }
             float newScale = CubicEasing.easeInOut(currentMs, 0, mDeltaScale, mDurationMs);
 
             if (currentMs < mDurationMs) {
