@@ -14,7 +14,7 @@
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:1.1.+' ```
+    ``` compile 'com.yalantis:ucrop:1.2.+' ```
     
 2. Add UCropActivity into your AndroidManifest.xml
 
@@ -71,6 +71,10 @@ Currently you can change:
   * Sample - Android ICS 4.0+
   
 # Changelog
+
+### Version: 1.2
+
+  * Updated core logic so an image corrects its position smoothly and obviously.
 
 ### Version: 1.1
 
