@@ -42,6 +42,7 @@ log*.txt
 out/
 
 build/
+captures/
 .gradle/
 
 .DS_Store
