@@ -10,7 +10,6 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import com.yalantis.ucrop.R;
 import com.yalantis.ucrop.util.CubicEasing;
@@ -324,18 +323,22 @@ public abstract class CropImageView extends TransformImageView {
             mTempMatrix.reset();
             mTempMatrix.setTranslate(deltaX, deltaY);
 
-            float[] tempCurrentImageCorners = Arrays.copyOf(mCurrentImageCorners, mCurrentImageCorners.length);
+            final float[] tempCurrentImageCorners = Arrays.copyOf(mCurrentImageCorners, mCurrentImageCorners.length);
             mTempMatrix.mapPoints(tempCurrentImageCorners);
 
             boolean willImageWrapCropBoundsAfterTranslate = isImageWrapCropBounds(tempCurrentImageCorners);
 
-            if (!willImageWrapCropBoundsAfterTranslate) {
+            if (willImageWrapCropBoundsAfterTranslate) {
+                final float[] imageIndents = calculateImageIndents();
+                deltaX = -(imageIndents[0] + imageIndents[2]);
+                deltaY = -(imageIndents[1] + imageIndents[3]);
+            } else {
                 RectF tempCropRect = new RectF(mCropRect);
                 mTempMatrix.reset();
                 mTempMatrix.setRotate(getCurrentAngle());
                 mTempMatrix.mapRect(tempCropRect);
 
-                float[] currentImageSides = RectUtils.getRectSidesFromCorners(mCurrentImageCorners);
+                final float[] currentImageSides = RectUtils.getRectSidesFromCorners(mCurrentImageCorners);
 
                 deltaScale = Math.max(tempCropRect.width() / currentImageSides[0],
                         tempCropRect.height() / currentImageSides[1]);
@@ -355,6 +358,45 @@ public abstract class CropImageView extends TransformImageView {
                 }
             }
         }
+    }
+
+    /**
+     * First, un-rotate image and crop rectangles (make image rectangle axis-aligned).
+     * Second, calculate deltas between those rectangles sides.
+     * Third, depending on delta (its sign) put them or zero inside an array.
+     * Fourth, using Matrix, rotate back those points (indents).
+     *
+     * @return - the float array of image indents (4 floats) - in this order [left, top, right, bottom]
+     */
+    private float[] calculateImageIndents() {
+        mTempMatrix.reset();
+        mTempMatrix.setRotate(-getCurrentAngle());
+
+        float[] unrotatedImageCorners = Arrays.copyOf(mCurrentImageCorners, mCurrentImageCorners.length);
+        float[] unrotatedCropBoundsCorners = RectUtils.getCornersFromRect(mCropRect);
+
+        mTempMatrix.mapPoints(unrotatedImageCorners);
+        mTempMatrix.mapPoints(unrotatedCropBoundsCorners);
+
+        RectF unrotatedImageRect = RectUtils.trapToRect(unrotatedImageCorners);
+        RectF unrotatedCropRect = RectUtils.trapToRect(unrotatedCropBoundsCorners);
+
+        float deltaLeft = unrotatedImageRect.left - unrotatedCropRect.left;
+        float deltaTop = unrotatedImageRect.top - unrotatedCropRect.top;
+        float deltaRight = unrotatedImageRect.right - unrotatedCropRect.right;
+        float deltaBottom = unrotatedImageRect.bottom - unrotatedCropRect.bottom;
+
+        float indents[] = new float[4];
+        indents[0] = (deltaLeft > 0) ? deltaLeft : 0;
+        indents[1] = (deltaTop > 0) ? deltaTop : 0;
+        indents[2] = (deltaRight < 0) ? deltaRight : 0;
+        indents[3] = (deltaBottom < 0) ? deltaBottom : 0;
+
+        mTempMatrix.reset();
+        mTempMatrix.setRotate(getCurrentAngle());
+        mTempMatrix.mapPoints(indents);
+
+        return indents;
     }
 
     /**
@@ -510,10 +552,6 @@ public abstract class CropImageView extends TransformImageView {
         private final float mDeltaScale;
         private final boolean mWillBeImageInBoundsAfterTranslate;
 
-        private float mSpeedUpCoefficient = 1;
-
-        private static final String TAG = "WrapCropBoundsRunnable";
-
         public WrapCropBoundsRunnable(CropImageView cropImageView,
                                       long durationMs,
                                       float oldX, float oldY,
@@ -532,10 +570,6 @@ public abstract class CropImageView extends TransformImageView {
             mOldScale = oldScale;
             mDeltaScale = deltaScale;
             mWillBeImageInBoundsAfterTranslate = willBeImageInBoundsAfterTranslate;
-
-            if (mCenterDiffY != 0 && mCenterDiffX != 0){
-                mSpeedUpCoefficient = Math.abs(mCenterDiffX / mCenterDiffY);
-            }
         }
 
         @Override
@@ -548,16 +582,8 @@ public abstract class CropImageView extends TransformImageView {
             long now = System.currentTimeMillis();
             float currentMs = Math.min(mDurationMs, now - mStartTime);
 
-            float newX, newY;
-            if (mSpeedUpCoefficient > 1) {
-                newX = CubicEasing.easeOut(currentMs, 0, mCenterDiffX, mDurationMs);
-                newY = CubicEasing.easeOut(currentMs, 0, mCenterDiffY, mDurationMs / mSpeedUpCoefficient);
-                newY = (Math.abs(newY) > Math.abs(mCenterDiffY)) ? mCenterDiffY : newY;
-            } else {
-                newX = CubicEasing.easeOut(currentMs, 0, mCenterDiffX, mDurationMs * mSpeedUpCoefficient);
-                newX = (Math.abs(newX) > Math.abs(mCenterDiffX)) ? mCenterDiffX : newX;
-                newY = CubicEasing.easeOut(currentMs, 0, mCenterDiffY, mDurationMs);
-            }
+            float newX = CubicEasing.easeOut(currentMs, 0, mCenterDiffX, mDurationMs);
+            float newY = CubicEasing.easeOut(currentMs, 0, mCenterDiffY, mDurationMs);
             float newScale = CubicEasing.easeInOut(currentMs, 0, mDeltaScale, mDurationMs);
 
             if (currentMs < mDurationMs) {
