@@ -27,7 +27,7 @@ import java.util.Arrays;
 public abstract class CropImageView extends TransformImageView {
 
     public static final int DEFAULT_MAX_BITMAP_SIZE = 0;
-    public static final int DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = 777;
+    public static final int DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = 500;
     public static final float DEFAULT_MAX_SCALE_MULTIPLIER = 10.0f;
     public static final float SOURCE_IMAGE_ASPECT_RATIO = 0f;
     public static final float DEFAULT_ASPECT_RATIO = SOURCE_IMAGE_ASPECT_RATIO;
@@ -323,18 +323,22 @@ public abstract class CropImageView extends TransformImageView {
             mTempMatrix.reset();
             mTempMatrix.setTranslate(deltaX, deltaY);
 
-            float[] tempCurrentImageCorners = Arrays.copyOf(mCurrentImageCorners, mCurrentImageCorners.length);
+            final float[] tempCurrentImageCorners = Arrays.copyOf(mCurrentImageCorners, mCurrentImageCorners.length);
             mTempMatrix.mapPoints(tempCurrentImageCorners);
 
             boolean willImageWrapCropBoundsAfterTranslate = isImageWrapCropBounds(tempCurrentImageCorners);
 
-            if (!willImageWrapCropBoundsAfterTranslate) {
+            if (willImageWrapCropBoundsAfterTranslate) {
+                final float[] imageIndents = calculateImageIndents();
+                deltaX = -(imageIndents[0] + imageIndents[2]);
+                deltaY = -(imageIndents[1] + imageIndents[3]);
+            } else {
                 RectF tempCropRect = new RectF(mCropRect);
                 mTempMatrix.reset();
                 mTempMatrix.setRotate(getCurrentAngle());
                 mTempMatrix.mapRect(tempCropRect);
 
-                float[] currentImageSides = RectUtils.getRectSidesFromCorners(mCurrentImageCorners);
+                final float[] currentImageSides = RectUtils.getRectSidesFromCorners(mCurrentImageCorners);
 
                 deltaScale = Math.max(tempCropRect.width() / currentImageSides[0],
                         tempCropRect.height() / currentImageSides[1]);
@@ -354,6 +358,45 @@ public abstract class CropImageView extends TransformImageView {
                 }
             }
         }
+    }
+
+    /**
+     * First, un-rotate image and crop rectangles (make image rectangle axis-aligned).
+     * Second, calculate deltas between those rectangles sides.
+     * Third, depending on delta (its sign) put them or zero inside an array.
+     * Fourth, using Matrix, rotate back those points (indents).
+     *
+     * @return - the float array of image indents (4 floats) - in this order [left, top, right, bottom]
+     */
+    private float[] calculateImageIndents() {
+        mTempMatrix.reset();
+        mTempMatrix.setRotate(-getCurrentAngle());
+
+        float[] unrotatedImageCorners = Arrays.copyOf(mCurrentImageCorners, mCurrentImageCorners.length);
+        float[] unrotatedCropBoundsCorners = RectUtils.getCornersFromRect(mCropRect);
+
+        mTempMatrix.mapPoints(unrotatedImageCorners);
+        mTempMatrix.mapPoints(unrotatedCropBoundsCorners);
+
+        RectF unrotatedImageRect = RectUtils.trapToRect(unrotatedImageCorners);
+        RectF unrotatedCropRect = RectUtils.trapToRect(unrotatedCropBoundsCorners);
+
+        float deltaLeft = unrotatedImageRect.left - unrotatedCropRect.left;
+        float deltaTop = unrotatedImageRect.top - unrotatedCropRect.top;
+        float deltaRight = unrotatedImageRect.right - unrotatedCropRect.right;
+        float deltaBottom = unrotatedImageRect.bottom - unrotatedCropRect.bottom;
+
+        float indents[] = new float[4];
+        indents[0] = (deltaLeft > 0) ? deltaLeft : 0;
+        indents[1] = (deltaTop > 0) ? deltaTop : 0;
+        indents[2] = (deltaRight < 0) ? deltaRight : 0;
+        indents[3] = (deltaBottom < 0) ? deltaBottom : 0;
+
+        mTempMatrix.reset();
+        mTempMatrix.setRotate(getCurrentAngle());
+        mTempMatrix.mapPoints(indents);
+
+        return indents;
     }
 
     /**
