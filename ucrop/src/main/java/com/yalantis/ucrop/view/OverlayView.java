@@ -69,14 +69,14 @@ public class OverlayView extends View {
         mOvalDimmedLayer = ovalDimmedLayer;
     }
 
-	/**
-	 * Setter for {@link #mRoundDimmedLayer} variable.
-	 *
-	 * @param roundDimmedLayer - set it to true if you want dimmed layer to be an round
-	 */
-	public void setRoundDimmedLayer(boolean roundDimmedLayer) {
-		mRoundDimmedLayer = roundDimmedLayer;
-	}
+    /**
+     * Setter for {@link #mRoundDimmedLayer} variable.
+     *
+     * @param roundDimmedLayer - set it to true if you want dimmed layer to be an round
+     */
+    public void setRoundDimmedLayer(boolean roundDimmedLayer) {
+        mRoundDimmedLayer = roundDimmedLayer;
+    }
 
     /**
      * Setter for crop grid rows count.
@@ -182,11 +182,11 @@ public class OverlayView extends View {
         mCircularPath.reset();
         mCircularPath.addOval(mCropViewRect, Path.Direction.CW);
 
-	    float gridStrokeWidth = Utils.convertPixelsToDp(mCropGridPaint.getStrokeWidth(), getContext());
-	    float radius = Math.min(mCropViewRect.width() / 2, mCropViewRect.height() / 2);
-	    mRoundPath.reset();
-	    mRoundPath.addCircle(mCropViewRect.width() / 2 + mCropViewRect.left, mCropViewRect.height() / 2
-			    + mCropViewRect.top, radius - gridStrokeWidth, Path.Direction.CW);
+        float gridStrokeWidth = Utils.convertPixelsToDp(mCropGridPaint.getStrokeWidth(), getContext());
+        float radius = Math.min(mCropViewRect.width() / 2, mCropViewRect.height() / 2);
+        mRoundPath.reset();
+        mRoundPath.addCircle(mCropViewRect.width() / 2 + mCropViewRect.left, mCropViewRect.height() / 2
+                + mCropViewRect.top, radius - gridStrokeWidth, Path.Direction.CW);
     }
 
     protected void init() {
