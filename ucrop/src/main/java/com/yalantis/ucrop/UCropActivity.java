@@ -3,12 +3,16 @@ package com.yalantis.ucrop;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.yalantis.ucrop.util.BitmapLoadUtils;
@@ -224,6 +229,39 @@ public class UCropActivity extends AppCompatActivity {
         setupAspectRatioWidget();
         setupRotateWidget();
         setupScaleWidget();
+        setupStatesWrapper();
+    }
+
+    /**
+     * use {@link R.color#ucrop_color_widget_active} for color filter
+     */
+    private void setupStatesWrapper() {
+        ImageView stateScaleImageView = (ImageView) findViewById(R.id.image_view_state_scale);
+        ImageView stateRotateImageView = (ImageView) findViewById(R.id.image_view_state_rotate);
+        ImageView stateAspectRatioImageView = (ImageView) findViewById(R.id.image_view_state_aspect_ratio);
+
+        StateListDrawable stateScaleSelector = new StateListDrawable();
+        StateListDrawable stateRotateSelector = new StateListDrawable();
+        StateListDrawable stateAspectRatioSelector = new StateListDrawable();
+
+        Drawable stateScaleSelectedDrawable = ContextCompat.getDrawable(this, R.drawable.ucrop_ic_scale).mutate();
+        stateScaleSelectedDrawable.setColorFilter(ContextCompat.getColor(this, R.color.ucrop_color_widget_active), PorterDuff.Mode.SRC_ATOP);
+        stateScaleSelector.addState(new int[] {android.R.attr.state_selected}, stateScaleSelectedDrawable);
+        stateScaleSelector.addState(new int[0], ContextCompat.getDrawable(this, R.drawable.ucrop_ic_scale));
+
+        Drawable stateRotateSelectedDrawable = ContextCompat.getDrawable(this, R.drawable.ucrop_ic_rotate).mutate();
+        stateRotateSelectedDrawable.setColorFilter(ContextCompat.getColor(this, R.color.ucrop_color_widget_active), PorterDuff.Mode.SRC_ATOP);
+        stateRotateSelector.addState(new int[] {android.R.attr.state_selected}, stateRotateSelectedDrawable);
+        stateRotateSelector.addState(new int[0], ContextCompat.getDrawable(this, R.drawable.ucrop_ic_rotate));
+
+        Drawable stateAspectRatioSelectedDrawable = ContextCompat.getDrawable(this, R.drawable.ucrop_ic_crop).mutate();
+        stateAspectRatioSelectedDrawable.setColorFilter(ContextCompat.getColor(this, R.color.ucrop_color_widget_active), PorterDuff.Mode.SRC_ATOP);
+        stateAspectRatioSelector.addState(new int[] {android.R.attr.state_selected}, stateAspectRatioSelectedDrawable);
+        stateAspectRatioSelector.addState(new int[0], ContextCompat.getDrawable(this, R.drawable.ucrop_ic_crop));
+
+        stateScaleImageView.setImageDrawable(stateScaleSelector);
+        stateRotateImageView.setImageDrawable(stateRotateSelector);
+        stateAspectRatioImageView.setImageDrawable(stateAspectRatioSelector);
     }
 
     /**
