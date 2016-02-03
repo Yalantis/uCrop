@@ -15,6 +15,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.yalantis.ucrop.R;
+import com.yalantis.ucrop.util.Utils;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -27,6 +28,7 @@ public class OverlayView extends View {
     public static final boolean DEFAULT_SHOW_CROP_FRAME = true;
     public static final boolean DEFAULT_SHOW_CROP_GRID = true;
     public static final boolean DEFAULT_OVAL_DIMMED_LAYER = false;
+    public static final boolean DEFAULT_ROUND_DIMMED_LAYER = false;
     public static final int DEFAULT_CROP_GRID_ROW_COUNT = 2;
     public static final int DEFAULT_CROP_GRID_COLUMN_COUNT = 2;
 
@@ -36,9 +38,10 @@ public class OverlayView extends View {
     private float mTargetAspectRatio;
     private float[] mGridPoints = null;
     private boolean mShowCropFrame, mShowCropGrid;
-    private boolean mOvalDimmedLayer;
+    private boolean mOvalDimmedLayer, mRoundDimmedLayer;
     private int mDimmedColor;
     private Path mCircularPath = new Path();
+    private Path mRoundPath = new Path();
     private Paint mCropGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -64,6 +67,15 @@ public class OverlayView extends View {
      */
     public void setOvalDimmedLayer(boolean ovalDimmedLayer) {
         mOvalDimmedLayer = ovalDimmedLayer;
+    }
+
+    /**
+     * Setter for {@link #mRoundDimmedLayer} variable.
+     *
+     * @param roundDimmedLayer - set it to true if you want dimmed layer to be an round
+     */
+    public void setRoundDimmedLayer(boolean roundDimmedLayer) {
+        mRoundDimmedLayer = roundDimmedLayer;
     }
 
     /**
@@ -169,6 +181,12 @@ public class OverlayView extends View {
         mGridPoints = null;
         mCircularPath.reset();
         mCircularPath.addOval(mCropViewRect, Path.Direction.CW);
+
+        float gridStrokeWidth = Utils.convertPixelsToDp(mCropGridPaint.getStrokeWidth(), getContext());
+        float radius = Math.min(mCropViewRect.width() / 2, mCropViewRect.height() / 2);
+        mRoundPath.reset();
+        mRoundPath.addCircle(mCropViewRect.width() / 2 + mCropViewRect.left, mCropViewRect.height() / 2
+                + mCropViewRect.top, radius - gridStrokeWidth, Path.Direction.CW);
     }
 
     protected void init() {
@@ -209,7 +227,9 @@ public class OverlayView extends View {
      */
     protected void drawDimmedLayer(@NonNull Canvas canvas) {
         canvas.save();
-        if (mOvalDimmedLayer) {
+        if (mRoundDimmedLayer) {
+            canvas.clipPath(mRoundPath, Region.Op.DIFFERENCE);
+        } else if (mOvalDimmedLayer) {
             canvas.clipPath(mCircularPath, Region.Op.DIFFERENCE);
         } else {
             canvas.clipRect(mCropViewRect, Region.Op.DIFFERENCE);

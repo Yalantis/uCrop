@@ -209,6 +209,7 @@ public class UCrop {
 
         public static final String EXTRA_DIMMED_LAYER_COLOR = EXTRA_PREFIX + ".DimmedLayerColor";
         public static final String EXTRA_OVAL_DIMMED_LAYER = EXTRA_PREFIX + ".OvalDimmedLayer";
+        public static final String EXTRA_ROUND_DIMMED_LAYER = EXTRA_PREFIX + ".RoundDimmedLayer";
 
         public static final String EXTRA_SHOW_CROP_FRAME = EXTRA_PREFIX + ".ShowCropFrame";
         public static final String EXTRA_CROP_FRAME_COLOR = EXTRA_PREFIX + ".CropFrameColor";
@@ -292,6 +293,13 @@ public class UCrop {
          */
         public void setOvalDimmedLayer(boolean isOval) {
             mOptionBundle.putBoolean(EXTRA_OVAL_DIMMED_LAYER, isOval);
+        }
+
+        /**
+         * @param isRound - set it to true if you want dimmed layer to have an round inside
+         */
+        public void setRoundDimmedLayer(boolean isRound) {
+            mOptionBundle.putBoolean(EXTRA_ROUND_DIMMED_LAYER, isRound);
         }
 
         /**
