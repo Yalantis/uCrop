@@ -216,9 +216,9 @@ public class SampleActivity extends BaseActivity {
         options.setCompressionQuality(mSeekBarQuality.getProgress());
 
         /*
-        If you want to unlock all gestures for all UCropActivity tabs
+        If you want to configure how gestures work for all UCropActivity tabs
 
-        options.setGesturesAlwaysEnabled(true);
+        options.setAllowedGestures(UCropActivity.SCALE, UCropActivity.ROTATE, UCropActivity.ALL);
         * */
 
         /*

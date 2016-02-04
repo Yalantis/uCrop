@@ -201,7 +201,7 @@ public class UCrop {
         public static final String EXTRA_COMPRESSION_FORMAT_NAME = EXTRA_PREFIX + ".CompressionFormatName";
         public static final String EXTRA_COMPRESSION_QUALITY = EXTRA_PREFIX + ".CompressionQuality";
 
-        public static final String EXTRA_GESTURES_ALWAYS_ENABLED = EXTRA_PREFIX + ".GesturesAlwaysEnabled";
+        public static final String EXTRA_ALLOWED_GESTURES = EXTRA_PREFIX + ".AllowedGestures";
 
         public static final String EXTRA_MAX_BITMAP_SIZE = EXTRA_PREFIX + ".MaxBitmapSize";
         public static final String EXTRA_MAX_SCALE_MULTIPLIER = EXTRA_PREFIX + ".MaxScaleMultiplier";
@@ -246,11 +246,12 @@ public class UCrop {
         }
 
         /**
-         * If you want all gestures to be enabled simultaneously on all tabs (scale/rotate/crop ratio)
-         * set it to true.
+         * Choose what set of gestures will be enabled on each tab - if any.
          */
-        public void setGesturesAlwaysEnabled(boolean gesturesAlwaysEnabled) {
-            mOptionBundle.putBoolean(EXTRA_GESTURES_ALWAYS_ENABLED, gesturesAlwaysEnabled);
+        public void setAllowedGestures(@UCropActivity.GestureTypes int tabScale,
+                                       @UCropActivity.GestureTypes int tabRotate,
+                                       @UCropActivity.GestureTypes int tabAspectRatio) {
+            mOptionBundle.putIntArray(EXTRA_ALLOWED_GESTURES, new int[]{tabScale, tabRotate, tabAspectRatio});
         }
 
         /**

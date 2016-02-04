@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IdRes;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -35,6 +36,8 @@ import com.yalantis.ucrop.view.widget.AspectRatioTextView;
 import com.yalantis.ucrop.view.widget.HorizontalProgressWheelView;
 
 import java.io.OutputStream;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,8 +49,20 @@ public class UCropActivity extends AppCompatActivity {
     public static final int DEFAULT_COMPRESS_QUALITY = 90;
     public static final Bitmap.CompressFormat DEFAULT_COMPRESS_FORMAT = Bitmap.CompressFormat.JPEG;
 
+    public static final int NONE = 0;
+    public static final int SCALE = 1;
+    public static final int ROTATE = 2;
+    public static final int ALL = 3;
+
+    @IntDef({NONE, SCALE, ROTATE, ALL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface GestureTypes {
+
+    }
+
     private static final String TAG = "UCropActivity";
 
+    private static final int TABS_COUNT = 3;
     private static final int SCALE_WIDGET_SENSITIVITY_COEFFICIENT = 15000;
     private static final int ROTATE_WIDGET_SENSITIVITY_COEFFICIENT = 42;
 
@@ -62,7 +77,7 @@ public class UCropActivity extends AppCompatActivity {
 
     private Bitmap.CompressFormat mCompressFormat = DEFAULT_COMPRESS_FORMAT;
     private int mCompressQuality = DEFAULT_COMPRESS_QUALITY;
-    private boolean mGesturesAlwaysEnabled = false;
+    private int[] mAllowedGestures = new int[]{SCALE, ROTATE, ALL};
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -165,7 +180,10 @@ public class UCropActivity extends AppCompatActivity {
             mCompressQuality = optionsBundle.getInt(UCrop.Options.EXTRA_COMPRESSION_QUALITY, UCropActivity.DEFAULT_COMPRESS_QUALITY);
 
             // Gestures options
-            mGesturesAlwaysEnabled = optionsBundle.getBoolean(UCrop.Options.EXTRA_GESTURES_ALWAYS_ENABLED, false);
+            int[] allowedGestures = optionsBundle.getIntArray(UCrop.Options.EXTRA_ALLOWED_GESTURES);
+            if (allowedGestures != null && allowedGestures.length == TABS_COUNT) {
+                mAllowedGestures = allowedGestures;
+            }
 
             // Crop image view options
             mGestureCropImageView.setMaxBitmapSize(optionsBundle.getInt(UCrop.Options.EXTRA_MAX_BITMAP_SIZE, CropImageView.DEFAULT_MAX_BITMAP_SIZE));
@@ -246,17 +264,17 @@ public class UCropActivity extends AppCompatActivity {
 
         Drawable stateScaleSelectedDrawable = ContextCompat.getDrawable(this, R.drawable.ucrop_ic_scale).mutate();
         stateScaleSelectedDrawable.setColorFilter(ContextCompat.getColor(this, R.color.ucrop_color_widget_active), PorterDuff.Mode.SRC_ATOP);
-        stateScaleSelector.addState(new int[] {android.R.attr.state_selected}, stateScaleSelectedDrawable);
+        stateScaleSelector.addState(new int[]{android.R.attr.state_selected}, stateScaleSelectedDrawable);
         stateScaleSelector.addState(new int[0], ContextCompat.getDrawable(this, R.drawable.ucrop_ic_scale));
 
         Drawable stateRotateSelectedDrawable = ContextCompat.getDrawable(this, R.drawable.ucrop_ic_rotate).mutate();
         stateRotateSelectedDrawable.setColorFilter(ContextCompat.getColor(this, R.color.ucrop_color_widget_active), PorterDuff.Mode.SRC_ATOP);
-        stateRotateSelector.addState(new int[] {android.R.attr.state_selected}, stateRotateSelectedDrawable);
+        stateRotateSelector.addState(new int[]{android.R.attr.state_selected}, stateRotateSelectedDrawable);
         stateRotateSelector.addState(new int[0], ContextCompat.getDrawable(this, R.drawable.ucrop_ic_rotate));
 
         Drawable stateAspectRatioSelectedDrawable = ContextCompat.getDrawable(this, R.drawable.ucrop_ic_crop).mutate();
         stateAspectRatioSelectedDrawable.setColorFilter(ContextCompat.getColor(this, R.color.ucrop_color_widget_active), PorterDuff.Mode.SRC_ATOP);
-        stateAspectRatioSelector.addState(new int[] {android.R.attr.state_selected}, stateAspectRatioSelectedDrawable);
+        stateAspectRatioSelector.addState(new int[]{android.R.attr.state_selected}, stateAspectRatioSelectedDrawable);
         stateAspectRatioSelector.addState(new int[0], ContextCompat.getDrawable(this, R.drawable.ucrop_ic_crop));
 
         stateScaleImageView.setImageDrawable(stateScaleSelector);
@@ -409,8 +427,18 @@ public class UCropActivity extends AppCompatActivity {
         mLayoutRotate.setVisibility(stateViewId == R.id.state_rotate ? View.VISIBLE : View.GONE);
         mLayoutScale.setVisibility(stateViewId == R.id.state_scale ? View.VISIBLE : View.GONE);
 
-        mGestureCropImageView.setRotateEnabled(mGesturesAlwaysEnabled || stateViewId != R.id.state_scale);
-        mGestureCropImageView.setScaleEnabled(mGesturesAlwaysEnabled || stateViewId != R.id.state_rotate);
+        if (stateViewId == R.id.state_scale) {
+            setAllowedGestures(0);
+        } else if (stateViewId == R.id.state_rotate) {
+            setAllowedGestures(1);
+        } else {
+            setAllowedGestures(2);
+        }
+    }
+
+    private void setAllowedGestures(int tab) {
+        mGestureCropImageView.setScaleEnabled(mAllowedGestures[tab] == ALL || mAllowedGestures[tab] == SCALE);
+        mGestureCropImageView.setRotateEnabled(mAllowedGestures[tab] == ALL || mAllowedGestures[tab] == ROTATE);
     }
 
     private void cropAndSaveImage() {
