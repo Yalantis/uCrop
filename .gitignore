@@ -46,3 +46,7 @@ captures/
 .gradle/
 
 .DS_Store
+
+# intelliJ
+.idea/
+*.iml

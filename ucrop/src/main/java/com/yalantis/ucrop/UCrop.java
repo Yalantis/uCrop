@@ -41,6 +41,10 @@ public class UCrop {
 
     public static final String EXTRA_OPTIONS = EXTRA_PREFIX + ".Options";
 
+    public static final String EXTRA_TITLE = EXTRA_PREFIX + ".ActivityTitle";
+    public static final String EXTRA_TOOLBAR_COLOR = EXTRA_PREFIX + ".ToolbarColor";
+    public static final String EXTRA_STATUSBAR_COLOR = EXTRA_PREFIX + ".StatusBarColor";
+
     private Intent mCropIntent;
 
     /**
@@ -99,6 +103,21 @@ public class UCrop {
 
     public UCrop withOptions(@NonNull Options options) {
         mCropIntent.putExtra(EXTRA_OPTIONS, options.getOptionBundle());
+        return this;
+    }
+
+    public UCrop withTitle(@NonNull String title) {
+        mCropIntent.putExtra(EXTRA_TITLE, title);
+        return this;
+    }
+
+    public UCrop withStatusBarColor(@NonNull int color) {
+        mCropIntent.putExtra(EXTRA_STATUSBAR_COLOR, color);
+        return this;
+    }
+
+    public UCrop withToolbarColor(@NonNull int color) {
+        mCropIntent.putExtra(EXTRA_TOOLBAR_COLOR, color);
         return this;
     }
 

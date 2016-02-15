@@ -215,7 +215,20 @@ public class UCropActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(false);
         }
-        setStatusBarColor(getResources().getColor(R.color.ucrop_color_statusbar));
+
+        // Customize statusbar color
+        setStatusBarColor(
+                getResources().getColor(
+                        getIntent().getIntExtra(UCrop.EXTRA_STATUSBAR_COLOR, R.color.ucrop_color_statusbar)));
+
+        // Customize toolbar color
+        toolbar.setBackgroundColor(
+                getResources().getColor(
+                        getIntent().getIntExtra(UCrop.EXTRA_TOOLBAR_COLOR, R.color.ucrop_color_toolbar)));
+
+        // Customize toolbar title
+        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        title.setText(getIntent().getIntExtra(UCrop.EXTRA_TITLE, R.string.ucrop_label_edit_photo));
 
         UCropView uCropView = (UCropView) findViewById(R.id.ucrop);
         mGestureCropImageView = uCropView.getCropImageView();
