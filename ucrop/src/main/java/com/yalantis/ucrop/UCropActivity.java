@@ -227,8 +227,10 @@ public class UCropActivity extends AppCompatActivity {
                         getIntent().getIntExtra(UCrop.EXTRA_TOOLBAR_COLOR, R.color.ucrop_color_toolbar)));
 
         // Customize toolbar title
-        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText(getIntent().getIntExtra(UCrop.EXTRA_TITLE, R.string.ucrop_label_edit_photo));
+        if (getIntent().getStringExtra(UCrop.EXTRA_TITLE) != null) {
+            TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+            title.setText(getIntent().getStringExtra(UCrop.EXTRA_TITLE));
+        }
 
         UCropView uCropView = (UCropView) findViewById(R.id.ucrop);
         mGestureCropImageView = uCropView.getCropImageView();
