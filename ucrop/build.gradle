@@ -9,7 +9,7 @@ android {
         minSdkVersion 10
         targetSdkVersion 23
         versionCode 9
-        versionName "1.2.3"
+        versionName "1.2.4"
     }
     buildTypes {
         release {
@@ -21,7 +21,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
-
+	lintOptions {
+        abortOnError false
+    }
+	
     resourcePrefix 'ucrop_'
 }
 

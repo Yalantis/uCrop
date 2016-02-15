@@ -1,5 +1,6 @@
 package com.yalantis.ucrop.view.widget;
 
+import android.support.annotation.ColorInt;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -29,6 +30,8 @@ public class HorizontalProgressWheelView extends View {
     private boolean mScrollStarted;
     private float mTotalScrollDistance;
 
+	private int LINE_COLOR = -1;
+	
     public HorizontalProgressWheelView(Context context) {
         this(context, null);
     }
@@ -50,6 +53,11 @@ public class HorizontalProgressWheelView extends View {
     public void setScrollingListener(ScrollingListener scrollingListener) {
         mScrollingListener = scrollingListener;
     }
+	
+	public void setLineColor(@ColorInt int LINE_COLOR){
+		this.LINE_COLOR = LINE_COLOR;
+		invalidate();
+	}
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -87,7 +95,7 @@ public class HorizontalProgressWheelView extends View {
         int linesCount = mCanvasClipBounds.width() / (mProgressLineWidth + mProgressLineMargin);
         float deltaX = (mTotalScrollDistance) % (float) (mProgressLineMargin + mProgressLineWidth);
 
-        mProgressLinePaint.setColor(getResources().getColor(R.color.ucrop_color_progress_wheel_line));
+        mProgressLinePaint.setColor(LINE_COLOR);
         for (int i = 0; i < linesCount; i++) {
             if (i < (linesCount / 4)) {
                 mProgressLinePaint.setAlpha((int) (255 * (i / (float) (linesCount / 4))));
@@ -120,6 +128,8 @@ public class HorizontalProgressWheelView extends View {
     @SuppressWarnings("deprecation")
     private void init() {
 
+		LINE_COLOR = getResources().getColor(R.color.ucrop_color_progress_wheel_line);
+	
         mProgressLineWidth = getContext().getResources().getDimensionPixelSize(R.dimen.ucrop_width_horizontal_wheel_progress_line);
         mProgressLineHeight = getContext().getResources().getDimensionPixelSize(R.dimen.ucrop_height_horizontal_wheel_progress_line);
         mProgressLineMargin = getContext().getResources().getDimensionPixelSize(R.dimen.ucrop_margin_horizontal_wheel_progress_line);
