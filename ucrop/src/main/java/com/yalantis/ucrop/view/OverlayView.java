@@ -39,6 +39,7 @@ public class OverlayView extends View {
     private boolean mOvalDimmedLayer;
     private int mDimmedColor;
     private Path mCircularPath = new Path();
+    private Paint mDimmedStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -173,7 +174,7 @@ public class OverlayView extends View {
 
     protected void init() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2 &&
-		        Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             setLayerType(LAYER_TYPE_SOFTWARE, null);
         }
     }
@@ -216,6 +217,10 @@ public class OverlayView extends View {
         }
         canvas.drawColor(mDimmedColor);
         canvas.restore();
+
+        if (mOvalDimmedLayer) { // Draw 1px stroke to fix antialias
+            canvas.drawOval(mCropViewRect, mDimmedStrokePaint);
+        }
     }
 
     /**
@@ -265,6 +270,9 @@ public class OverlayView extends View {
         mOvalDimmedLayer = a.getBoolean(R.styleable.ucrop_UCropView_ucrop_oval_dimmed_layer, DEFAULT_OVAL_DIMMED_LAYER);
         mDimmedColor = a.getColor(R.styleable.ucrop_UCropView_ucrop_dimmed_color,
                 getResources().getColor(R.color.ucrop_color_default_dimmed));
+        mDimmedStrokePaint.setColor(mDimmedColor);
+        mDimmedStrokePaint.setStyle(Paint.Style.STROKE);
+        mDimmedStrokePaint.setStrokeWidth(1);
 
         initCropFrameStyle(a);
         mShowCropFrame = a.getBoolean(R.styleable.ucrop_UCropView_ucrop_show_frame, DEFAULT_SHOW_CROP_FRAME);
