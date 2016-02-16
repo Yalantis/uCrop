@@ -7,4 +7,5 @@
     <color name="status_bar">#CC5833</color>
     <color name="active_widget">#FF6E40</color>
     <color name="rotation_wheel_line">#FF6E40</color>
+	<color name="default_text_color">#FFF</color>
 </resources>

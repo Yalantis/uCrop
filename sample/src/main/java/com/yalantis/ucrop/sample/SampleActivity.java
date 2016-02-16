@@ -220,11 +220,13 @@ public class SampleActivity extends BaseActivity {
 		int STATUS_BAR_COLOR = ContextCompat.getColor(this, R.color.status_bar);
 		int ACTIVE_WIDGET_COLOR = ContextCompat.getColor(this, R.color.active_widget);
 		int ROTATION_WHEEL_LINE_COLOR = ContextCompat.getColor(this, R.color.rotation_wheel_line);
+		int TEXT_COLOR_PRIMARY = ContextCompat.getColor(this, R.color.default_text_color);
 		
 		options.setToolbarColor(TOOLBAR_COLOR);
         options.setStatusBarColor(STATUS_BAR_COLOR);
         options.setActiveWidgetColor(ACTIVE_WIDGET_COLOR);
         options.setRotationWheelLineColor(ROTATION_WHEEL_LINE_COLOR);
+		options.setToolbarTitleTextColor(TEXT_COLOR_PRIMARY);
 		
         /*
         If you want to configure how gestures work for all UCropActivity tabs

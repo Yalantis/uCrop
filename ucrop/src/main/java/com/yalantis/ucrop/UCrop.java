@@ -225,6 +225,8 @@ public class UCrop {
         public static final String EXTRA_UCROP_COLOR_WIDGET_ACTIVE = EXTRA_PREFIX + ".UcropColorWidgetActive";
         public static final String EXTRA_UCROP_COLOR_PROGRESS_WHEEL_LINE = EXTRA_PREFIX + ".UcropColorProgressWheelLine";
 		
+		public static final String EXTRA_UCROP_TITLE_COLOR_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarTitleColor";
+	
 
         private final Bundle mOptionBundle;
 
@@ -383,6 +385,13 @@ public class UCrop {
 		*/
 		public void setRotationWheelLineColor(@ColorInt int color){
 			mOptionBundle.putInt(EXTRA_UCROP_COLOR_PROGRESS_WHEEL_LINE, color);
+		}
+		
+		/**
+		* @param color - desired resolved color of Toolbar text and buttons (default is darker orange)
+		*/
+		public void setToolbarTitleTextColor(@ColorInt int color){
+			mOptionBundle.putInt(EXTRA_UCROP_TITLE_COLOR_TOOLBAR, color);
 		}
 		
     }
