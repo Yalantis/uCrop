@@ -1,23 +1,20 @@
 package com.yalantis.ucrop.view.widget;
 
-import android.support.annotation.ColorInt;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.TextView;
-
-import android.support.v4.content.ContextCompat;
 
 import com.yalantis.ucrop.R;
 import com.yalantis.ucrop.view.CropImageView;
@@ -35,8 +32,6 @@ public class AspectRatioTextView extends TextView {
     private String mAspectRatioTitle;
     private float mAspectRatioX, mAspectRatioY;
 
-	private int TEXT_COLOR = -1;
-	
     public AspectRatioTextView(Context context) {
         this(context, null);
     }
@@ -58,30 +53,15 @@ public class AspectRatioTextView extends TextView {
         init(a);
     }
 
-	/**
-	* @param TEXT_COLOR the color int of the color you want all the elements to be
-	*/
-	
-	public void setColor(@ColorInt int TEXT_COLOR){
-		this.TEXT_COLOR = TEXT_COLOR;
-		mDotPaint.setColor(TEXT_COLOR);
-		
-		ColorStateList textViewColorStateList = new ColorStateList(
-                        new int[][]{
-                                new int[]{android.R.attr.state_selected},
-                                new int[]{0}
-                        },
-                        new int[] {
-                            TEXT_COLOR,
-                            getResources().getColor(R.color.ucrop_color_widget)
-                        }
-                    );
-				
-		setTextColor(textViewColorStateList);
-		
-		invalidate();
-	}
-	
+    /**
+     * @param activeColor the resolved color for active elements
+     */
+
+    public void setActiveColor(@ColorInt int activeColor) {
+        applyActiveColor(activeColor);
+        invalidate();
+    }
+
     public float getAspectRatio(boolean toggleRatio) {
         if (toggleRatio) {
             toggleAspectRatio();
@@ -115,29 +95,32 @@ public class AspectRatioTextView extends TextView {
             mAspectRatio = mAspectRatioX / mAspectRatioY;
         }
 
-		if(TEXT_COLOR == -1){
-			TEXT_COLOR = getResources().getColor(R.color.ucrop_color_widget_active);
-		}
-		
-		ColorStateList textViewColorStateList = new ColorStateList(
-                        new int[][]{
-                                new int[]{android.R.attr.state_selected},
-                                new int[]{0}
-                        },
-                        new int[] {
-                            TEXT_COLOR,
-                            getResources().getColor(R.color.ucrop_color_widget)
-                        }
-                    );
-				
-		setTextColor(textViewColorStateList);
-		
         mDotSize = getContext().getResources().getDimensionPixelSize(R.dimen.ucrop_size_dot_scale_text_view);
         mDotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mDotPaint.setStyle(Paint.Style.FILL);
-        mDotPaint.setColor(TEXT_COLOR);
 
         setTitle();
+
+        int activeColor = getResources().getColor(R.color.ucrop_color_widget_active);
+        applyActiveColor(activeColor);
+    }
+
+    private void applyActiveColor(@ColorInt int activeColor) {
+        if (mDotPaint != null) {
+            mDotPaint.setColor(activeColor);
+        }
+        ColorStateList textViewColorStateList = new ColorStateList(
+                new int[][]{
+                        new int[]{android.R.attr.state_selected},
+                        new int[]{0}
+                },
+                new int[]{
+                        activeColor,
+                        ContextCompat.getColor(getContext(), R.color.ucrop_color_widget)
+                }
+        );
+
+        setTextColor(textViewColorStateList);
     }
 
     private void toggleAspectRatio() {

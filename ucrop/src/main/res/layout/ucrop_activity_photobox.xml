@@ -1,6 +1,5 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -12,13 +11,13 @@
         android:minHeight="?attr/actionBarSize">
 
         <TextView
+            android:id="@+id/toolbar_title"
             style="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/ucrop_label_edit_photo"
-            android:textColor="@color/ucrop_color_title"
-			android:id="@+id/toolbar_title"/>
+            android:textColor="@color/ucrop_color_title"/>
 
     </android.support.v7.widget.Toolbar>
 
@@ -74,7 +73,7 @@
             <ImageView
                 android:id="@+id/image_view_state_scale"
                 style="@style/ucrop_ImageViewWidgetIcon"
-                tools:src="@drawable/ucrop_ic_scale"/>
+                android:src="@drawable/ucrop_ic_scale"/>
 
         </FrameLayout>
 
@@ -85,7 +84,7 @@
             <ImageView
                 android:id="@+id/image_view_state_rotate"
                 style="@style/ucrop_ImageViewWidgetIcon"
-                tools:src="@drawable/ucrop_ic_rotate"/>
+                android:src="@drawable/ucrop_ic_rotate"/>
 
         </FrameLayout>
 
@@ -96,7 +95,7 @@
             <ImageView
                 android:id="@+id/image_view_state_aspect_ratio"
                 style="@style/ucrop_ImageViewWidgetIcon"
-                tools:src="@drawable/ucrop_ic_crop"/>
+                android:src="@drawable/ucrop_ic_crop"/>
 
         </FrameLayout>
 

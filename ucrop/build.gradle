@@ -8,7 +8,7 @@ android {
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 23
-        versionCode 9
+        versionCode 10
         versionName "1.2.4"
     }
     buildTypes {

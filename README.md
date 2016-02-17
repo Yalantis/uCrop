@@ -63,7 +63,7 @@ Currently you can change:
    * toggle whether to show crop frame/guidelines
    * setup color/width/count of crop frame/rows/columns
    * choose whether you want rectangle or oval crop area
-   * the UI colors (Toolbar, StatusBar, ActiveWidget and the RotationWheel line)
+   * the UI colors (Toolbar, StatusBar, active widget state)
    * and more...
     
 # Compatibility

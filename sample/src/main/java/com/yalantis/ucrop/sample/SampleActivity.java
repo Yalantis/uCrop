@@ -9,7 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
@@ -216,18 +215,6 @@ public class SampleActivity extends BaseActivity {
         }
         options.setCompressionQuality(mSeekBarQuality.getProgress());
 
-		int TOOLBAR_COLOR = ContextCompat.getColor(this, R.color.toolbar);
-		int STATUS_BAR_COLOR = ContextCompat.getColor(this, R.color.status_bar);
-		int ACTIVE_WIDGET_COLOR = ContextCompat.getColor(this, R.color.active_widget);
-		int ROTATION_WHEEL_LINE_COLOR = ContextCompat.getColor(this, R.color.rotation_wheel_line);
-		int TEXT_COLOR_PRIMARY = ContextCompat.getColor(this, R.color.default_text_color);
-		
-		options.setToolbarColor(TOOLBAR_COLOR);
-        options.setStatusBarColor(STATUS_BAR_COLOR);
-        options.setActiveWidgetColor(ACTIVE_WIDGET_COLOR);
-        options.setRotationWheelLineColor(ROTATION_WHEEL_LINE_COLOR);
-		options.setToolbarTitleTextColor(TEXT_COLOR_PRIMARY);
-		
         /*
         If you want to configure how gestures work for all UCropActivity tabs
 
@@ -255,6 +242,12 @@ public class SampleActivity extends BaseActivity {
         options.setCropGridColor(Color.GREEN);
         options.setCropGridColumnCount(2);
         options.setCropGridRowCount(1);
+
+        // Color palette
+        options.setToolbarColor(ContextCompat.getColor(this, R.color.your_color_res));
+        options.setStatusBarColor(ContextCompat.getColor(this, R.color.your_color_res));
+        options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
+		options.setToolbarTitleTextColor(ContextCompat.getColor(this, R.color.your_color_res));
 
        */
 
