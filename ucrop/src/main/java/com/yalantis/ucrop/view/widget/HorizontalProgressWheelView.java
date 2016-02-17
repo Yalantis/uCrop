@@ -1,5 +1,6 @@
 package com.yalantis.ucrop.view.widget;
 
+import android.support.annotation.ColorInt;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -29,6 +30,8 @@ public class HorizontalProgressWheelView extends View {
     private boolean mScrollStarted;
     private float mTotalScrollDistance;
 
+	private int LINE_COLOR = -1;
+	
     public HorizontalProgressWheelView(Context context) {
         this(context, null);
     }
@@ -50,6 +53,11 @@ public class HorizontalProgressWheelView extends View {
     public void setScrollingListener(ScrollingListener scrollingListener) {
         mScrollingListener = scrollingListener;
     }
+	
+	public void setLineColor(@ColorInt int LINE_COLOR){
+		this.LINE_COLOR = LINE_COLOR;
+		invalidate();
+	}
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -103,7 +111,7 @@ public class HorizontalProgressWheelView extends View {
                     mCanvasClipBounds.centerY() + mProgressLineHeight / 4.0f, mProgressLinePaint);
         }
 
-        mProgressLinePaint.setColor(getResources().getColor(R.color.ucrop_color_widget_active));
+        mProgressLinePaint.setColor(LINE_COLOR);
         canvas.drawLine(mCanvasClipBounds.centerX(), mCanvasClipBounds.centerY() - mProgressLineHeight / 2.0f, mCanvasClipBounds.centerX(), mCanvasClipBounds.centerY() + mProgressLineHeight / 2.0f, mProgressLinePaint);
 
     }
@@ -120,6 +128,11 @@ public class HorizontalProgressWheelView extends View {
     @SuppressWarnings("deprecation")
     private void init() {
 
+		// Only set the {@link LINE_COLOR} hasn't been set before
+		if(LINE_COLOR == -1){
+			LINE_COLOR = getResources().getColor(R.color.ucrop_color_progress_wheel_line);
+		}
+		
         mProgressLineWidth = getContext().getResources().getDimensionPixelSize(R.dimen.ucrop_width_horizontal_wheel_progress_line);
         mProgressLineHeight = getContext().getResources().getDimensionPixelSize(R.dimen.ucrop_height_horizontal_wheel_progress_line);
         mProgressLineMargin = getContext().getResources().getDimensionPixelSize(R.dimen.ucrop_margin_horizontal_wheel_progress_line);
@@ -127,6 +140,7 @@ public class HorizontalProgressWheelView extends View {
         mProgressLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mProgressLinePaint.setStyle(Paint.Style.STROKE);
         mProgressLinePaint.setStrokeWidth(mProgressLineWidth);
+		
     }
 
     public interface ScrollingListener {

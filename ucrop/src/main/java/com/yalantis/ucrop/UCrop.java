@@ -219,6 +219,14 @@ public class UCrop {
         public static final String EXTRA_CROP_GRID_COLUMN_COUNT = EXTRA_PREFIX + ".CropGridColumnCount";
         public static final String EXTRA_CROP_GRID_COLOR = EXTRA_PREFIX + ".CropGridColor";
         public static final String EXTRA_CROP_GRID_STROKE_WIDTH = EXTRA_PREFIX + ".CropGridStrokeWidth";
+		
+        public static final String EXTRA_TOOL_BAR_COLOR = EXTRA_PREFIX + ".ToolbarColor";
+        public static final String EXTRA_STATUS_BAR_COLOR = EXTRA_PREFIX + ".StatusBarColor";		
+        public static final String EXTRA_UCROP_COLOR_WIDGET_ACTIVE = EXTRA_PREFIX + ".UcropColorWidgetActive";
+        public static final String EXTRA_UCROP_COLOR_PROGRESS_WHEEL_LINE = EXTRA_PREFIX + ".UcropColorProgressWheelLine";
+		
+		public static final String EXTRA_UCROP_TITLE_COLOR_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarTitleColor";
+	
 
         private final Bundle mOptionBundle;
 
@@ -350,7 +358,42 @@ public class UCrop {
         public void setCropGridStrokeWidth(@IntRange(from = 0) int width) {
             mOptionBundle.putInt(EXTRA_CROP_GRID_STROKE_WIDTH, width);
         }
-
+		
+		/**
+		* @param color - desired resolved color of the toolbar
+		*/
+		public void setToolbarColor(@ColorInt int color){
+			mOptionBundle.putInt(EXTRA_TOOL_BAR_COLOR, color);
+		}
+		
+		/**
+		* @param color - desired resolved color of the statusbar
+		*/
+		public void setStatusBarColor(@ColorInt int color){
+			mOptionBundle.putInt(EXTRA_STATUS_BAR_COLOR, color);
+		}
+		
+		/**
+		* @param color - desired resolved color of the active and selected widget (default is orange)
+		*/
+		public void setActiveWidgetColor(@ColorInt int color){
+			mOptionBundle.putInt(EXTRA_UCROP_COLOR_WIDGET_ACTIVE, color);
+		}
+		
+		/**
+		* @param color - desired resolved color of the line in the rotation wheel (default is darker orange)
+		*/
+		public void setRotationWheelLineColor(@ColorInt int color){
+			mOptionBundle.putInt(EXTRA_UCROP_COLOR_PROGRESS_WHEEL_LINE, color);
+		}
+		
+		/**
+		* @param color - desired resolved color of Toolbar text and buttons (default is darker orange)
+		*/
+		public void setToolbarTitleTextColor(@ColorInt int color){
+			mOptionBundle.putInt(EXTRA_UCROP_TITLE_COLOR_TOOLBAR, color);
+		}
+		
     }
 
 }
