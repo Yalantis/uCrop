@@ -243,6 +243,12 @@ public class SampleActivity extends BaseActivity {
         options.setCropGridColumnCount(2);
         options.setCropGridRowCount(1);
 
+        // Color palette
+        options.setToolbarColor(ContextCompat.getColor(this, R.color.your_color_res));
+        options.setStatusBarColor(ContextCompat.getColor(this, R.color.your_color_res));
+        options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
+		options.setToolbarTitleTextColor(ContextCompat.getColor(this, R.color.your_color_res));
+
        */
 
         return uCrop.withOptions(options);

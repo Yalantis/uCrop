@@ -3,7 +3,7 @@
     <string name="ucrop_label_original">Original</string>
     <string name="ucrop_label_edit_photo">Edit Photo</string>
 
-    <string name="ucrop_menu_next">Next</string>
+    <string name="ucrop_menu_crop">Crop</string>
 
     <string name="ucrop_error_input_data_is_absent">Both input and output Uri must be specified</string>
 

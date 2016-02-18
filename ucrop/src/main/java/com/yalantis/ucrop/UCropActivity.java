@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.yalantis.ucrop.util.BitmapLoadUtils;
+import com.yalantis.ucrop.util.SelectedStateListDrawable;
 import com.yalantis.ucrop.view.CropImageView;
 import com.yalantis.ucrop.view.GestureCropImageView;
 import com.yalantis.ucrop.view.OverlayView;
@@ -66,6 +66,12 @@ public class UCropActivity extends AppCompatActivity {
     private static final int SCALE_WIDGET_SENSITIVITY_COEFFICIENT = 15000;
     private static final int ROTATE_WIDGET_SENSITIVITY_COEFFICIENT = 42;
 
+    // Enables dynamic coloring
+    private int mToolbarColor;
+    private int mStatusBarColor;
+    private int mActiveWidgetColor;
+    private int mToolbarTextColor;
+
     private GestureCropImageView mGestureCropImageView;
     private OverlayView mOverlayView;
     private ViewGroup mWrapperStateAspectRatio, mWrapperStateRotate, mWrapperStateScale;
@@ -92,12 +98,23 @@ public class UCropActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.ucrop_menu_activity, menu);
+
+        // Change the next menu icon color to match the rest of the UI colors
+        MenuItem next = menu.findItem(R.id.menu_crop);
+
+        Drawable defaultIcon = next.getIcon();
+        if (defaultIcon != null) {
+            defaultIcon.mutate();
+            defaultIcon.setColorFilter(mToolbarTextColor, PorterDuff.Mode.SRC_ATOP);
+            next.setIcon(defaultIcon);
+        }
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_next) {
+        if (item.getItemId() == R.id.menu_crop) {
             cropAndSaveImage();
         } else if (item.getItemId() == android.R.id.home) {
             onBackPressed();
@@ -208,15 +225,48 @@ public class UCropActivity extends AppCompatActivity {
     }
 
     private void setupViews() {
+        Bundle optionsBundle = getIntent().getBundleExtra(UCrop.EXTRA_OPTIONS);
+        mStatusBarColor = optionsBundle.getInt(UCrop.Options.EXTRA_STATUS_BAR_COLOR, ContextCompat.getColor(this, R.color.ucrop_color_statusbar));
+        mToolbarColor = optionsBundle.getInt(UCrop.Options.EXTRA_TOOL_BAR_COLOR, ContextCompat.getColor(this, R.color.ucrop_color_toolbar));
+        mActiveWidgetColor = optionsBundle.getInt(UCrop.Options.EXTRA_UCROP_COLOR_WIDGET_ACTIVE, ContextCompat.getColor(this, R.color.ucrop_color_widget_active));
+        mToolbarTextColor = optionsBundle.getInt(UCrop.Options.EXTRA_UCROP_TITLE_COLOR_TOOLBAR, ContextCompat.getColor(this, R.color.ucrop_color_title));
+
+        setupAppBar();
+        initiateRootViews();
+        setupAspectRatioWidget();
+        setupRotateWidget();
+        setupScaleWidget();
+        setupStatesWrapper();
+    }
+
+    /**
+     * Configures and styles both status bar and toolbar.
+     */
+    private void setupAppBar() {
+        setStatusBarColor(mStatusBarColor);
+
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        // Set all of the Toolbar coloring
+        toolbar.setBackgroundColor(mToolbarColor);
+        toolbar.setTitleTextColor(mToolbarTextColor);
+        toolbar.setSubtitleTextColor(mToolbarTextColor);
+
+        ((TextView) toolbar.findViewById(R.id.toolbar_title)).setTextColor(mToolbarTextColor);
+
+        // Color buttons inside the Toolbar
+        Drawable stateButtonDrawable = ContextCompat.getDrawable(this, R.drawable.ucrop_ic_cross).mutate();
+        stateButtonDrawable.setColorFilter(mToolbarTextColor, PorterDuff.Mode.SRC_ATOP);
+        toolbar.setNavigationIcon(stateButtonDrawable);
+
         setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.ucrop_ic_cross);
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(false);
         }
-        setStatusBarColor(getResources().getColor(R.color.ucrop_color_statusbar));
+    }
 
+    private void initiateRootViews() {
         UCropView uCropView = (UCropView) findViewById(R.id.ucrop);
         mGestureCropImageView = uCropView.getCropImageView();
         mOverlayView = uCropView.getOverlayView();
@@ -243,44 +293,21 @@ public class UCropActivity extends AppCompatActivity {
         mLayoutAspectRatio = (ViewGroup) findViewById(R.id.layout_aspect_ratio);
         mLayoutRotate = (ViewGroup) findViewById(R.id.layout_rotate_wheel);
         mLayoutScale = (ViewGroup) findViewById(R.id.layout_scale_wheel);
-
-        setupAspectRatioWidget();
-        setupRotateWidget();
-        setupScaleWidget();
-        setupStatesWrapper();
     }
 
     /**
-     * use {@link R.color#ucrop_color_widget_active} for color filter
+     * Use {@link #mActiveWidgetColor} for color filter
      */
     private void setupStatesWrapper() {
         ImageView stateScaleImageView = (ImageView) findViewById(R.id.image_view_state_scale);
         ImageView stateRotateImageView = (ImageView) findViewById(R.id.image_view_state_rotate);
         ImageView stateAspectRatioImageView = (ImageView) findViewById(R.id.image_view_state_aspect_ratio);
 
-        StateListDrawable stateScaleSelector = new StateListDrawable();
-        StateListDrawable stateRotateSelector = new StateListDrawable();
-        StateListDrawable stateAspectRatioSelector = new StateListDrawable();
-
-        Drawable stateScaleSelectedDrawable = ContextCompat.getDrawable(this, R.drawable.ucrop_ic_scale).mutate();
-        stateScaleSelectedDrawable.setColorFilter(ContextCompat.getColor(this, R.color.ucrop_color_widget_active), PorterDuff.Mode.SRC_ATOP);
-        stateScaleSelector.addState(new int[]{android.R.attr.state_selected}, stateScaleSelectedDrawable);
-        stateScaleSelector.addState(new int[0], ContextCompat.getDrawable(this, R.drawable.ucrop_ic_scale));
-
-        Drawable stateRotateSelectedDrawable = ContextCompat.getDrawable(this, R.drawable.ucrop_ic_rotate).mutate();
-        stateRotateSelectedDrawable.setColorFilter(ContextCompat.getColor(this, R.color.ucrop_color_widget_active), PorterDuff.Mode.SRC_ATOP);
-        stateRotateSelector.addState(new int[]{android.R.attr.state_selected}, stateRotateSelectedDrawable);
-        stateRotateSelector.addState(new int[0], ContextCompat.getDrawable(this, R.drawable.ucrop_ic_rotate));
-
-        Drawable stateAspectRatioSelectedDrawable = ContextCompat.getDrawable(this, R.drawable.ucrop_ic_crop).mutate();
-        stateAspectRatioSelectedDrawable.setColorFilter(ContextCompat.getColor(this, R.color.ucrop_color_widget_active), PorterDuff.Mode.SRC_ATOP);
-        stateAspectRatioSelector.addState(new int[]{android.R.attr.state_selected}, stateAspectRatioSelectedDrawable);
-        stateAspectRatioSelector.addState(new int[0], ContextCompat.getDrawable(this, R.drawable.ucrop_ic_crop));
-
-        stateScaleImageView.setImageDrawable(stateScaleSelector);
-        stateRotateImageView.setImageDrawable(stateRotateSelector);
-        stateAspectRatioImageView.setImageDrawable(stateAspectRatioSelector);
+        stateScaleImageView.setImageDrawable(new SelectedStateListDrawable(stateScaleImageView.getDrawable(), mActiveWidgetColor));
+        stateRotateImageView.setImageDrawable(new SelectedStateListDrawable(stateRotateImageView.getDrawable(), mActiveWidgetColor));
+        stateAspectRatioImageView.setImageDrawable(new SelectedStateListDrawable(stateAspectRatioImageView.getDrawable(), mActiveWidgetColor));
     }
+
 
     /**
      * Sets status-bar color for L devices.
@@ -297,6 +324,14 @@ public class UCropActivity extends AppCompatActivity {
     }
 
     private void setupAspectRatioWidget() {
+
+        // Set the colors before the default item is selected
+        ((AspectRatioTextView) ((ViewGroup) findViewById(R.id.crop_aspect_ratio_1_1)).getChildAt(0)).setActiveColor(mActiveWidgetColor);
+        ((AspectRatioTextView) ((ViewGroup) findViewById(R.id.crop_aspect_ratio_3_4)).getChildAt(0)).setActiveColor(mActiveWidgetColor);
+        ((AspectRatioTextView) ((ViewGroup) findViewById(R.id.crop_aspect_ratio_original)).getChildAt(0)).setActiveColor(mActiveWidgetColor);
+        ((AspectRatioTextView) ((ViewGroup) findViewById(R.id.crop_aspect_ratio_3_2)).getChildAt(0)).setActiveColor(mActiveWidgetColor);
+        ((AspectRatioTextView) ((ViewGroup) findViewById(R.id.crop_aspect_ratio_16_9)).getChildAt(0)).setActiveColor(mActiveWidgetColor);
+
         mCropAspectRatioViews.add((ViewGroup) findViewById(R.id.crop_aspect_ratio_1_1));
         mCropAspectRatioViews.add((ViewGroup) findViewById(R.id.crop_aspect_ratio_3_4));
         mCropAspectRatioViews.add((ViewGroup) findViewById(R.id.crop_aspect_ratio_original));
@@ -341,6 +376,8 @@ public class UCropActivity extends AppCompatActivity {
                     }
                 });
 
+        ((HorizontalProgressWheelView) findViewById(R.id.rotate_scroll_wheel)).setMiddleLineColor(mActiveWidgetColor);
+
 
         findViewById(R.id.wrapper_reset_rotate).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -381,6 +418,7 @@ public class UCropActivity extends AppCompatActivity {
                         mGestureCropImageView.cancelAllAnimations();
                     }
                 });
+        ((HorizontalProgressWheelView) findViewById(R.id.scale_scroll_wheel)).setMiddleLineColor(mActiveWidgetColor);
     }
 
     private void setAngleText(float angle) {
