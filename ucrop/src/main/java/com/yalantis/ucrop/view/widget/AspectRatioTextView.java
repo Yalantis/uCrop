@@ -103,6 +103,8 @@ public class AspectRatioTextView extends TextView {
 
         int activeColor = getResources().getColor(R.color.ucrop_color_widget_active);
         applyActiveColor(activeColor);
+
+        a.recycle();
     }
 
     private void applyActiveColor(@ColorInt int activeColor) {
