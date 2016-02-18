@@ -95,7 +95,7 @@ public class BitmapLoadUtils {
         int inSampleSize = 1;
 
         if (height > reqHeight || width > reqWidth) {
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // Calculate the largest inSampleSize value and keeps both
             // height and width lower or equal to the requested height and width.
             while ((height / inSampleSize) > reqHeight || (width / inSampleSize) > reqWidth) {
                 inSampleSize++;
