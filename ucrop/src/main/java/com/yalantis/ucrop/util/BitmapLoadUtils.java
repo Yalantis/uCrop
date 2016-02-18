@@ -98,7 +98,7 @@ public class BitmapLoadUtils {
             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
             // height and width lower or equal to the requested height and width.
             while ((height / inSampleSize) > reqHeight || (width / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
+                inSampleSize++;
             }
         }
         return inSampleSize;
