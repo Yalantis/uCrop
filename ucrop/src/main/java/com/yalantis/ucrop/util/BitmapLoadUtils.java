@@ -10,11 +10,11 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -50,14 +50,10 @@ public class BitmapLoadUtils {
             close(parcelFileDescriptor);
         }
 
-        ExifInterface exif = getExif(uri);
-        if (exif != null) {
-            int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            // TODO Should not rotate bitmap but initially apply needed angle to the matrix
-            return rotateBitmap(decodeSampledBitmap, exifToDegrees(exifOrientation));
-        } else {
-            return decodeSampledBitmap;
-        }
+
+        int exifOrientation = getExifOrientation(context, uri);
+        // TODO Should not rotate bitmap but initially apply needed angle to the matrix
+        return rotateBitmap(decodeSampledBitmap, exifToDegrees(exifOrientation));
     }
 
     public static Bitmap rotateBitmap(@Nullable Bitmap bitmap, int degrees) {
@@ -91,14 +87,16 @@ public class BitmapLoadUtils {
         return inSampleSize;
     }
 
-    @Nullable
-    private static ExifInterface getExif(@NonNull Uri imageUri) {
-        try {
-            return new ExifInterface(imageUri.getPath());
-        } catch (IOException e) {
-            Log.w(TAG, "getExif: ", e);
+    private static int getExifOrientation(@NonNull Context context,
+                                          @NonNull Uri imageUri) throws Exception {
+        InputStream stream = context.getContentResolver().openInputStream(imageUri);
+        if (stream == null) {
+            return ExifInterface.ORIENTATION_NORMAL;
         }
-        return null;
+
+        int orientation = new ImageHeaderParser(stream).getOrientation();
+        stream.close();
+        return orientation;
     }
 
     private static int exifToDegrees(int exifOrientation) {
