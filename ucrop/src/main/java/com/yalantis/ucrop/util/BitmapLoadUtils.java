@@ -45,19 +45,32 @@ public class BitmapLoadUtils {
         options.inSampleSize = calculateInSampleSize(options, requiredWidth, requiredHeight);
         options.inJustDecodeBounds = false;
 
-        Bitmap decodeSampledBitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            close(parcelFileDescriptor);
+        Bitmap decodeSampledBitmap = null;
+
+        boolean success = false;
+        while (!success) {
+            try {
+                decodeSampledBitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+                success = true;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    close(parcelFileDescriptor);
+                }
+
+                ExifInterface exif = getExif(uri);
+                if (exif != null) {
+                    int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                    // TODO Should not rotate bitmap but initially apply needed angle to the matrix
+                    return rotateBitmap(decodeSampledBitmap, exifToDegrees(exifOrientation));
+                } else {
+                    return decodeSampledBitmap;
+                }
+            } catch (OutOfMemoryError error) {
+                error.printStackTrace();
+                options.inSampleSize++;
+            }
         }
 
-        ExifInterface exif = getExif(uri);
-        if (exif != null) {
-            int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            // TODO Should not rotate bitmap but initially apply needed angle to the matrix
-            return rotateBitmap(decodeSampledBitmap, exifToDegrees(exifOrientation));
-        } else {
-            return decodeSampledBitmap;
-        }
+        return decodeSampledBitmap;
     }
 
     public static Bitmap rotateBitmap(@Nullable Bitmap bitmap, int degrees) {
@@ -82,10 +95,10 @@ public class BitmapLoadUtils {
         int inSampleSize = 1;
 
         if (height > reqHeight || width > reqWidth) {
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // Calculate the largest inSampleSize value and keeps both
             // height and width lower or equal to the requested height and width.
             while ((height / inSampleSize) > reqHeight || (width / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
+                inSampleSize++;
             }
         }
         return inSampleSize;
