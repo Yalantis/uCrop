@@ -27,7 +27,7 @@ public class BitmapLoadUtils {
 
     @Nullable
     public static Bitmap decode(@NonNull Context context, @Nullable Uri uri,
-                                int requiredWidth, int requiredHeight, @Nullable Matrix currentMatrix) throws Exception {
+                                int requiredWidth, int requiredHeight) throws Exception {
         if (uri == null) {
             return null;
         }
@@ -63,14 +63,11 @@ public class BitmapLoadUtils {
         if (exifTranslation != 1) {
             aMatrix.postScale(exifTranslation,1);
         }
-        RectF deviceR = new RectF();
-        RectF dstR = new RectF(0, 0, requiredWidth, requiredHeight);
-        aMatrix.mapRect(deviceR, dstR);
-        aMatrix.postTranslate(-deviceR.left, -deviceR.top);
-        currentMatrix.set(aMatrix);
-        Log.d(TAG, "currentMatrx = " + currentMatrix.toString());
-        // TODO Should not transform bitmap but initially apply needed angle and translation to the matrix
-        return transformBitmap(decodeSampledBitmap, aMatrix);
+
+        if (!aMatrix.isIdentity()) {
+             return transformBitmap(decodeSampledBitmap, aMatrix);
+        }
+        return decodeSampledBitmap;
     }
 
     public static Bitmap transformBitmap(@Nullable Bitmap bitmap, Matrix transformMatrix) {

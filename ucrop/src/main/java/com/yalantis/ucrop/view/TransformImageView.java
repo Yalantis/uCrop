@@ -130,7 +130,7 @@ public class TransformImageView extends ImageView {
                            int maxBitmapSize = getMaxBitmapSize();
                            Bitmap b = null;
                            try {
-                               b = BitmapLoadUtils.decode(getContext(), mImageUri, maxBitmapSize, maxBitmapSize, mCurrentImageMatrix);
+                               b = BitmapLoadUtils.decode(getContext(), mImageUri, maxBitmapSize, maxBitmapSize);
                            }
                            catch (Exception e) {
                            }
@@ -310,6 +310,9 @@ public class TransformImageView extends ImageView {
         RectF initialImageRect = new RectF(0, 0, w, h);
         mInitialImageCorners = RectUtils.getCornersFromRect(initialImageRect);
         mInitialImageCenter = RectUtils.getCenterFromRect(initialImageRect);
+        if (!mCurrentImageMatrix.isIdentity()) {
+            setBaseImageMatrix(mCurrentImageMatrix);
+        }
         if (mTransformImageListener != null) {
                 mTransformImageListener.onLoadComplete();
         }
