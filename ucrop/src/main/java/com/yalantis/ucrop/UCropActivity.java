@@ -281,6 +281,11 @@ public class UCropActivity extends AppCompatActivity {
             public void onScale(float currentScale) {
                 setScaleText(currentScale);
             }
+
+            @Override
+            public void onLoadComplete() {
+                findViewById(R.id.image_progress_bar).setVisibility(View.GONE);
+            }
         });
 
         mWrapperStateAspectRatio = (ViewGroup) findViewById(R.id.state_aspect_ratio);
