@@ -21,13 +21,23 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <com.yalantis.ucrop.view.UCropView
-        android:id="@+id/ucrop"
+    <FrameLayout
+        android:id="@+id/ucrop_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/wrapper_controls"
         android:layout_below="@+id/toolbar"
-        android:background="@color/ucrop_color_crop_background"/>
+        android:background="@color/ucrop_color_crop_background">
+        <com.yalantis.ucrop.view.UCropView
+            android:id="@+id/ucrop"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <ProgressBar android:id="@+id/image_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:layout_gravity="center"/>
+    </FrameLayout>
 
     <FrameLayout
         android:id="@+id/wrapper_controls"

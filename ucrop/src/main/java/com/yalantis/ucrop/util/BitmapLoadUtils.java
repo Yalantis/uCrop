@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -15,6 +16,7 @@ import android.util.Log;
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -50,28 +52,32 @@ public class BitmapLoadUtils {
             close(parcelFileDescriptor);
         }
 
-        ExifInterface exif = getExif(uri);
-        if (exif != null) {
-            int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            // TODO Should not rotate bitmap but initially apply needed angle to the matrix
-            return rotateBitmap(decodeSampledBitmap, exifToDegrees(exifOrientation));
-        } else {
-            return decodeSampledBitmap;
+        int exifOrientation = getExifOrientation(context, uri);
+        int exifDegrees = exifToDegrees(exifOrientation);
+        int exifTranslation = exifToTranslation(exifOrientation);
+        Matrix aMatrix = new Matrix();
+
+        if (exifDegrees != 0) {
+           aMatrix.preRotate(exifDegrees);
         }
+        if (exifTranslation != 1) {
+            aMatrix.postScale(exifTranslation,1);
+        }
+
+        if (!aMatrix.isIdentity()) {
+             return transformBitmap(decodeSampledBitmap, aMatrix);
+        }
+        return decodeSampledBitmap;
     }
 
-    public static Bitmap rotateBitmap(@Nullable Bitmap bitmap, int degrees) {
-        if (bitmap != null && degrees != 0) {
-            Matrix rotateMatrix = new Matrix();
-            rotateMatrix.setRotate(degrees, bitmap.getWidth() / (float) 2, bitmap.getHeight() / (float) 2);
-
+    public static Bitmap transformBitmap(@Nullable Bitmap bitmap, Matrix transformMatrix) {
             Bitmap converted = Bitmap.createBitmap(bitmap, 0, 0,
-                    bitmap.getWidth(), bitmap.getHeight(), rotateMatrix, true);
+                    bitmap.getWidth(), bitmap.getHeight(), transformMatrix, true);
             if (bitmap != converted) {
                 bitmap.recycle();
                 bitmap = converted;
             }
-        }
+
         return bitmap;
     }
 
@@ -91,25 +97,51 @@ public class BitmapLoadUtils {
         return inSampleSize;
     }
 
-    @Nullable
-    private static ExifInterface getExif(@NonNull Uri imageUri) {
-        try {
-            return new ExifInterface(imageUri.getPath());
-        } catch (IOException e) {
-            Log.w(TAG, "getExif: ", e);
+    private static int getExifOrientation(@NonNull Context context,
+                                          @NonNull Uri imageUri) throws Exception {
+        InputStream stream = context.getContentResolver().openInputStream(imageUri);
+        if (stream == null) {
+            return ExifInterface.ORIENTATION_UNDEFINED;
         }
-        return null;
+        int orientation = new ImageHeaderParser(stream).getOrientation();
+        stream.close();
+        return orientation;
     }
 
     private static int exifToDegrees(int exifOrientation) {
-        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
-            return 90;
-        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
-            return 180;
-        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
-            return 270;
+        int rotation=0;
+        switch (exifOrientation) {
+        case ExifInterface.ORIENTATION_ROTATE_90:
+        case ExifInterface.ORIENTATION_TRANSPOSE:
+                rotation = 90;
+                break;
+        case ExifInterface.ORIENTATION_ROTATE_180:
+        case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                rotation = 180;
+                break;
+        case ExifInterface.ORIENTATION_ROTATE_270:
+        case ExifInterface.ORIENTATION_TRANSVERSE:
+                rotation = 270;
+                break;
+        default:
+                rotation = 0;
+	}
+        return rotation;
+    }
+
+    private static int exifToTranslation(int exifOrientation) {
+        int translation;
+        switch (exifOrientation) {
+        case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+        case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+        case ExifInterface.ORIENTATION_TRANSPOSE:
+        case ExifInterface.ORIENTATION_TRANSVERSE:
+                translation = -1;
+                break;
+        default:
+                translation = 1;
         }
-        return 0;
+        return translation;
     }
 
     @SuppressWarnings("ConstantConditions")
