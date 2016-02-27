@@ -17,7 +17,6 @@ import android.view.Display;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.util.FastBitmapDrawable;
 import com.yalantis.ucrop.util.RectUtils;
@@ -43,24 +42,30 @@ public class TransformImageView extends ImageView {
 
     protected Matrix mCurrentImageMatrix = new Matrix();
     protected int mThisWidth, mThisHeight;
+
     protected TransformImageListener mTransformImageListener;
 
     private float[] mInitialImageCorners;
     private float[] mInitialImageCenter;
 
+    private boolean mBitmapWasLoaded = false;
+
     private int mMaxBitmapSize = 0;
     private Uri mImageUri;
-    private boolean first=false;
+
     /**
      * Interface for rotation and scale change notifying.
      */
     public interface TransformImageListener {
 
+        void onLoadComplete();
+
+        void onLoadFailure(@NonNull Exception e);
+
         void onRotate(float currentAngle);
 
         void onScale(float currentScale);
 
-        void onLoadComplete();
     }
 
     public TransformImageView(Context context) {
@@ -108,7 +113,7 @@ public class TransformImageView extends ImageView {
 
     @Override
     public void setImageBitmap(final Bitmap bitmap) {
-          setImageDrawable(new FastBitmapDrawable(bitmap));
+        setImageDrawable(new FastBitmapDrawable(bitmap));
     }
 
     @Nullable
@@ -124,28 +129,25 @@ public class TransformImageView extends ImageView {
      */
     public void setImageUri(@NonNull Uri imageUri) throws Exception {
         mImageUri = imageUri;
-        // Run the Decode off the UI thread
-        new Thread(new Runnable() {
-                       public void run() {
-                           int maxBitmapSize = getMaxBitmapSize();
-                           Bitmap b = null;
-                           try {
-                               b = BitmapLoadUtils.decode(getContext(), mImageUri, maxBitmapSize, maxBitmapSize);
-                           }
-                           catch (Exception e) {
-                           }
-                           final Bitmap decodedBitmap = b;
-                           // Run this on the UI thread
-                           post(new Runnable() {
-                               public void run() {
-                                   TransformImageView.this.setImageBitmap(decodedBitmap);
-                                   first = true;
-                                   invalidate();
-                               }
-                           });
-                       }
-                   }).start();
+        int maxBitmapSize = getMaxBitmapSize();
 
+        BitmapLoadUtils.decodeBitmapInBackground(getContext(), imageUri, maxBitmapSize, maxBitmapSize,
+                new BitmapLoadUtils.BitmapLoadCallback() {
+                    @Override
+                    public void onBitmapLoaded(@NonNull final Bitmap bitmap) {
+                        mBitmapWasLoaded = true;
+                        setImageBitmap(bitmap);
+                        invalidate();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Exception bitmapWorkerException) {
+                        Log.e(TAG, "onFailure: setImageUri", bitmapWorkerException);
+                        if (mTransformImageListener != null) {
+                            mTransformImageListener.onLoadFailure(bitmapWorkerException);
+                        }
+                    }
+                });
     }
 
     /**
@@ -183,10 +185,6 @@ public class TransformImageView extends ImageView {
     public void setImageMatrix(Matrix matrix) {
         super.setImageMatrix(matrix);
         updateCurrentImagePoints();
-    }
-
-    public void setBaseImageMatrix(Matrix matrix) {
-        super.setImageMatrix(matrix);
     }
 
     @Nullable
@@ -276,10 +274,9 @@ public class TransformImageView extends ImageView {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        if (changed || first) {
-            if (first) {
-                first = false;
-            }
+        if (changed || mBitmapWasLoaded) {
+            if (mBitmapWasLoaded) mBitmapWasLoaded = false;
+
             left = getPaddingLeft();
             top = getPaddingTop();
             right = getWidth() - getPaddingRight();
@@ -298,7 +295,6 @@ public class TransformImageView extends ImageView {
     protected void onImageLaidOut() {
         final Drawable drawable = getDrawable();
         if (drawable == null) {
-            Log.d(TAG, String.format("Drawable not set"));
             return;
         }
 
@@ -310,11 +306,9 @@ public class TransformImageView extends ImageView {
         RectF initialImageRect = new RectF(0, 0, w, h);
         mInitialImageCorners = RectUtils.getCornersFromRect(initialImageRect);
         mInitialImageCenter = RectUtils.getCenterFromRect(initialImageRect);
-        if (!mCurrentImageMatrix.isIdentity()) {
-            setBaseImageMatrix(mCurrentImageMatrix);
-        }
+
         if (mTransformImageListener != null) {
-                mTransformImageListener.onLoadComplete();
+            mTransformImageListener.onLoadComplete();
         }
     }
 

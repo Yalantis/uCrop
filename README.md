@@ -14,7 +14,7 @@
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:1.2.+' ```
+    ``` compile 'com.yalantis:ucrop:1.3.+' ```
     
 2. Add UCropActivity into your AndroidManifest.xml
 
@@ -72,6 +72,15 @@ Currently you can change:
   * Sample - Android ICS 4.0+
   
 # Changelog
+
+### Version: 1.3
+
+  * Image is loaded in background thread. Better error-handling for image decoding.
+  * Improved EXIF data support (rotation and mirror).
+  * Small UI updates.
+  * Couple new things to configure
+  
+  * Sample updated with possibility to choose custom aspect ratio.
 
 ### Version: 1.2
 

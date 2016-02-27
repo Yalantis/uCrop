@@ -9,6 +9,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
@@ -31,13 +33,11 @@ public class SampleActivity extends BaseActivity {
     private static final String TAG = "SampleActivity";
 
     private static final int REQUEST_SELECT_PICTURE = 0x01;
-
-    private static final int SAMPLE_IMAGE_MAX_SIZE_WIDTH = 200;
-    private static final int SAMPLE_IMAGE_MAX_SIZE_HEIGHT = 300;
     private static final String SAMPLE_CROPPED_IMAGE_NAME = "SampleCropImage.jpeg";
 
     private RadioGroup mRadioGroupAspectRatio, mRadioGroupCompressionSettings;
     private EditText mEditTextMaxWidth, mEditTextMaxHeight;
+    private EditText mEditTextRatioX, mEditTextRatioY;
     private CheckBox mCheckBoxMaxSize;
     private SeekBar mSeekBarQuality;
     private TextView mTextViewQuality;
@@ -100,17 +100,19 @@ public class SampleActivity extends BaseActivity {
         mRadioGroupAspectRatio = ((RadioGroup) findViewById(R.id.radio_group_aspect_ratio));
         mRadioGroupCompressionSettings = ((RadioGroup) findViewById(R.id.radio_group_compression_settings));
         mCheckBoxMaxSize = ((CheckBox) findViewById(R.id.checkbox_max_size));
+        mEditTextRatioX = ((EditText) findViewById(R.id.edit_text_ratio_x));
+        mEditTextRatioY = ((EditText) findViewById(R.id.edit_text_ratio_y));
         mEditTextMaxWidth = ((EditText) findViewById(R.id.edit_text_max_width));
         mEditTextMaxHeight = ((EditText) findViewById(R.id.edit_text_max_height));
         mSeekBarQuality = ((SeekBar) findViewById(R.id.seekbar_quality));
         mTextViewQuality = ((TextView) findViewById(R.id.text_view_quality));
 
         mRadioGroupAspectRatio.check(R.id.radio_dynamic);
+        mEditTextRatioX.addTextChangedListener(mAspectRatioTextWatcher);
+        mEditTextRatioY.addTextChangedListener(mAspectRatioTextWatcher);
         mRadioGroupCompressionSettings.check(R.id.radio_jpeg);
         mSeekBarQuality.setProgress(UCropActivity.DEFAULT_COMPRESS_QUALITY);
         mTextViewQuality.setText(String.format(getString(R.string.format_quality_d), mSeekBarQuality.getProgress()));
-        mEditTextMaxWidth.setText(String.valueOf(SAMPLE_IMAGE_MAX_SIZE_WIDTH));
-        mEditTextMaxHeight.setText(String.valueOf(SAMPLE_IMAGE_MAX_SIZE_HEIGHT));
         mSeekBarQuality.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -128,6 +130,23 @@ public class SampleActivity extends BaseActivity {
             }
         });
     }
+
+    private TextWatcher mAspectRatioTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            mRadioGroupAspectRatio.clearCheck();
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    };
 
     private void pickFromGallery() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN // Permission was added in API Level 16
@@ -168,12 +187,19 @@ public class SampleActivity extends BaseActivity {
             case R.id.radio_square:
                 uCrop = uCrop.withAspectRatio(1, 1);
                 break;
-            case R.id.radio_16_9:
-                uCrop = uCrop.withAspectRatio(16, 9);
-                break;
             case R.id.radio_dynamic:
-            default:
                 // do nothing
+                break;
+            default:
+                try {
+                    float ratioX = Float.valueOf(mEditTextRatioX.getText().toString().trim());
+                    float ratioY = Float.valueOf(mEditTextRatioY.getText().toString().trim());
+                    if (ratioX > 0 && ratioY > 0) {
+                        uCrop = uCrop.withAspectRatio(ratioX, ratioY);
+                    }
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Number please", e);
+                }
                 break;
         }
 

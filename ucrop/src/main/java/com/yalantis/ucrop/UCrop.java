@@ -29,6 +29,7 @@ public class UCrop {
 
     public static final String EXTRA_INPUT_URI = EXTRA_PREFIX + ".InputUri";
     public static final String EXTRA_OUTPUT_URI = EXTRA_PREFIX + ".OutputUri";
+    public static final String EXTRA_OUTPUT_CROP_ASPECT_RATIO = EXTRA_PREFIX + ".CropAspectRatio";
     public static final String EXTRA_ERROR = EXTRA_PREFIX + ".Error";
 
     public static final String EXTRA_ASPECT_RATIO_SET = EXTRA_PREFIX + ".AspectRatioSet";
@@ -66,7 +67,7 @@ public class UCrop {
      * @param x aspect ratio X
      * @param y aspect ratio Y
      */
-    public UCrop withAspectRatio(@IntRange(from = 1) int x, @IntRange(from = 1) int y) {
+    public UCrop withAspectRatio(float x, float y) {
         mCropIntent.putExtra(EXTRA_ASPECT_RATIO_SET, true);
         mCropIntent.putExtra(EXTRA_ASPECT_RATIO_X, x);
         mCropIntent.putExtra(EXTRA_ASPECT_RATIO_Y, y);
@@ -181,6 +182,16 @@ public class UCrop {
     }
 
     /**
+     * Retrieve cropped image aspect ratio from the result Intent
+     *
+     * @param intent crop result intent
+     * @return aspect ratio as a floating point value (x:y) - so it will be 1 for 1:1 or 4/3 for 4:3
+     */
+    public static float getOutputCropAspectRatio(@NonNull Intent intent) {
+        return intent.getParcelableExtra(EXTRA_OUTPUT_CROP_ASPECT_RATIO);
+    }
+
+    /**
      * Method retrieves error from the result intent.
      *
      * @param result crop result Intent
@@ -225,6 +236,9 @@ public class UCrop {
         public static final String EXTRA_UCROP_COLOR_WIDGET_ACTIVE = EXTRA_PREFIX + ".UcropColorWidgetActive";
 
         public static final String EXTRA_UCROP_TITLE_COLOR_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarTitleColor";
+        public static final String EXTRA_UCROP_TITLE_TEXT_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarTitleText";
+
+        public static final String EXTRA_UCROP_LOGO_COLOR = EXTRA_PREFIX + ".UcropLogoColor";
 
 
         private final Bundle mOptionBundle;
@@ -384,6 +398,20 @@ public class UCrop {
          */
         public void setToolbarTitleTextColor(@ColorInt int color) {
             mOptionBundle.putInt(EXTRA_UCROP_TITLE_COLOR_TOOLBAR, color);
+        }
+
+        /**
+         * @param text - desired text for Toolbar title
+         */
+        public void setToolbarTitle(@Nullable String text) {
+            mOptionBundle.putString(EXTRA_UCROP_TITLE_TEXT_TOOLBAR, text);
+        }
+
+        /**
+         * @param color - desired resolved color of logo fill (default is darker grey)
+         */
+        public void setLogoColor(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_UCROP_LOGO_COLOR, color);
         }
 
     }

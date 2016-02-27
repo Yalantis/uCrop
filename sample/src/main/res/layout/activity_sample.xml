@@ -41,6 +41,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/button_pick_amp_crop"
                 android:textAllCaps="true"
+                android:textColor="@android:color/white"
                 android:textAppearance="?android:textAppearanceMedium"
                 android:textStyle="bold"/>
 
@@ -84,13 +85,36 @@
                     android:text="@string/label_square"
                     android:textAppearance="?android:textAppearanceMedium"/>
 
-                <RadioButton
-                    android:id="@+id/radio_16_9"
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="140dp"
                     android:layout_height="wrap_content"
-                    android:text="16x9"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    tools:ignore="HardcodedText"/>
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/edit_text_ratio_x"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:hint="x"
+                        android:inputType="numberDecimal"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="to"
+                        tools:ignore="HardcodedText"/>
+
+                    <EditText
+                        android:id="@+id/edit_text_ratio_y"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:hint="y"
+                        android:inputType="numberDecimal"/>
+
+                </LinearLayout>
 
             </RadioGroup>
 
@@ -126,7 +150,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:hint="@string/label_width"
-                    android:inputType="numberDecimal"/>
+                    android:inputType="number"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -141,7 +165,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:hint="@string/label_height"
-                    android:inputType="numberDecimal"/>
+                    android:inputType="number"/>
 
             </LinearLayout>
 

@@ -9,7 +9,7 @@
     <TextView
         android:id="@+id/text_view_scale"
         style="@style/ucrop_TextViewWidgetText"
-        tools:text="100%"/>
+        android:text="100%"/>
 
     <com.yalantis.ucrop.view.widget.HorizontalProgressWheelView
         android:id="@+id/scale_scroll_wheel"

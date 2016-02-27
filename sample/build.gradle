@@ -8,8 +8,8 @@ android {
         applicationId "com.yalantis.ucrop.sample"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 4
-        versionName "1.0.3"
+        versionCode 5
+        versionName "1.0.4"
     }
     buildTypes {
         release {
@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:appcompat-v7:23.2.0'
 
     compile project (':ucrop')
 }
