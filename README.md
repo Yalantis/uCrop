@@ -23,6 +23,22 @@
         android:name="com.yalantis.ucrop.UCropActivity"
         android:screenOrientation="portrait"/>
     ```
+    
+    Note: If your project's default theme has ActionBar, you also add UCropTheme to styles.xml and AndroidManifest!
+          UCropActivity should use "Theme.AppCompat.Light.NoActionBar"
+	  
+    -> styles.xml
+    ``` 
+    <style name="AppTheme.UCropTheme" parent="Theme.AppCompat.Light.NoActionBar"/>
+    ```
+    
+    -> AndroidManifest.xml
+    ```
+    <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.UCropTheme"/>
+    ```
 
 3. The uCrop configuration is created using the builder pattern.
 
