@@ -40,9 +40,8 @@ public class UCrop {
     public static final String EXTRA_MAX_SIZE_X = EXTRA_PREFIX + ".MaxSizeX";
     public static final String EXTRA_MAX_SIZE_Y = EXTRA_PREFIX + ".MaxSizeY";
 
-    public static final String EXTRA_OPTIONS = EXTRA_PREFIX + ".Options";
-
     private Intent mCropIntent;
+    private Bundle mCropOptionsBundle;
 
     /**
      * This method creates new Intent builder and sets both source and destination image URIs.
@@ -56,8 +55,9 @@ public class UCrop {
 
     private UCrop(@NonNull Uri source, @NonNull Uri destination) {
         mCropIntent = new Intent();
-        mCropIntent.putExtra(EXTRA_INPUT_URI, source);
-        mCropIntent.putExtra(EXTRA_OUTPUT_URI, destination);
+        mCropOptionsBundle = new Bundle();
+        mCropOptionsBundle.putParcelable(EXTRA_INPUT_URI, source);
+        mCropOptionsBundle.putParcelable(EXTRA_OUTPUT_URI, destination);
     }
 
     /**
@@ -68,9 +68,9 @@ public class UCrop {
      * @param y aspect ratio Y
      */
     public UCrop withAspectRatio(float x, float y) {
-        mCropIntent.putExtra(EXTRA_ASPECT_RATIO_SET, true);
-        mCropIntent.putExtra(EXTRA_ASPECT_RATIO_X, x);
-        mCropIntent.putExtra(EXTRA_ASPECT_RATIO_Y, y);
+        mCropOptionsBundle.putBoolean(EXTRA_ASPECT_RATIO_SET, true);
+        mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_X, x);
+        mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_Y, y);
         return this;
     }
 
@@ -79,9 +79,9 @@ public class UCrop {
      * User won't see the menu with other ratios options.
      */
     public UCrop useSourceImageAspectRatio() {
-        mCropIntent.putExtra(EXTRA_ASPECT_RATIO_SET, true);
-        mCropIntent.putExtra(EXTRA_ASPECT_RATIO_X, 0);
-        mCropIntent.putExtra(EXTRA_ASPECT_RATIO_Y, 0);
+        mCropOptionsBundle.putBoolean(EXTRA_ASPECT_RATIO_SET, true);
+        mCropOptionsBundle.putInt(EXTRA_ASPECT_RATIO_X, 0);
+        mCropOptionsBundle.putInt(EXTRA_ASPECT_RATIO_Y, 0);
         return this;
     }
 
@@ -92,14 +92,14 @@ public class UCrop {
      * @param height max cropped image height
      */
     public UCrop withMaxResultSize(@IntRange(from = 100) int width, @IntRange(from = 100) int height) {
-        mCropIntent.putExtra(EXTRA_MAX_SIZE_SET, true);
-        mCropIntent.putExtra(EXTRA_MAX_SIZE_X, width);
-        mCropIntent.putExtra(EXTRA_MAX_SIZE_Y, height);
+        mCropOptionsBundle.putBoolean(EXTRA_MAX_SIZE_SET, true);
+        mCropOptionsBundle.putInt(EXTRA_MAX_SIZE_X, width);
+        mCropOptionsBundle.putInt(EXTRA_MAX_SIZE_Y, height);
         return this;
     }
 
     public UCrop withOptions(@NonNull Options options) {
-        mCropIntent.putExtra(EXTRA_OPTIONS, options.getOptionBundle());
+        mCropOptionsBundle.putAll(options.getOptionBundle());
         return this;
     }
 
@@ -168,6 +168,7 @@ public class UCrop {
      */
     public Intent getIntent(@NonNull Context context) {
         mCropIntent.setClass(context, UCropActivity.class);
+        mCropIntent.putExtras(mCropOptionsBundle);
         return mCropIntent;
     }
 
