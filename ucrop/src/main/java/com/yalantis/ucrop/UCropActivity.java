@@ -26,6 +26,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.util.SelectedStateListDrawable;
@@ -123,12 +124,19 @@ public class UCropActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_crop) {
-            cropAndSaveImage();
+//            cropAndSaveImage();
+            Toast.makeText(this, omfgCpp(), Toast.LENGTH_SHORT).show();
         } else if (item.getItemId() == android.R.id.home) {
             onBackPressed();
         }
         return super.onOptionsItemSelected(item);
     }
+
+    static {
+        System.loadLibrary("ucrop");
+    }
+
+    public native String omfgCpp();
 
     @Override
     protected void onStop() {
