@@ -3,6 +3,7 @@ package com.yalantis.ucrop;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -38,6 +39,7 @@ import com.yalantis.ucrop.view.UCropView;
 import com.yalantis.ucrop.view.widget.AspectRatioTextView;
 import com.yalantis.ucrop.view.widget.HorizontalProgressWheelView;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -86,7 +88,7 @@ public class UCropActivity extends AppCompatActivity {
     private List<ViewGroup> mCropAspectRatioViews = new ArrayList<>();
     private TextView mTextViewRotateAngle, mTextViewScalePercent;
 
-    private Uri mOutputUri;
+    private Uri mInputUri, mOutputUri;
 
     private Bitmap.CompressFormat mCompressFormat = DEFAULT_COMPRESS_FORMAT;
     private int mCompressQuality = DEFAULT_COMPRESS_QUALITY;
@@ -100,8 +102,18 @@ public class UCropActivity extends AppCompatActivity {
         final Intent intent = getIntent();
 
         setupViews(intent);
-        setImageData(intent);
-        setInitialState();
+
+        mInputUri = intent.getParcelableExtra(UCrop.EXTRA_INPUT_URI);
+        mOutputUri = intent.getParcelableExtra(UCrop.EXTRA_OUTPUT_URI);
+
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        String path = "/storage/emulated/0/Download/pillars.jpg";
+        BitmapFactory.decodeFile(new File(path).getAbsolutePath(), options);
+        System.out.println("path: " + new File(path).getAbsolutePath());
+        System.out.println("size: " + options.outWidth + "x" + options.outHeight);
+//        setImageData(intent);
+//        setInitialState();
     }
 
     @Override
@@ -126,6 +138,12 @@ public class UCropActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.menu_crop) {
 //            cropAndSaveImage();
             Toast.makeText(this, omfgCpp(), Toast.LENGTH_SHORT).show();
+
+            boolean cropResult = cropFile("/storage/emulated/0/Download/pillars.jpg", mOutputUri.getPath(), 0.f, 0.f);
+            Toast.makeText(this, "" + cropResult, Toast.LENGTH_SHORT).show();
+
+            setResultUri(mOutputUri, 1);
+            finish();
         } else if (item.getItemId() == android.R.id.home) {
             onBackPressed();
         }
@@ -137,6 +155,8 @@ public class UCropActivity extends AppCompatActivity {
     }
 
     public native String omfgCpp();
+
+    native public boolean cropFile(String source, String result, float start, float end);
 
     @Override
     protected void onStop() {

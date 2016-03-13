@@ -31,6 +31,14 @@ extern "C" {
 JNIEXPORT jstring JNICALL Java_com_yalantis_ucrop_UCropActivity_omfgCpp
   (JNIEnv *, jobject);
 
+/*
+ * Class:     com_yalantis_ucrop_UCropActivity
+ * Method:    cropFile
+ * Signature: (Ljava/lang/String;Ljava/lang/String;FF)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_UCropActivity_cropFile
+  (JNIEnv *, jobject, jstring, jstring, jfloat, jfloat);
+
 #ifdef __cplusplus
 }
 #endif

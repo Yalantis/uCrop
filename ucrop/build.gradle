@@ -43,14 +43,6 @@ android {
                 'NDK_DEBUG=1'
     }
 
-    task cleanNative(type: Exec, description: 'Clean JNI object files') {
-        def ndkDir = android.ndkDirectory
-        commandLine "$ndkDir/ndk-build",
-                '-C', file('src/main/jni').absolutePath,
-                'clean'
-    }
-
-    clean.dependsOn 'cleanNative'
 
     tasks.withType(JavaCompile) {
         compileTask -> compileTask.dependsOn buildNative
