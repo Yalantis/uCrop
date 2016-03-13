@@ -51,9 +51,15 @@ LOGD("file_source_path: %s \n file_result_path: %s",file_source_path, file_resul
     Mat dst;
     warpAffine(src, dst, rot, bbox.size());
 
+    // Setup a rectangle to define your region of interest
+    Rect myROI(1000, 1000, 500, 500);
+    // Crop the full image to that image contained by the rectangle myROI
+    // Note that this doesn't copy the data
+    Mat croppedImage = dst(myROI);
+
 // CV_IMWRITE_PNG_COMPRESSION
 
-    imwrite(file_result_path, dst, vector<int>({CV_IMWRITE_JPEG_QUALITY, JPEG_QUALITY}));
+    imwrite(file_result_path, croppedImage, vector<int>({CV_IMWRITE_JPEG_QUALITY, JPEG_QUALITY}));
 
 LOGD("MEOW");
         return true;

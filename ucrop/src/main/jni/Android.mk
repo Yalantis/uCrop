@@ -3,7 +3,7 @@ PROJECT := $(call my-dir)
 include $(CLEAR_VARS)
 
 #opencv
-OPENCVROOT:= /Users/oleksii/Downloads/OpenCV-android-sdk30
+OPENCVROOT:= /Users/oleksii/Downloads/OpenCV-android-sdk31
 OPENCV_CAMERA_MODULES:=off
 OPENCV_INSTALL_MODULES:=on
 OPENCV_LIB_TYPE:=SHARED
