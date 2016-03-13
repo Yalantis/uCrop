@@ -93,7 +93,8 @@ public class SampleActivity extends BaseActivity {
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pickFromGallery();
+//                pickFromGallery();
+                startCropActivity(Uri.fromFile(new File("/storage/emulated/0/Download/spaceships.jpg")));
             }
         });
 

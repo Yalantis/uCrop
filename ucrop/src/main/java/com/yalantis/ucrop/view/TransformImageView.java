@@ -249,7 +249,7 @@ public class TransformImageView extends ImageView {
 
     /**
      * This method calculates maximum size of both width and height of bitmap.
-     * It is the device screen diagonal for default implementation.
+     * It is twice the device screen diagonal for default implementation.
      *
      * @return - max bitmap size in pixels.
      */
@@ -268,7 +268,7 @@ public class TransformImageView extends ImageView {
             width = display.getWidth();
             height = display.getHeight();
         }
-        return (int) Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
+        return (int) Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)) * 2;
     }
 
     @Override

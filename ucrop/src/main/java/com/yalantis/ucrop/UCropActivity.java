@@ -3,7 +3,6 @@ package com.yalantis.ucrop;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -27,7 +26,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.util.SelectedStateListDrawable;
@@ -39,7 +37,6 @@ import com.yalantis.ucrop.view.UCropView;
 import com.yalantis.ucrop.view.widget.AspectRatioTextView;
 import com.yalantis.ucrop.view.widget.HorizontalProgressWheelView;
 
-import java.io.File;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -102,18 +99,8 @@ public class UCropActivity extends AppCompatActivity {
         final Intent intent = getIntent();
 
         setupViews(intent);
-
-        mInputUri = intent.getParcelableExtra(UCrop.EXTRA_INPUT_URI);
-        mOutputUri = intent.getParcelableExtra(UCrop.EXTRA_OUTPUT_URI);
-
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        String path = "/storage/emulated/0/Download/pillars.jpg";
-        BitmapFactory.decodeFile(new File(path).getAbsolutePath(), options);
-        System.out.println("path: " + new File(path).getAbsolutePath());
-        System.out.println("size: " + options.outWidth + "x" + options.outHeight);
-//        setImageData(intent);
-//        setInitialState();
+        setImageData(intent);
+        setInitialState();
     }
 
     @Override
@@ -136,27 +123,12 @@ public class UCropActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_crop) {
-//            cropAndSaveImage();
-            Toast.makeText(this, omfgCpp(), Toast.LENGTH_SHORT).show();
-
-            boolean cropResult = cropFile("/storage/emulated/0/Download/pillars.jpg", mOutputUri.getPath(), 0.f, 0.f);
-            Toast.makeText(this, "" + cropResult, Toast.LENGTH_SHORT).show();
-
-            setResultUri(mOutputUri, 1);
-            finish();
+            cropAndSaveImage(true);
         } else if (item.getItemId() == android.R.id.home) {
             onBackPressed();
         }
         return super.onOptionsItemSelected(item);
     }
-
-    static {
-        System.loadLibrary("ucrop");
-    }
-
-    public native String omfgCpp();
-
-    native public boolean cropFile(String source, String result, float start, float end);
 
     @Override
     protected void onStop() {
@@ -170,13 +142,13 @@ public class UCropActivity extends AppCompatActivity {
      * This method extracts all data from the incoming intent and setups views properly.
      */
     private void setImageData(@NonNull Intent intent) {
-        Uri inputUri = intent.getParcelableExtra(UCrop.EXTRA_INPUT_URI);
+        mInputUri = intent.getParcelableExtra(UCrop.EXTRA_INPUT_URI);
         mOutputUri = intent.getParcelableExtra(UCrop.EXTRA_OUTPUT_URI);
         processOptions(intent);
 
-        if (inputUri != null && mOutputUri != null) {
+        if (mInputUri != null && mOutputUri != null) {
             try {
-                mGestureCropImageView.setImageUri(inputUri);
+                mGestureCropImageView.setImageUri(mInputUri);
             } catch (Exception e) {
                 setResultException(e);
                 finish();
@@ -550,25 +522,35 @@ public class UCropActivity extends AppCompatActivity {
         mGestureCropImageView.setRotateEnabled(mAllowedGestures[tab] == ALL || mAllowedGestures[tab] == ROTATE);
     }
 
-    private void cropAndSaveImage() {
-        OutputStream outputStream = null;
-        try {
-            final Bitmap croppedBitmap = mGestureCropImageView.cropImage();
-            if (croppedBitmap != null) {
-                outputStream = getContentResolver().openOutputStream(mOutputUri);
-                croppedBitmap.compress(mCompressFormat, mCompressQuality, outputStream);
-                croppedBitmap.recycle();
-
+    private void cropAndSaveImage(boolean cropNative) {
+        if (cropNative) {
+            boolean imageCropped = mGestureCropImageView.cropImageNative(mInputUri, mOutputUri);
+            if (imageCropped) {
                 setResultUri(mOutputUri, mGestureCropImageView.getTargetAspectRatio());
                 finish();
             } else {
-                setResultException(new NullPointerException("CropImageView.cropImage() returned null."));
+                setResultException(new Exception("cropImageNative returned false."));
             }
-        } catch (Exception e) {
-            setResultException(e);
-            finish();
-        } finally {
-            BitmapLoadUtils.close(outputStream);
+        } else {
+            OutputStream outputStream = null;
+            try {
+                final Bitmap croppedBitmap = mGestureCropImageView.cropImage();
+                if (croppedBitmap != null) {
+                    outputStream = getContentResolver().openOutputStream(mOutputUri);
+                    croppedBitmap.compress(mCompressFormat, mCompressQuality, outputStream);
+                    croppedBitmap.recycle();
+
+                    setResultUri(mOutputUri, mGestureCropImageView.getTargetAspectRatio());
+                    finish();
+                } else {
+                    setResultException(new NullPointerException("CropImageView.cropImage() returned null."));
+                }
+            } catch (Exception e) {
+                setResultException(e);
+                finish();
+            } finally {
+                BitmapLoadUtils.close(outputStream);
+            }
         }
     }
 

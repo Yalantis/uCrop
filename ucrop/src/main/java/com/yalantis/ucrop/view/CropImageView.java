@@ -3,13 +3,16 @@ package com.yalantis.ucrop.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.yalantis.ucrop.R;
 import com.yalantis.ucrop.util.CubicEasing;
@@ -25,6 +28,10 @@ import java.util.Arrays;
  * Also it extends parent class methods to add checks for scale; animating zoom in/out.
  */
 public class CropImageView extends TransformImageView {
+
+    static {
+        System.loadLibrary("ucrop");
+    }
 
     public static final int DEFAULT_MAX_BITMAP_SIZE = 0;
     public static final int DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = 500;
@@ -67,6 +74,49 @@ public class CropImageView extends TransformImageView {
 
     public CropImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    native public boolean cropFile(String inputPath, String outputPath, int left, int top, int width, int height, float angle);
+
+    public boolean cropImageNative(Uri input, Uri output) {
+        Bitmap viewBitmap = getViewBitmap();
+        if (viewBitmap == null || viewBitmap.isRecycled()) {
+            return false;
+        }
+
+        cancelAllAnimations();
+        setImageToWrapCropBounds(false);
+
+        RectF currentImageRect = RectUtils.trapToRect(mCurrentImageCorners);
+        if (currentImageRect.isEmpty()) {
+            return false;
+        }
+
+        float currentScale = getCurrentScale();
+        float currentAngle = getCurrentAngle();
+
+
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(input.getPath(), options);
+
+        float scaleX = options.outWidth / viewBitmap.getWidth();
+        float scaleY = options.outHeight / viewBitmap.getHeight();
+
+        float resizeScale = Math.min(scaleX, scaleY);
+
+        currentScale /= resizeScale;
+
+        Log.d("WTF", "currentScale: " + currentScale + " scaleX: " + scaleX + " scaleY: " + scaleY);
+
+        int top = (int) ((mCropRect.top - currentImageRect.top) / currentScale);
+        int left = (int) ((mCropRect.left - currentImageRect.left) / currentScale);
+        int width = (int) (mCropRect.width() / currentScale);
+        int height = (int) (mCropRect.height() / currentScale);
+
+        Log.d("WTF", String.format("java left: %s top: %s width: %s height: %s angle: %s:", left, top, width, height, currentAngle));
+
+        return cropFile(input.getPath(), output.getPath(), left, top, width, height, -currentAngle);
     }
 
     /**

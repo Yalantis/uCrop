@@ -6,7 +6,7 @@
 #include <jni.h>
 #include <vector>
 #include <android/log.h>
-#include "com_yalantis_ucrop_UCropActivity.h"
+#include "com_yalantis_ucrop_view_CropImageView.h"
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
@@ -20,20 +20,14 @@ using namespace std;
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-JNIEXPORT jstring JNICALL Java_com_yalantis_ucrop_UCropActivity_omfgCpp
-  (JNIEnv * env, jobject obj){
-    return env->NewStringUTF("Hello from JNI");
-  }
-
-JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_UCropActivity_cropFile(JNIEnv *env, jobject obj, jstring pathSource, jstring pathResult, float start, float end) {
+JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_view_CropImageView_cropFile(JNIEnv *env, jobject obj, jstring pathSource, jstring pathResult, jint left, jint top, jint width, jint height, jfloat angle) {
 
     const char *file_source_path = env->GetStringUTFChars(pathSource, 0);
     const char *file_result_path = env->GetStringUTFChars(pathResult, 0);
 
-LOGD("file_source_path: %s \n file_result_path: %s",file_source_path, file_result_path);
+    LOGD("file_source_path: %s \n file_result_path: %s",file_source_path, file_result_path);
 
     Mat src = imread(file_source_path, CV_LOAD_IMAGE_UNCHANGED);
-    double angle = 220;
 
     // get rotation matrix for rotating the image around its center
     Point2f center(src.cols/2.0, src.rows/2.0);
@@ -52,16 +46,16 @@ LOGD("file_source_path: %s \n file_result_path: %s",file_source_path, file_resul
     warpAffine(src, dst, rot, bbox.size());
 
     // Setup a rectangle to define your region of interest
-    Rect myROI(1000, 1000, 500, 500);
+    Rect myROI(left, top, width, height);
     // Crop the full image to that image contained by the rectangle myROI
     // Note that this doesn't copy the data
     Mat croppedImage = dst(myROI);
 
-// CV_IMWRITE_PNG_COMPRESSION
+    // CV_IMWRITE_PNG_COMPRESSION
 
     imwrite(file_result_path, croppedImage, vector<int>({CV_IMWRITE_JPEG_QUALITY, JPEG_QUALITY}));
 
-LOGD("MEOW");
+    LOGD("imwrite DONE");
         return true;
 
     } catch (Exception& ex) {
