@@ -1,18 +1,23 @@
-PROJECT := $(call my-dir)
+LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
+LOCAL_MODULE:= libjpeg
+LOCAL_SRC_FILES := libjpeg.a
+include $(PREBUILT_STATIC_LIBRARY)
 
-#opencv
-OPENCVROOT:= /Users/oleksii/Downloads/OpenCV-android-sdk31
-OPENCV_CAMERA_MODULES:=off
-OPENCV_INSTALL_MODULES:=on
-OPENCV_LIB_TYPE:=SHARED
-include ${OPENCVROOT}/sdk/native/jni/OpenCV.mk
 
+include $(CLEAR_VARS)
+LOCAL_MODULE:= libpng
+LOCAL_SRC_FILES := libpng.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+
+include $(CLEAR_VARS)
 LOCAL_MODULE    := ucrop
-LOCAL_CFLAGS    := -std=c++11 -fno-permissive -Wno-int-to-pointer-cast
-LOCAL_SRC_FILES := $(PROJECT)/main.cpp
+LOCAL_SRC_FILES := main.cpp
 
-LOCAL_LDLIBS := -llog -landroid
-
+LOCAL_C_INCLUDES := $(LOCAL_PATH)
+LOCAL_LDLIBS    := -llog -lz
+LOCAL_STATIC_LIBRARIES := libpng libjpeg
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/libpng/ $(LOCAL_PATH)/jpeglib/
 include $(BUILD_SHARED_LIBRARY)

@@ -23,13 +23,22 @@ extern "C" {
 #define com_yalantis_ucrop_view_CropImageView_SOURCE_IMAGE_ASPECT_RATIO 0.0f
 #undef com_yalantis_ucrop_view_CropImageView_DEFAULT_ASPECT_RATIO
 #define com_yalantis_ucrop_view_CropImageView_DEFAULT_ASPECT_RATIO 0.0f
+
 /*
  * Class:     com_yalantis_ucrop_view_CropImageView
  * Method:    cropFile
  * Signature: (Ljava/lang/String;Ljava/lang/String;IIIIF)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_view_CropImageView_cropFile
+JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_view_CropImageView_cropFileOpenCV
   (JNIEnv *, jobject, jstring, jstring, jint, jint, jint, jint, jfloat);
+
+/*
+* Class:     com_yalantis_ucrop_view_CropImageView
+* Method:    cropFile
+* Signature: (Ljava/lang/String;Ljava/lang/String;IIIIF)Z
+*/
+JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_view_CropImageView_cropFileCImg
+(JNIEnv *, jobject, jstring, jstring, jint, jint, jint, jint, jfloat);
 
 #ifdef __cplusplus
 }

@@ -76,7 +76,9 @@ public class CropImageView extends TransformImageView {
         super(context, attrs, defStyle);
     }
 
-    native public boolean cropFile(String inputPath, String outputPath, int left, int top, int width, int height, float angle);
+    native public boolean cropFileOpenCV(String inputPath, String outputPath, int left, int top, int width, int height, float angle);
+
+    native public boolean cropFileCImg(String inputPath, String outputPath, int left, int top, int width, int height, float angle);
 
     public boolean cropImageNative(Uri input, Uri output) {
         Bitmap viewBitmap = getViewBitmap();
@@ -115,8 +117,13 @@ public class CropImageView extends TransformImageView {
         int height = (int) (mCropRect.height() / currentScale);
 
         Log.d("WTF", String.format("java left: %s top: %s width: %s height: %s angle: %s:", left, top, width, height, currentAngle));
+        long startTime = System.nanoTime();
+        boolean result = cropFileCImg(input.getPath(), output.getPath(), left, top, width, height, currentAngle);
 
-        return cropFile(input.getPath(), output.getPath(), left, top, width, height, -currentAngle);
+        long stopTime = System.nanoTime();
+        Log.d("WTF", "sec: " + (stopTime - startTime) / 1000000.f);
+
+        return result;
     }
 
     /**
