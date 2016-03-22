@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -240,7 +241,8 @@ public class SampleActivity extends BaseActivity {
                 break;
         }
         options.setCompressionQuality(mSeekBarQuality.getProgress());
-
+        options.setDimmedLayerColor(Color.CYAN);
+        options.setOvalDimmedLayer(true);
         /*
         If you want to configure how gestures work for all UCropActivity tabs
 
