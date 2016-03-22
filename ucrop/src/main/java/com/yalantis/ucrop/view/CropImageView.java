@@ -18,6 +18,7 @@ import com.yalantis.ucrop.R;
 import com.yalantis.ucrop.util.CubicEasing;
 import com.yalantis.ucrop.util.RectUtils;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
@@ -76,11 +77,17 @@ public class CropImageView extends TransformImageView {
         super(context, attrs, defStyle);
     }
 
-    native public boolean cropFileOpenCV(String inputPath, String outputPath, int left, int top, int width, int height, float angle);
-
-    native public boolean cropFileCImg(String inputPath, String outputPath, int left, int top, int width, int height, float angle);
-
-    public boolean cropImageNative(Uri input, Uri output) {
+    /**
+     * fixme
+     * This method crops part of image that fills the crop bounds.
+     * <p/>
+     * First image is downscaled if max size was set and if resulting image is larger that max size.
+     * Then image is rotated accordingly.
+     * Finally new Bitmap object is created and returned.
+     *
+     * @return - cropped Bitmap object or null if current Bitmap is invalid or image rectangle is empty.
+     */
+    public boolean cropImageNative(Uri input, Uri output) throws IOException {
         Bitmap viewBitmap = getViewBitmap();
         if (viewBitmap == null || viewBitmap.isRecycled()) {
             return false;
@@ -116,9 +123,14 @@ public class CropImageView extends TransformImageView {
         int width = (int) (mCropRect.width() / currentScale);
         int height = (int) (mCropRect.height() / currentScale);
 
+      /*  if (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0) {
+        float cropWidth = mCropRect.width() / currentScale;
+        float cropHeight = mCropRect.height() / currentScale;
+        if (cropWidth > mMaxResultImageSizeX || cropHeight > mMaxResultImageSizeY) {*/
+
         Log.d("WTF", String.format("java left: %s top: %s width: %s height: %s angle: %s:", left, top, width, height, currentAngle));
         long startTime = System.nanoTime();
-        boolean result = cropFileCImg(input.getPath(), output.getPath(), left, top, width, height, currentAngle);
+        boolean result = cropCImg(input.getPath(), output.getPath(), left, top, width, height, currentAngle);
 
         long stopTime = System.nanoTime();
         Log.d("WTF", "sec: " + (stopTime - startTime) / 1000000.f);
@@ -126,74 +138,8 @@ public class CropImageView extends TransformImageView {
         return result;
     }
 
-    /**
-     * This method crops part of image that fills the crop bounds.
-     * <p/>
-     * First image is downscaled if max size was set and if resulting image is larger that max size.
-     * Then image is rotated accordingly.
-     * Finally new Bitmap object is created and returned.
-     *
-     * @return - cropped Bitmap object or null if current Bitmap is invalid or image rectangle is empty.
-     */
-    @Nullable
-    public Bitmap cropImage() {
-        Bitmap viewBitmap = getViewBitmap();
-        if (viewBitmap == null || viewBitmap.isRecycled()) {
-            return null;
-        }
-
-        cancelAllAnimations();
-        setImageToWrapCropBounds(false);
-
-        RectF currentImageRect = RectUtils.trapToRect(mCurrentImageCorners);
-        if (currentImageRect.isEmpty()) {
-            return null;
-        }
-
-        float currentScale = getCurrentScale();
-        float currentAngle = getCurrentAngle();
-
-        if (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0) {
-            float cropWidth = mCropRect.width() / currentScale;
-            float cropHeight = mCropRect.height() / currentScale;
-
-            if (cropWidth > mMaxResultImageSizeX || cropHeight > mMaxResultImageSizeY) {
-
-                float scaleX = mMaxResultImageSizeX / cropWidth;
-                float scaleY = mMaxResultImageSizeY / cropHeight;
-                float resizeScale = Math.min(scaleX, scaleY);
-
-                Bitmap resizedBitmap = Bitmap.createScaledBitmap(viewBitmap,
-                        (int) (viewBitmap.getWidth() * resizeScale),
-                        (int) (viewBitmap.getHeight() * resizeScale), false);
-                if (viewBitmap != resizedBitmap) {
-                    viewBitmap.recycle();
-                }
-                viewBitmap = resizedBitmap;
-
-                currentScale /= resizeScale;
-            }
-        }
-
-        if (currentAngle != 0) {
-            mTempMatrix.reset();
-            mTempMatrix.setRotate(currentAngle, viewBitmap.getWidth() / 2, viewBitmap.getHeight() / 2);
-
-            Bitmap rotatedBitmap = Bitmap.createBitmap(viewBitmap, 0, 0, viewBitmap.getWidth(), viewBitmap.getHeight(),
-                    mTempMatrix, true);
-            if (viewBitmap != rotatedBitmap) {
-                viewBitmap.recycle();
-            }
-            viewBitmap = rotatedBitmap;
-        }
-
-        int top = (int) ((mCropRect.top - currentImageRect.top) / currentScale);
-        int left = (int) ((mCropRect.left - currentImageRect.left) / currentScale);
-        int width = (int) (mCropRect.width() / currentScale);
-        int height = (int) (mCropRect.height() / currentScale);
-
-        return Bitmap.createBitmap(viewBitmap, left, top, width, height);
-    }
+    @SuppressWarnings("JniMissingFunction")
+    native public boolean cropCImg(String inputPath, String outputPath, int left, int top, int width, int height, float angle) throws IOException, OutOfMemoryError;
 
     /**
      * @return - maximum scale value for current image and crop ratio

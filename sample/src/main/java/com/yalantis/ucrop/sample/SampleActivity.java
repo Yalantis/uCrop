@@ -93,8 +93,8 @@ public class SampleActivity extends BaseActivity {
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                pickFromGallery();
-                startCropActivity(Uri.fromFile(new File("/storage/emulated/0/Download/spaceships.jpg")));
+                pickFromGallery();
+//                startCropActivity(Uri.fromFile(new File("/storage/emulated/0/Download/spaceships.jpg")));
             }
         });
 
@@ -199,7 +199,7 @@ public class SampleActivity extends BaseActivity {
                         uCrop = uCrop.withAspectRatio(ratioX, ratioY);
                     }
                 } catch (NumberFormatException e) {
-                    Log.e(TAG, "Number please", e);
+                    Log.i(TAG, String.format("Number please: %s", e.getMessage()));
                 }
                 break;
         }

@@ -27,7 +27,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.util.SelectedStateListDrawable;
 import com.yalantis.ucrop.view.CropImageView;
 import com.yalantis.ucrop.view.GestureCropImageView;
@@ -37,7 +36,6 @@ import com.yalantis.ucrop.view.UCropView;
 import com.yalantis.ucrop.view.widget.AspectRatioTextView;
 import com.yalantis.ucrop.view.widget.HorizontalProgressWheelView;
 
-import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -46,6 +44,7 @@ import java.util.List;
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
  */
+@SuppressWarnings("ConstantConditions")
 public class UCropActivity extends AppCompatActivity {
 
     public static final int DEFAULT_COMPRESS_QUALITY = 90;
@@ -123,7 +122,7 @@ public class UCropActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_crop) {
-            cropAndSaveImage(true);
+            cropAndSaveImage();
         } else if (item.getItemId() == android.R.id.home) {
             onBackPressed();
         }
@@ -522,35 +521,18 @@ public class UCropActivity extends AppCompatActivity {
         mGestureCropImageView.setRotateEnabled(mAllowedGestures[tab] == ALL || mAllowedGestures[tab] == ROTATE);
     }
 
-    private void cropAndSaveImage(boolean cropNative) {
-        if (cropNative) {
+    private void cropAndSaveImage() {
+        try {
             boolean imageCropped = mGestureCropImageView.cropImageNative(mInputUri, mOutputUri);
             if (imageCropped) {
                 setResultUri(mOutputUri, mGestureCropImageView.getTargetAspectRatio());
                 finish();
             } else {
-                setResultException(new Exception("cropImageNative returned false."));
+                setResultException(new Exception("Unexpected native error."));
             }
-        } else {
-            OutputStream outputStream = null;
-            try {
-                final Bitmap croppedBitmap = mGestureCropImageView.cropImage();
-                if (croppedBitmap != null) {
-                    outputStream = getContentResolver().openOutputStream(mOutputUri);
-                    croppedBitmap.compress(mCompressFormat, mCompressQuality, outputStream);
-                    croppedBitmap.recycle();
-
-                    setResultUri(mOutputUri, mGestureCropImageView.getTargetAspectRatio());
-                    finish();
-                } else {
-                    setResultException(new NullPointerException("CropImageView.cropImage() returned null."));
-                }
-            } catch (Exception e) {
-                setResultException(e);
-                finish();
-            } finally {
-                BitmapLoadUtils.close(outputStream);
-            }
+        } catch (Throwable t) {
+            setResultException(t);
+            finish();
         }
     }
 

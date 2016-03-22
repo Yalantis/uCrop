@@ -14,10 +14,13 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -83,6 +86,8 @@ public class BitmapLoadUtils {
                 return new BitmapWorkerResult(null, new NullPointerException("Uri cannot be null"));
             }
 
+//            InputStream is = mContext.getContentResolver().openInputStream(mUri);
+
             final ParcelFileDescriptor parcelFileDescriptor;
             try {
                 parcelFileDescriptor = mContext.getContentResolver().openFileDescriptor(mUri, "r");
@@ -99,6 +104,7 @@ public class BitmapLoadUtils {
 
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
+//            BitmapFactory.decodeStream(is)
             BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
             options.inSampleSize = calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
             options.inJustDecodeBounds = false;
@@ -146,6 +152,35 @@ public class BitmapLoadUtils {
                 mBitmapLoadCallback.onFailure(result.mBitmapWorkerException);
             }
         }
+    }
+
+    // only if i cannot get a path in an ugly/hack way
+    private void copyInputStreamToFile(InputStream in, File file) {
+        try {
+            OutputStream out = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            out.close();
+            in.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        /*
+        String path = "file.txt";
+        OutputStream stream = new BufferedOutputStream(new FileOutputStream(path));
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+        int len = 0;
+        while ((len = is.read(buffer)) != -1) {
+            stream.write(buffer, 0, len);
+        }
+        if(stream!=null)
+            stream.close();
+         */
     }
 
     public static Bitmap transformBitmap(@NonNull Bitmap bitmap, @NonNull Matrix transformMatrix) {

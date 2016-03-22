@@ -23,30 +23,27 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
-	lintOptions {
+    lintOptions {
         abortOnError false
     }
-	
+
     resourcePrefix 'ucrop_'
 
+//    task buildNative(type: Exec, description: 'Compile JNI source via NDK') {
+//        def ndkDir = android.ndkDirectory
+//        commandLine "$ndkDir/ndk-build",
+//                '-C', file('src/main/jni').absolutePath,
+//                '-j', Runtime.runtime.availableProcessors(),
+//                'all',
+//                'NDK_DEBUG=1'
+//    }
     sourceSets.main {
-        jniLibs.srcDir 'src/main/libs'
+//        jniLibs.srcDir 'src/main/libs'
         jni.srcDirs = [];
     }
-
-    task buildNative(type: Exec, description: 'Compile JNI source via NDK') {
-        def ndkDir = android.ndkDirectory
-        commandLine "$ndkDir/ndk-build",
-                '-C', file('src/main/jni').absolutePath,
-                '-j', Runtime.runtime.availableProcessors(),
-                'all',
-                'NDK_DEBUG=1'
-    }
-
-
-    tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn buildNative
-    }
+//    tasks.withType(JavaCompile) {
+//        compileTask -> compileTask.dependsOn buildNative
+//    }
 }
 
 dependencies {
