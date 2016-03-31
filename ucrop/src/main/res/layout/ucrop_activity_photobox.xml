@@ -70,6 +70,7 @@
     </FrameLayout>
 
     <ImageView
+        android:id="@+id/wrapper_shadow"
         android:layout_width="match_parent"
         android:layout_height="@dimen/ucrop_height_divider_shadow"
         android:layout_above="@+id/wrapper_states"
