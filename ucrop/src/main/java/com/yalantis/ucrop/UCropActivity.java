@@ -507,11 +507,7 @@ public class UCropActivity extends AppCompatActivity {
     };
 
     private void setInitialState() {
-        if (!mShowBottomControls) {
-            return;
-        }
-
-        if (mWrapperStateAspectRatio.getVisibility() == View.VISIBLE) {
+        if (mWrapperStateAspectRatio != null && mWrapperStateAspectRatio.getVisibility() == View.VISIBLE) {
             setWidgetState(R.id.state_aspect_ratio);
         } else {
             setWidgetState(R.id.state_scale);
@@ -519,17 +515,15 @@ public class UCropActivity extends AppCompatActivity {
     }
 
     private void setWidgetState(@IdRes int stateViewId) {
-        if (!mShowBottomControls) {
-            return;
+        if (mShowBottomControls) {
+            mWrapperStateAspectRatio.setSelected(stateViewId == R.id.state_aspect_ratio);
+            mWrapperStateRotate.setSelected(stateViewId == R.id.state_rotate);
+            mWrapperStateScale.setSelected(stateViewId == R.id.state_scale);
+
+            mLayoutAspectRatio.setVisibility(stateViewId == R.id.state_aspect_ratio ? View.VISIBLE : View.GONE);
+            mLayoutRotate.setVisibility(stateViewId == R.id.state_rotate ? View.VISIBLE : View.GONE);
+            mLayoutScale.setVisibility(stateViewId == R.id.state_scale ? View.VISIBLE : View.GONE);
         }
-
-        mWrapperStateAspectRatio.setSelected(stateViewId == R.id.state_aspect_ratio);
-        mWrapperStateRotate.setSelected(stateViewId == R.id.state_rotate);
-        mWrapperStateScale.setSelected(stateViewId == R.id.state_scale);
-
-        mLayoutAspectRatio.setVisibility(stateViewId == R.id.state_aspect_ratio ? View.VISIBLE : View.GONE);
-        mLayoutRotate.setVisibility(stateViewId == R.id.state_rotate ? View.VISIBLE : View.GONE);
-        mLayoutScale.setVisibility(stateViewId == R.id.state_scale ? View.VISIBLE : View.GONE);
 
         if (stateViewId == R.id.state_scale) {
             setAllowedGestures(0);
