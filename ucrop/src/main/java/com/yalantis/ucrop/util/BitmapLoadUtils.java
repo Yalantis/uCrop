@@ -13,11 +13,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.yalantis.ucrop.UCrop;
+
 import java.io.Closeable;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -34,10 +40,11 @@ public class BitmapLoadUtils {
 
     }
 
-    public static void decodeBitmapInBackground(@NonNull Context context, @Nullable Uri uri,
+    public static void decodeBitmapInBackground(@NonNull Context context,
+                                                @Nullable Uri uri, @Nullable String source,
                                                 int requiredWidth, int requiredHeight,
                                                 BitmapLoadCallback loadCallback) {
-        new BitmapWorkerTask(context, uri, requiredWidth, requiredHeight, loadCallback).execute();
+        new BitmapWorkerTask(context, uri, source, requiredWidth, requiredHeight, loadCallback).execute();
     }
 
     static class BitmapWorkerResult {
@@ -53,7 +60,7 @@ public class BitmapLoadUtils {
     }
 
     /**
-     * Creates and returns a Bitmap for a given Uri.
+     * Creates and returns a Bitmap for a given Uri(String url).
      * inSampleSize is calculated based on requiredWidth property. However can be adjusted if OOM occurs.
      * If any EXIF config is found - bitmap is transformed properly.
      */
@@ -61,28 +68,82 @@ public class BitmapLoadUtils {
 
         private final Context mContext;
         private final Uri mUri;
+        private final String mSource;
         private final int mRequiredWidth;
         private final int mRequiredHeight;
+        private final Boolean mDownloadable;
 
         private final BitmapLoadCallback mBitmapLoadCallback;
 
-        public BitmapWorkerTask(@NonNull Context context, @Nullable Uri uri,
+        public BitmapWorkerTask(@NonNull Context context,
+                                @Nullable Uri uri, @Nullable String source,
                                 int requiredWidth, int requiredHeight,
                                 BitmapLoadCallback loadCallback) {
             mContext = context;
             mUri = uri;
+            mSource = source;
             mRequiredWidth = requiredWidth;
             mRequiredHeight = requiredHeight;
             mBitmapLoadCallback = loadCallback;
+            mDownloadable = mUri == null;
         }
+
+
+
+        //  handles connection for a given string url
+        private InputStream connect(String url) throws IOException {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+            Response response = client.newCall(request).execute();
+            return response.body().byteStream();
+        }
+
+        //  decodes bitmap
+        private Bitmap bitmapFetcher() {
+            InputStream input;
+            try {
+                input = connect(mSource);
+            } catch (IOException e) {
+                Log.e(TAG, "bitmapFetcher: ConnectionError: ", e);
+                return null;
+            }
+
+            Bitmap decodeSampledBitmap = null;
+
+            boolean decodeAttemptSuccess = false;
+            while (!decodeAttemptSuccess) {
+                try {
+                    decodeSampledBitmap = BitmapFactory.decodeStream(input);
+                    decodeAttemptSuccess = true;
+                } catch (OutOfMemoryError error) {
+                    Log.e(TAG, "bitmapFetcher: BitmapFactory.decodeStream: ", error);
+                    return null;
+                }
+            }
+            close(input);
+            if (decodeSampledBitmap == null) {
+                return null;
+            }
+            UCrop.fileManager.bitmapToFile(decodeSampledBitmap);
+            return decodeSampledBitmap;
+        }
+
 
         @Override
         @NonNull
         protected BitmapWorkerResult doInBackground(Void... params) {
+            if (mDownloadable) {
+                Bitmap decodedBitmap = bitmapFetcher();
+                if (decodedBitmap == null)
+                    return new BitmapWorkerResult(null, new IllegalArgumentException("Bitmap could not be decoded from String url"));
+                return new BitmapWorkerResult(bitmapFetcher(), null);
+            }
+
             if (mUri == null) {
                 return new BitmapWorkerResult(null, new NullPointerException("Uri cannot be null"));
             }
-
             final ParcelFileDescriptor parcelFileDescriptor;
             try {
                 parcelFileDescriptor = mContext.getContentResolver().openFileDescriptor(mUri, "r");
@@ -98,6 +159,7 @@ public class BitmapLoadUtils {
             }
 
             final BitmapFactory.Options options = new BitmapFactory.Options();
+
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
             if (options.outWidth == -1 || options.outHeight == -1) {
@@ -107,7 +169,7 @@ public class BitmapLoadUtils {
             options.inSampleSize = calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
             options.inJustDecodeBounds = false;
 
-            Bitmap decodeSampledBitmap = null;
+            Bitmap decodeSampledBitmap = null;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
             boolean decodeAttemptSuccess = false;
             while (!decodeAttemptSuccess) {

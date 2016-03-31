@@ -138,6 +138,13 @@ public class UCropActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        if (UCrop.fileManager != null)
+            UCrop.fileManager.deleteFile();
+        super.onDestroy();
+    }
+
     /**
      * This method extracts all data from the incoming intent and setups views properly.
      */
@@ -146,7 +153,7 @@ public class UCropActivity extends AppCompatActivity {
         mOutputUri = intent.getParcelableExtra(UCrop.EXTRA_OUTPUT_URI);
         processOptions(intent);
 
-        if (inputUri != null && mOutputUri != null) {
+        if ( (inputUri != null || UCrop.fileManager != null) && mOutputUri != null ) {
             try {
                 mGestureCropImageView.setImageUri(inputUri);
             } catch (Exception e) {

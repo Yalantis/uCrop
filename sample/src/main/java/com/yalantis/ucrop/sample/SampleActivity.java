@@ -89,11 +89,16 @@ public class SampleActivity extends BaseActivity {
         }
     }
 
+    /**
+     * now UCrop.of supports http, https as inputs
+     */
     private void setupUI() {
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pickFromGallery();
+                startCropActivity("https://i.ytimg.com/vi/hu6hIhW00Fk/maxresdefault.jpg");
+                //startCropActivity("http://www.nasa.gov/sites/default/files/cygx1_ill.jpg");
+                //pickFromGallery();
             }
         });
 
@@ -169,7 +174,14 @@ public class SampleActivity extends BaseActivity {
 
         uCrop = basisConfig(uCrop);
         uCrop = advancedConfig(uCrop);
+        uCrop.start(SampleActivity.this);
+    }
 
+    private void startCropActivity(@NonNull String url) {
+        UCrop uCrop = UCrop.of(url, mDestinationUri);
+
+        uCrop = basisConfig(uCrop);
+        uCrop = advancedConfig(uCrop);
         uCrop.start(SampleActivity.this);
     }
 
@@ -274,6 +286,10 @@ public class SampleActivity extends BaseActivity {
         options.setStatusBarColor(ContextCompat.getColor(this, R.color.your_color_res));
         options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
 		options.setToolbarTitleTextColor(ContextCompat.getColor(this, R.color.your_color_res));
+
+        //  File interactions/info (when using the String url input)
+        UCrop.fileManager.keepFile=true     if you want to keep the original image file
+        UCrop.fileManager.imageFile         file instance
 
        */
 

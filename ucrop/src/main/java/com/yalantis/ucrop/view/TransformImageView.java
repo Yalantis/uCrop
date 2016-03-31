@@ -17,6 +17,7 @@ import android.view.Display;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.util.FastBitmapDrawable;
 import com.yalantis.ucrop.util.RectUtils;
@@ -129,9 +130,12 @@ public class TransformImageView extends ImageView {
      */
     public void setImageUri(@NonNull Uri imageUri) throws Exception {
         mImageUri = imageUri;
+        String source = null;
+        if (UCrop.fileManager != null)
+            source = UCrop.fileManager.source;
         int maxBitmapSize = getMaxBitmapSize();
 
-        BitmapLoadUtils.decodeBitmapInBackground(getContext(), imageUri, maxBitmapSize, maxBitmapSize,
+        BitmapLoadUtils.decodeBitmapInBackground(getContext(), imageUri, source, maxBitmapSize, maxBitmapSize,
                 new BitmapLoadUtils.BitmapLoadCallback() {
                     @Override
                     public void onBitmapLoaded(@NonNull final Bitmap bitmap) {
