@@ -234,19 +234,19 @@
                 android:layout_margin="5dp"
                 android:background="@color/colorAccent"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:text="@string/label_ui"
-                    android:textAppearance="?android:textAppearanceSmall"/>
+                android:textAppearance="?android:textAppearanceSmall"/>
 
             <CheckBox
                 android:id="@+id/checkbox_hide_bottom_controls"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/label_hide_bottom_ui_controls"
-                android:textAppearance="?android:textAppearanceMedium" />
+                android:textAppearance="?android:textAppearanceMedium"/>
 
         </LinearLayout>
 
