@@ -83,7 +83,7 @@ public class CropImageView extends TransformImageView {
         Bitmap viewBitmap = getViewBitmap();
         if (viewBitmap == null || viewBitmap.isRecycled()) {
             return null;
-        }123
+        }
 
         cancelAllAnimations();
         setImageToWrapCropBounds(false);
