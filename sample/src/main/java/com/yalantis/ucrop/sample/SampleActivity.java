@@ -41,6 +41,7 @@ public class SampleActivity extends BaseActivity {
     private CheckBox mCheckBoxMaxSize;
     private SeekBar mSeekBarQuality;
     private TextView mTextViewQuality;
+    private CheckBox mCheckBoxHideBottomControls;
 
     private Uri mDestinationUri;
 
@@ -106,6 +107,7 @@ public class SampleActivity extends BaseActivity {
         mEditTextMaxHeight = ((EditText) findViewById(R.id.edit_text_max_height));
         mSeekBarQuality = ((SeekBar) findViewById(R.id.seekbar_quality));
         mTextViewQuality = ((TextView) findViewById(R.id.text_view_quality));
+        mCheckBoxHideBottomControls = ((CheckBox) findViewById(R.id.checkbox_hide_bottom_controls));
 
         mRadioGroupAspectRatio.check(R.id.radio_dynamic);
         mEditTextRatioX.addTextChangedListener(mAspectRatioTextWatcher);
@@ -240,6 +242,8 @@ public class SampleActivity extends BaseActivity {
                 break;
         }
         options.setCompressionQuality(mSeekBarQuality.getProgress());
+
+        options.setHideBottomControls(mCheckBoxHideBottomControls.isChecked());
 
         /*
         If you want to configure how gestures work for all UCropActivity tabs
