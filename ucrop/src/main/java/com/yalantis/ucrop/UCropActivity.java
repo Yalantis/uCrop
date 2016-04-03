@@ -27,7 +27,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.yalantis.ucrop.UCrop.Options;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.util.SelectedStateListDrawable;
 import com.yalantis.ucrop.view.CropImageView;
@@ -77,6 +76,7 @@ public class UCropActivity extends AppCompatActivity {
     private int mActiveWidgetColor;
     private int mToolbarTextColor;
     private int mLogoColor;
+
     private boolean mShowBottomControls;
 
     private UCropView mUCropView;
@@ -161,7 +161,7 @@ public class UCropActivity extends AppCompatActivity {
         }
 
         if (intent.getBooleanExtra(UCrop.EXTRA_ASPECT_RATIO_SET, false)) {
-            if (mWrapperStateAspectRatio != null) {
+            if (mShowBottomControls) {
                 mWrapperStateAspectRatio.setVisibility(View.GONE);
             }
 
@@ -239,14 +239,22 @@ public class UCropActivity extends AppCompatActivity {
         mToolbarTitle = intent.getStringExtra(UCrop.Options.EXTRA_UCROP_TITLE_TEXT_TOOLBAR);
         mToolbarTitle = !TextUtils.isEmpty(mToolbarTitle) ? mToolbarTitle : getResources().getString(R.string.ucrop_label_edit_photo);
         mLogoColor = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_LOGO_COLOR, ContextCompat.getColor(this, R.color.ucrop_color_default_logo));
-        mShowBottomControls = intent.getBooleanExtra(Options.EXTRA_SHOW_BOTTOM_CONTROLS, true);
+        mShowBottomControls = !intent.getBooleanExtra(UCrop.Options.EXTRA_HIDE_BOTTOM_CONTROLS, false);
+
+        if (mShowBottomControls) {
+            ViewGroup photoBox = (ViewGroup) findViewById(R.id.ucrop_photobox);
+            View.inflate(this, R.layout.ucrop_controls, photoBox);
+        }
 
         setupAppBar();
         initiateRootViews();
-        setupAspectRatioWidget();
-        setupRotateWidget();
-        setupScaleWidget();
-        setupStatesWrapper();
+
+        if (mShowBottomControls) {
+            setupAspectRatioWidget();
+            setupRotateWidget();
+            setupScaleWidget();
+            setupStatesWrapper();
+        }
     }
 
     /**
@@ -295,10 +303,6 @@ public class UCropActivity extends AppCompatActivity {
             mLayoutAspectRatio = (ViewGroup) findViewById(R.id.layout_aspect_ratio);
             mLayoutRotate = (ViewGroup) findViewById(R.id.layout_rotate_wheel);
             mLayoutScale = (ViewGroup) findViewById(R.id.layout_scale_wheel);
-        } else {
-            findViewById(R.id.wrapper_controls).setVisibility(View.GONE);
-            findViewById(R.id.wrapper_shadow).setVisibility(View.GONE);
-            findViewById(R.id.wrapper_states).setVisibility(View.GONE);
         }
 
         ((ImageView) findViewById(R.id.image_view_logo)).setColorFilter(mLogoColor, PorterDuff.Mode.SRC_ATOP);
@@ -349,10 +353,6 @@ public class UCropActivity extends AppCompatActivity {
      * Use {@link #mActiveWidgetColor} for color filter
      */
     private void setupStatesWrapper() {
-        if (!mShowBottomControls) {
-            return;
-        }
-
         ImageView stateScaleImageView = (ImageView) findViewById(R.id.image_view_state_scale);
         ImageView stateRotateImageView = (ImageView) findViewById(R.id.image_view_state_rotate);
         ImageView stateAspectRatioImageView = (ImageView) findViewById(R.id.image_view_state_aspect_ratio);
@@ -507,10 +507,14 @@ public class UCropActivity extends AppCompatActivity {
     };
 
     private void setInitialState() {
-        if (mWrapperStateAspectRatio != null && mWrapperStateAspectRatio.getVisibility() == View.VISIBLE) {
-            setWidgetState(R.id.state_aspect_ratio);
+        if (mShowBottomControls) {
+            if (mWrapperStateAspectRatio.getVisibility() == View.VISIBLE) {
+                setWidgetState(R.id.state_aspect_ratio);
+            } else {
+                setWidgetState(R.id.state_scale);
+            }
         } else {
-            setWidgetState(R.id.state_scale);
+            setAllowedGestures(2);
         }
     }
 
