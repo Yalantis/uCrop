@@ -12,15 +12,15 @@
 
         <include
             android:id="@+id/layout_aspect_ratio"
-            layout="@layout/ucrop_layout_aspect_ratio" />
+            layout="@layout/ucrop_layout_aspect_ratio"/>
 
         <include
             android:id="@+id/layout_rotate_wheel"
-            layout="@layout/ucrop_layout_rotate_wheel" />
+            layout="@layout/ucrop_layout_rotate_wheel"/>
 
         <include
             android:id="@+id/layout_scale_wheel"
-            layout="@layout/ucrop_layout_scale_wheel" />
+            layout="@layout/ucrop_layout_scale_wheel"/>
 
     </FrameLayout>
 
@@ -28,7 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/ucrop_height_divider_shadow"
         android:layout_above="@+id/wrapper_states"
-        android:background="@drawable/ucrop_shadow_upside" />
+        android:background="@drawable/ucrop_shadow_upside"/>
 
     <LinearLayout
         android:id="@+id/wrapper_states"
@@ -47,7 +47,7 @@
             <ImageView
                 android:id="@+id/image_view_state_scale"
                 style="@style/ucrop_ImageViewWidgetIcon"
-                android:src="@drawable/ucrop_ic_scale" />
+                android:src="@drawable/ucrop_ic_scale"/>
 
         </FrameLayout>
 
@@ -58,7 +58,7 @@
             <ImageView
                 android:id="@+id/image_view_state_aspect_ratio"
                 style="@style/ucrop_ImageViewWidgetIcon"
-                android:src="@drawable/ucrop_ic_crop" />
+                android:src="@drawable/ucrop_ic_crop"/>
 
         </FrameLayout>
 
@@ -69,7 +69,7 @@
             <ImageView
                 android:id="@+id/image_view_state_rotate"
                 style="@style/ucrop_ImageViewWidgetIcon"
-                android:src="@drawable/ucrop_ic_rotate" />
+                android:src="@drawable/ucrop_ic_rotate"/>
 
         </FrameLayout>
 

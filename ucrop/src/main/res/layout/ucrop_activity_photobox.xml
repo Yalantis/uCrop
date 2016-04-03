@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/ucrop_label_edit_photo"
-            android:textColor="@color/ucrop_color_title" />
+            android:textColor="@color/ucrop_color_title"/>
 
     </android.support.v7.widget.Toolbar>
 
@@ -39,13 +39,13 @@
             android:layout_gravity="center"
             app:srcCompat="@drawable/ucrop_vector_ic_crop"
             tools:background="@drawable/ucrop_vector_ic_crop"
-            tools:ignore="MissingPrefix" />
+            tools:ignore="MissingPrefix"/>
 
         <com.yalantis.ucrop.view.UCropView
             android:id="@+id/ucrop"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="invisible" />
+            android:visibility="invisible"/>
 
     </FrameLayout>
 
