@@ -111,7 +111,7 @@ public class BitmapLoadUtils {
             FileDescriptor fileDescriptor = null;
             ParcelFileDescriptor parcelFileDescriptor = null;
 
-            //  open file descriptor for the local file, decode
+            //  open file descriptor for the local file, save original bitmap, decode for sampling
             if (!mDownloadable) {
                 try {
                     parcelFileDescriptor = mContext.getContentResolver().openFileDescriptor(mUri, "r");
@@ -124,11 +124,20 @@ public class BitmapLoadUtils {
                 } else {
                     return new BitmapWorkerResult(null, new NullPointerException("ParcelFileDescriptor was null for given Uri"));
                 }
+                UCrop.fileManager.bitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor);
                 BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
             }
 
-            //  open stream for a given url, decode
+            //  open stream for a given url, save original bitmap, decode for sampling
             else {
+                try {
+                    connect = connect(mSource);
+                } catch (IOException e) {
+                    return new BitmapWorkerResult(null, new IOException("Could not connect to a given url"));
+                }
+                UCrop.fileManager.bitmap = BitmapFactory.decodeStream(connect.byteStream());
+                connect.close();
+
                 try {
                     connect = connect(mSource);
                 } catch (IOException e) {

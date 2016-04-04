@@ -140,7 +140,7 @@ public class UCropActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if (UCrop.fileManager != null)
+        if (UCrop.fileManager.source != null)
             UCrop.fileManager.deleteFile();
         super.onDestroy();
     }
@@ -153,7 +153,7 @@ public class UCropActivity extends AppCompatActivity {
         mOutputUri = intent.getParcelableExtra(UCrop.EXTRA_OUTPUT_URI);
         processOptions(intent);
 
-        if ( (inputUri != null || UCrop.fileManager != null) && mOutputUri != null ) {
+        if ( (inputUri != null || UCrop.fileManager.source != null) && mOutputUri != null ) {
             try {
                 mGestureCropImageView.setImageUri(inputUri);
             } catch (Exception e) {

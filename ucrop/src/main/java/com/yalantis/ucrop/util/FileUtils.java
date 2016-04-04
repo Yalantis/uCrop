@@ -19,12 +19,16 @@ public class FileUtils {
 
     public String source = null;
     public File imageFile;
+    public Bitmap bitmap; //  save pre-inSampleSize'd bitmap IN HERE
     public Boolean keepFile = false; // in case you want to keep the original image file
     private static final String TAG = "FileManager";
 
     public FileUtils(String Url) {
         source = Url;
         createFile(source);
+    }
+
+    public FileUtils() {
     }
 
     public void createFile(String mSource) {

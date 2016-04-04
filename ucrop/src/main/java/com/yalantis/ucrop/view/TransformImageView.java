@@ -128,7 +128,7 @@ public class TransformImageView extends ImageView {
      * @param imageUri - image Uri
      * @throws Exception - can throw exception if having problems with decoding Uri or OOM.
      */
-    public void setImageUri(@NonNull Uri imageUri) throws Exception {
+    public void setImageUri(@Nullable Uri imageUri) throws Exception {
         mImageUri = imageUri;
         String source = null;
         if (UCrop.fileManager != null)

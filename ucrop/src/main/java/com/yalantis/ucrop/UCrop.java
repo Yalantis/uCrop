@@ -65,7 +65,7 @@ public class UCrop {
     public static FileUtils fileManager;
 
     public static UCrop of(@NonNull Uri source, @NonNull Uri destination) {
-        fileManager = null;
+        fileManager = new FileUtils();
         return new UCrop(source, destination);
     }
 
