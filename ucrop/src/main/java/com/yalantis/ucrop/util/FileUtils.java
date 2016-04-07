@@ -27,9 +27,6 @@ public class FileUtils {
         createFile(source);
     }
 
-    public FileUtils() {
-    }
-
     public void createFile(String mSource) {
         String downloadsDirectoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
         String filename = String.format("ORIGIN_%s", Uri.parse(mSource).getLastPathSegment());
