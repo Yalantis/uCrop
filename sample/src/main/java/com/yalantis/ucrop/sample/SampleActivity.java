@@ -289,13 +289,12 @@ public class SampleActivity extends BaseActivity {
         UCrop.fileManager.keepFile=true     if you want to keep the original image file
         UCrop.fileManager.imageFile         file instance
 
-        //  Downloading test info. Time varies depending on server(obviously)
-        //startCropActivity("https://i.ytimg.com/vi/hu6hIhW00Fk/maxresdefault.jpg");             //~1.9sec  //cool 2k blackhole
-        //startCropActivity("http://www.nasa.gov/sites/default/files/cygx1_ill.jpg");            //~3sec    //cool 2k blackhole
-        //startCropActivity("http://wall.rimbuz.com/wp-content/uploads/4K-Wallpapers-HD.jpg");   //~3sec    //4k
-        //startCropActivity("http://4k.com/wp-content/uploads/2014/06/4k-image-santiago.jpg");   //~3sec    //4k panorama(7786×3000)
-        //startCropActivity("http://technosider.com/uploads/topics/img/00/00/16/20140806230841_91475.jpg"); //~3sec //4k
-        //startCropActivity("http://s3.amazonaws.com/TimeScapes/images/stills/4k/big_sur.jpg");  //~5sec    //4k, s3.amazon works!
+        //  Samples for downloading.
+        //startCropActivity("https://i.ytimg.com/vi/hu6hIhW00Fk/maxresdefault.jpg");             //cool 2k blackhole
+        //startCropActivity("http://www.nasa.gov/sites/default/files/cygx1_ill.jpg");            //cool 2k blackhole
+        //startCropActivity("http://wall.rimbuz.com/wp-content/uploads/4K-Wallpapers-HD.jpg");   //4k
+        //startCropActivity("http://technosider.com/uploads/topics/img/00/00/16/20140806230841_91475.jpg"); //4k
+        //startCropActivity("http://s3.amazonaws.com/TimeScapes/images/stills/4k/big_sur.jpg");  //4k, s3.amazon works!
 
        */
 

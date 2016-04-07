@@ -110,6 +110,7 @@ public class BitmapLoadUtils {
 
             FileDescriptor fileDescriptor = null;
             ParcelFileDescriptor parcelFileDescriptor = null;
+            Bitmap originalBitmap;
 
             //  open file descriptor for the local file, save original bitmap, decode for sampling
             if (!mDownloadable) {
@@ -124,21 +125,21 @@ public class BitmapLoadUtils {
                 } else {
                     return new BitmapWorkerResult(null, new NullPointerException("ParcelFileDescriptor was null for given Uri"));
                 }
-                UCrop.fileManager.bitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor);
                 BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
             }
 
             //  open stream for a given url, save original bitmap, decode for sampling
             else {
-                try {
+                try { //  get original
                     connect = connect(mSource);
                 } catch (IOException e) {
                     return new BitmapWorkerResult(null, new IOException("Could not connect to a given url"));
                 }
-                UCrop.fileManager.bitmap = BitmapFactory.decodeStream(connect.byteStream());
+                originalBitmap = BitmapFactory.decodeStream(connect.byteStream());
                 connect.close();
+                UCrop.fileManager.bitmapToFile(originalBitmap);
 
-                try {
+                try { //  get sample sizes
                     connect = connect(mSource);
                 } catch (IOException e) {
                     return new BitmapWorkerResult(null, new IOException("Could not connect to a given url"));
@@ -206,8 +207,6 @@ public class BitmapLoadUtils {
                 return new BitmapWorkerResult(transformBitmap(decodeSampledBitmap, matrix), null);
             }
 
-            if (mDownloadable)
-                UCrop.fileManager.bitmapToFile(decodeSampledBitmap);
             return new BitmapWorkerResult(decodeSampledBitmap, null);
         }
 
