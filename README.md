@@ -21,7 +21,8 @@
     ```
     <activity
         android:name="com.yalantis.ucrop.UCropActivity"
-        android:screenOrientation="portrait"/>
+        android:screenOrientation="portrait"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     ```
 
 3. The uCrop configuration is created using the builder pattern.

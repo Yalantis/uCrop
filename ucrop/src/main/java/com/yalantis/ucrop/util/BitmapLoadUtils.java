@@ -100,20 +100,28 @@ public class BitmapLoadUtils {
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+            if (options.outWidth == -1 || options.outHeight == -1) {
+                return new BitmapWorkerResult(null, new IllegalArgumentException("Bounds for bitmap could not be retrieved from Uri"));
+            }
+
             options.inSampleSize = calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
             options.inJustDecodeBounds = false;
 
             Bitmap decodeSampledBitmap = null;
 
-            boolean success = false;
-            while (!success) {
+            boolean decodeAttemptSuccess = false;
+            while (!decodeAttemptSuccess) {
                 try {
                     decodeSampledBitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
-                    success = true;
+                    decodeAttemptSuccess = true;
                 } catch (OutOfMemoryError error) {
                     Log.e(TAG, "doInBackground: BitmapFactory.decodeFileDescriptor: ", error);
                     options.inSampleSize++;
                 }
+            }
+
+            if (decodeSampledBitmap == null) {
+                return new BitmapWorkerResult(null, new IllegalArgumentException("Bitmap could not be decoded from Uri"));
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {

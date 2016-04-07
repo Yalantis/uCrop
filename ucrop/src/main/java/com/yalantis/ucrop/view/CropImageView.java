@@ -107,8 +107,8 @@ public class CropImageView extends TransformImageView {
                 float resizeScale = Math.min(scaleX, scaleY);
 
                 Bitmap resizedBitmap = Bitmap.createScaledBitmap(viewBitmap,
-                        (int) (viewBitmap.getWidth() * resizeScale),
-                        (int) (viewBitmap.getHeight() * resizeScale), false);
+                        Math.round(viewBitmap.getWidth() * resizeScale),
+                        Math.round(viewBitmap.getHeight() * resizeScale), false);
                 if (viewBitmap != resizedBitmap) {
                     viewBitmap.recycle();
                 }
@@ -130,10 +130,10 @@ public class CropImageView extends TransformImageView {
             viewBitmap = rotatedBitmap;
         }
 
-        int top = (int) ((mCropRect.top - currentImageRect.top) / currentScale);
-        int left = (int) ((mCropRect.left - currentImageRect.left) / currentScale);
-        int width = (int) (mCropRect.width() / currentScale);
-        int height = (int) (mCropRect.height() / currentScale);
+        int top = Math.round((mCropRect.top - currentImageRect.top) / currentScale);
+        int left = Math.round((mCropRect.left - currentImageRect.left) / currentScale);
+        int width = Math.round(mCropRect.width() / currentScale);
+        int height = Math.round(mCropRect.height() / currentScale);
 
         return Bitmap.createBitmap(viewBitmap, left, top, width, height);
     }
