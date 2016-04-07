@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
@@ -49,7 +50,7 @@ public class SampleActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);
 
-        mDestinationUri = Uri.fromFile(new File(getCacheDir(), SAMPLE_CROPPED_IMAGE_NAME));
+        mDestinationUri = Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath(), SAMPLE_CROPPED_IMAGE_NAME));
 
         setupUI();
     }
@@ -175,14 +176,6 @@ public class SampleActivity extends BaseActivity {
         uCrop.start(SampleActivity.this);
     }
 
-    private void startCropActivity(@NonNull String url) {
-        UCrop uCrop = UCrop.of(url, mDestinationUri);
-
-        uCrop = basisConfig(uCrop);
-        uCrop = advancedConfig(uCrop);
-        uCrop.start(SampleActivity.this);
-    }
-
     /**
      * In most cases you need only to set crop aspect ration and max size for resulting image.
      *
@@ -284,17 +277,6 @@ public class SampleActivity extends BaseActivity {
         options.setStatusBarColor(ContextCompat.getColor(this, R.color.your_color_res));
         options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
 		options.setToolbarTitleTextColor(ContextCompat.getColor(this, R.color.your_color_res));
-
-        //  File interactions/info (when using the String url input)
-        UCrop.fileManager.keepFile=true     if you want to keep the original image file
-        UCrop.fileManager.imageFile         file instance
-
-        //  Samples for downloading.
-        //startCropActivity("https://i.ytimg.com/vi/hu6hIhW00Fk/maxresdefault.jpg");             //cool 2k blackhole
-        //startCropActivity("http://www.nasa.gov/sites/default/files/cygx1_ill.jpg");            //cool 2k blackhole
-        //startCropActivity("http://wall.rimbuz.com/wp-content/uploads/4K-Wallpapers-HD.jpg");   //4k
-        //startCropActivity("http://technosider.com/uploads/topics/img/00/00/16/20140806230841_91475.jpg"); //4k
-        //startCropActivity("http://s3.amazonaws.com/TimeScapes/images/stills/4k/big_sur.jpg");  //4k, s3.amazon works!
 
        */
 

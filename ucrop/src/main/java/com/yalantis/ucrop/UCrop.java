@@ -15,8 +15,6 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.yalantis.ucrop.util.FileUtils;
-
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
  * <p/>
@@ -51,27 +49,15 @@ public class UCrop {
      * @param source      Uri for image to crop
      * @param destination Uri for saving the cropped image
      */
-    private UCrop(@Nullable Uri source, @NonNull Uri destination) {
+    public static UCrop of(@NonNull Uri source, @NonNull Uri destination) {
+        return new UCrop(source, destination);
+    }
+
+    private UCrop(@NonNull Uri source, @NonNull Uri destination) {
         mCropIntent = new Intent();
         mCropOptionsBundle = new Bundle();
         mCropOptionsBundle.putParcelable(EXTRA_INPUT_URI, source);
         mCropOptionsBundle.putParcelable(EXTRA_OUTPUT_URI, destination);
-    }
-
-    /**
-     * We either get Uri or String url. All the info/interactions can be
-     * accessed via UCrop.fileManager
-     */
-    public static FileUtils fileManager;
-
-    public static UCrop of(@NonNull Uri source, @NonNull Uri destination) {
-        fileManager = null;
-        return new UCrop(source, destination);
-    }
-
-    public static UCrop of(@NonNull String source, @NonNull Uri destination) {
-        fileManager = new FileUtils(source);
-        return new UCrop(null, destination);
     }
 
     /**
