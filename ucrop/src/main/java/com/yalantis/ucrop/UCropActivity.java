@@ -150,7 +150,7 @@ public class UCropActivity extends AppCompatActivity {
 
         if (inputUri != null && mOutputUri != null) {
             try {
-                mGestureCropImageView.setImageUri(inputUri);
+                mGestureCropImageView.setImageUri(inputUri, mOutputUri);
             } catch (Exception e) {
                 setResultException(e);
                 finish();
