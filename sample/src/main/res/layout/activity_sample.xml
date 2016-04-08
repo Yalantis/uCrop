@@ -45,6 +45,16 @@
                 android:textColor="@android:color/white"
                 android:textStyle="bold"/>
 
+            <Button
+                android:id="@+id/button_random_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_crop_random_image"
+                android:textAllCaps="true"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"/>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"

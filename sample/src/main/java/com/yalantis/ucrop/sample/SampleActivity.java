@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
@@ -25,6 +24,8 @@ import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 
 import java.io.File;
+import java.util.Locale;
+import java.util.Random;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -51,7 +52,7 @@ public class SampleActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);
 
-        mDestinationUri = Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath(), SAMPLE_CROPPED_IMAGE_NAME));
+        mDestinationUri = Uri.fromFile(new File(getCacheDir(), SAMPLE_CROPPED_IMAGE_NAME));
 
         setupUI();
     }
@@ -91,14 +92,23 @@ public class SampleActivity extends BaseActivity {
         }
     }
 
-    /**
-     * now UCrop.of supports http, https as inputs
-     */
+    @SuppressWarnings("ConstantConditions")
     private void setupUI() {
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pickFromGallery();
+            }
+        });
+        findViewById(R.id.button_random_image).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Random random = new Random();
+                int minSizePixels = 500;
+                int maxSizePixels = 4000;
+                startCropActivity(Uri.parse(String.format(Locale.getDefault(), "https://unsplash.it/%d/%d/?random",
+                        minSizePixels + random.nextInt(maxSizePixels - minSizePixels),
+                        minSizePixels + random.nextInt(maxSizePixels - minSizePixels))));
             }
         });
 
@@ -175,6 +185,7 @@ public class SampleActivity extends BaseActivity {
 
         uCrop = basisConfig(uCrop);
         uCrop = advancedConfig(uCrop);
+
         uCrop.start(SampleActivity.this);
     }
 
