@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -22,8 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -46,6 +46,7 @@ import java.util.List;
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
  */
+
 public class UCropActivity extends AppCompatActivity {
 
     public static final int DEFAULT_COMPRESS_QUALITY = 90;
@@ -74,10 +75,11 @@ public class UCropActivity extends AppCompatActivity {
     private int mToolbarColor;
     private int mStatusBarColor;
     private int mActiveWidgetColor;
-    private int mToolbarTextColor;
+    private int mToolbarWidgetColor;
     private int mLogoColor;
 
     private boolean mShowBottomControls;
+    private boolean mShowLoader = true;
 
     private UCropView mUCropView;
     private GestureCropImageView mGestureCropImageView;
@@ -109,17 +111,37 @@ public class UCropActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.ucrop_menu_activity, menu);
 
-        // Change the next menu icon color to match the rest of the UI colors
-        MenuItem next = menu.findItem(R.id.menu_crop);
+        // Change crop & loader menu icons color to match the rest of the UI colors
 
-        Drawable defaultIcon = next.getIcon();
-        if (defaultIcon != null) {
-            defaultIcon.mutate();
-            defaultIcon.setColorFilter(mToolbarTextColor, PorterDuff.Mode.SRC_ATOP);
-            next.setIcon(defaultIcon);
+        MenuItem menuItemLoader = menu.findItem(R.id.menu_loader);
+        Drawable menuItemLoaderIcon = menuItemLoader.getIcon();
+        if (menuItemLoaderIcon != null) {
+            try {
+                menuItemLoaderIcon.mutate();
+                menuItemLoaderIcon.setColorFilter(mToolbarWidgetColor, PorterDuff.Mode.SRC_ATOP);
+                menuItemLoader.setIcon(menuItemLoaderIcon);
+            } catch (IllegalStateException e) {
+                Log.e(TAG, String.format("%s - %s", e.getMessage(), getString(R.string.ucrop_mutate_exception_hint)));
+            }
+            ((Animatable) menuItemLoader.getIcon()).start();
+        }
+
+        MenuItem menuItemCrop = menu.findItem(R.id.menu_crop);
+        Drawable menuItemCropIcon = menuItemCrop.getIcon();
+        if (menuItemCropIcon != null) {
+            menuItemCropIcon.mutate();
+            menuItemCropIcon.setColorFilter(mToolbarWidgetColor, PorterDuff.Mode.SRC_ATOP);
+            menuItemCrop.setIcon(menuItemCropIcon);
         }
 
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.menu_crop).setVisible(!mShowLoader);
+        menu.findItem(R.id.menu_loader).setVisible(mShowLoader);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -235,7 +257,7 @@ public class UCropActivity extends AppCompatActivity {
         mStatusBarColor = intent.getIntExtra(UCrop.Options.EXTRA_STATUS_BAR_COLOR, ContextCompat.getColor(this, R.color.ucrop_color_statusbar));
         mToolbarColor = intent.getIntExtra(UCrop.Options.EXTRA_TOOL_BAR_COLOR, ContextCompat.getColor(this, R.color.ucrop_color_toolbar));
         mActiveWidgetColor = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_COLOR_WIDGET_ACTIVE, ContextCompat.getColor(this, R.color.ucrop_color_widget_active));
-        mToolbarTextColor = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_TITLE_COLOR_TOOLBAR, ContextCompat.getColor(this, R.color.ucrop_color_title));
+        mToolbarWidgetColor = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_WIDGET_COLOR_TOOLBAR, ContextCompat.getColor(this, R.color.ucrop_color_toolbar_widget));
         mToolbarTitle = intent.getStringExtra(UCrop.Options.EXTRA_UCROP_TITLE_TEXT_TOOLBAR);
         mToolbarTitle = !TextUtils.isEmpty(mToolbarTitle) ? mToolbarTitle : getResources().getString(R.string.ucrop_label_edit_photo);
         mLogoColor = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_LOGO_COLOR, ContextCompat.getColor(this, R.color.ucrop_color_default_logo));
@@ -267,15 +289,15 @@ public class UCropActivity extends AppCompatActivity {
 
         // Set all of the Toolbar coloring
         toolbar.setBackgroundColor(mToolbarColor);
-        toolbar.setTitleTextColor(mToolbarTextColor);
+        toolbar.setTitleTextColor(mToolbarWidgetColor);
 
         final TextView toolbarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        toolbarTitle.setTextColor(mToolbarTextColor);
+        toolbarTitle.setTextColor(mToolbarWidgetColor);
         toolbarTitle.setText(mToolbarTitle);
 
         // Color buttons inside the Toolbar
         Drawable stateButtonDrawable = ContextCompat.getDrawable(this, R.drawable.ucrop_ic_cross).mutate();
-        stateButtonDrawable.setColorFilter(mToolbarTextColor, PorterDuff.Mode.SRC_ATOP);
+        stateButtonDrawable.setColorFilter(mToolbarWidgetColor, PorterDuff.Mode.SRC_ATOP);
         toolbar.setNavigationIcon(stateButtonDrawable);
 
         setSupportActionBar(toolbar);
@@ -321,24 +343,9 @@ public class UCropActivity extends AppCompatActivity {
 
         @Override
         public void onLoadComplete() {
-            View ucropView = findViewById(R.id.ucrop);
-            Animation fadeInAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.ucrop_fade_in);
-            fadeInAnimation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                    mUCropView.setVisibility(View.VISIBLE);
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                }
-            });
-            ucropView.startAnimation(fadeInAnimation);
+            mUCropView.animate().alpha(1).setDuration(300).setInterpolator(new AccelerateInterpolator());
+            mShowLoader = false;
+            supportInvalidateOptionsMenu();
         }
 
         @Override

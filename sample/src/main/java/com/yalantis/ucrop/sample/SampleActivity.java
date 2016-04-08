@@ -104,8 +104,8 @@ public class SampleActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 Random random = new Random();
-                int minSizePixels = 500;
-                int maxSizePixels = 4000;
+                int minSizePixels = 800;
+                int maxSizePixels = 1600;
                 startCropActivity(Uri.parse(String.format(Locale.getDefault(), "https://unsplash.it/%d/%d/?random",
                         minSizePixels + random.nextInt(maxSizePixels - minSizePixels),
                         minSizePixels + random.nextInt(maxSizePixels - minSizePixels))));
@@ -291,7 +291,7 @@ public class SampleActivity extends BaseActivity {
         options.setToolbarColor(ContextCompat.getColor(this, R.color.your_color_res));
         options.setStatusBarColor(ContextCompat.getColor(this, R.color.your_color_res));
         options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
-		options.setToolbarTitleTextColor(ContextCompat.getColor(this, R.color.your_color_res));
+		options.setToolbarWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
 
        */
 

@@ -236,7 +236,7 @@ public class UCrop {
         public static final String EXTRA_STATUS_BAR_COLOR = EXTRA_PREFIX + ".StatusBarColor";
         public static final String EXTRA_UCROP_COLOR_WIDGET_ACTIVE = EXTRA_PREFIX + ".UcropColorWidgetActive";
 
-        public static final String EXTRA_UCROP_TITLE_COLOR_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarTitleColor";
+        public static final String EXTRA_UCROP_WIDGET_COLOR_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarWidgetColor";
         public static final String EXTRA_UCROP_TITLE_TEXT_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarTitleText";
 
         public static final String EXTRA_UCROP_LOGO_COLOR = EXTRA_PREFIX + ".UcropLogoColor";
@@ -399,8 +399,8 @@ public class UCrop {
         /**
          * @param color - desired resolved color of Toolbar text and buttons (default is darker orange)
          */
-        public void setToolbarTitleTextColor(@ColorInt int color) {
-            mOptionBundle.putInt(EXTRA_UCROP_TITLE_COLOR_TOOLBAR, color);
+        public void setToolbarWidgetColor(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_UCROP_WIDGET_COLOR_TOOLBAR, color);
         }
 
         /**
