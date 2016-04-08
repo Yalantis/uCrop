@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
@@ -50,7 +51,7 @@ public class SampleActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);
 
-        mDestinationUri = Uri.fromFile(new File(getCacheDir(), SAMPLE_CROPPED_IMAGE_NAME));
+        mDestinationUri = Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath(), SAMPLE_CROPPED_IMAGE_NAME));
 
         setupUI();
     }
@@ -90,6 +91,9 @@ public class SampleActivity extends BaseActivity {
         }
     }
 
+    /**
+     * now UCrop.of supports http, https as inputs
+     */
     private void setupUI() {
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -171,7 +175,6 @@ public class SampleActivity extends BaseActivity {
 
         uCrop = basisConfig(uCrop);
         uCrop = advancedConfig(uCrop);
-
         uCrop.start(SampleActivity.this);
     }
 

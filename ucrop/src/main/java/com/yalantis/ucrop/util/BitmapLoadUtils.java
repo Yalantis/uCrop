@@ -18,6 +18,14 @@ import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okio.BufferedSource;
+import okio.Okio;
+import okio.Sink;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -34,10 +42,11 @@ public class BitmapLoadUtils {
 
     }
 
-    public static void decodeBitmapInBackground(@NonNull Context context, @Nullable Uri uri,
+    public static void decodeBitmapInBackground(@NonNull Context context,
+                                                @Nullable Uri uri, @Nullable Uri outputUri,
                                                 int requiredWidth, int requiredHeight,
                                                 BitmapLoadCallback loadCallback) {
-        new BitmapWorkerTask(context, uri, requiredWidth, requiredHeight, loadCallback).execute();
+        new BitmapWorkerTask(context, uri, outputUri, requiredWidth, requiredHeight, loadCallback).execute();
     }
 
     static class BitmapWorkerResult {
@@ -53,34 +62,66 @@ public class BitmapLoadUtils {
     }
 
     /**
-     * Creates and returns a Bitmap for a given Uri.
+     * Creates and returns a Bitmap for a given Uri(String url).
      * inSampleSize is calculated based on requiredWidth property. However can be adjusted if OOM occurs.
      * If any EXIF config is found - bitmap is transformed properly.
      */
     static class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerResult> {
 
         private final Context mContext;
-        private final Uri mUri;
+        private Uri mUri;
+        private final Uri mOutputUri;
         private final int mRequiredWidth;
         private final int mRequiredHeight;
 
         private final BitmapLoadCallback mBitmapLoadCallback;
 
-        public BitmapWorkerTask(@NonNull Context context, @Nullable Uri uri,
+        public BitmapWorkerTask(@NonNull Context context,
+                                @Nullable Uri uri, @Nullable Uri outputUri,
                                 int requiredWidth, int requiredHeight,
                                 BitmapLoadCallback loadCallback) {
             mContext = context;
             mUri = uri;
+            mOutputUri = outputUri;
             mRequiredWidth = requiredWidth;
             mRequiredHeight = requiredHeight;
             mBitmapLoadCallback = loadCallback;
         }
 
+        private void downloadFile() throws IOException {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(mUri.toString())
+                    .build();
+            Response response = client.newCall(request).execute();
+            OutputStream outputStream = mContext.getContentResolver().openOutputStream(mOutputUri);
+            BufferedSource source = response.body().source();
+            Sink sink = Okio.sink(outputStream);
+            source.readAll(sink);
+
+            source.close();
+            sink.close();
+            response.body().close();
+            client.dispatcher().cancelAll();
+
+            mUri = mOutputUri;
+        }
+
         @Override
         @NonNull
         protected BitmapWorkerResult doInBackground(Void... params) {
-            if (mUri == null) {
+            if (mUri == null || mOutputUri == null) {
                 return new BitmapWorkerResult(null, new NullPointerException("Uri cannot be null"));
+            }
+
+            if (mUri.getScheme().equals("http") || mUri.getScheme().equals("https")) {
+                try {
+                    downloadFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "Downloading failed");
+                    return new BitmapWorkerResult(null, e);
+                }
             }
 
             final ParcelFileDescriptor parcelFileDescriptor;
