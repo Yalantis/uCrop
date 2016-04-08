@@ -241,6 +241,8 @@ public class UCrop {
 
         public static final String EXTRA_UCROP_LOGO_COLOR = EXTRA_PREFIX + ".UcropLogoColor";
 
+        public static final String EXTRA_HIDE_BOTTOM_CONTROLS = EXTRA_PREFIX + ".HideBottomControls";
+
 
         private final Bundle mOptionBundle;
 
@@ -413,6 +415,13 @@ public class UCrop {
          */
         public void setLogoColor(@ColorInt int color) {
             mOptionBundle.putInt(EXTRA_UCROP_LOGO_COLOR, color);
+        }
+
+        /**
+         * @param hide - set to true to hide the bottom controls (shown by default)
+         */
+        public void setHideBottomControls(boolean hide) {
+            mOptionBundle.putBoolean(EXTRA_HIDE_BOTTOM_CONTROLS, hide);
         }
 
     }
