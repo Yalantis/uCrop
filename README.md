@@ -14,7 +14,7 @@
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:1.3.+' ```
+    ``` compile 'com.yalantis:ucrop:1.4.0' ```
     
 2. Add UCropActivity into your AndroidManifest.xml
 
@@ -69,17 +69,30 @@ Currently you can change:
     
 # Compatibility
   
-  * Library - Android GINGERBREAD 2.3+
+  * Library - Android ICS 4.0+ (Android GINGERBREAD 2.3+ for versions <= 1.3.2)
   * Sample - Android ICS 4.0+
   
 # Changelog
+
+### Version: 2.0 (COMING SOON)
+
+  * Native image crop (able to crop high-resolution images).
+
+### Version: 1.4
+
+  * Introduced http(s) Uri support!
+  * Image is cropped in background thread.
+  * Showing loader while Bitmap is processed (both loading and cropping).
+  * Several bug fixes.
+  * Couple new things to configure.
+  * Updated minSdkVersion to Android ICS 4.0 (no reason to support couple percents of old phones).
 
 ### Version: 1.3
 
   * Image is loaded in background thread. Better error-handling for image decoding.
   * Improved EXIF data support (rotation and mirror).
   * Small UI updates.
-  * Couple new things to configure
+  * Couple new things to configure.
   
   * Sample updated with possibility to choose custom aspect ratio.
 
