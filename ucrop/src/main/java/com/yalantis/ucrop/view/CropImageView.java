@@ -6,12 +6,15 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 
 import com.yalantis.ucrop.R;
+import com.yalantis.ucrop.callback.BitmapCropCallback;
+import com.yalantis.ucrop.task.BitmapCropTask;
 import com.yalantis.ucrop.util.CubicEasing;
 import com.yalantis.ucrop.util.RectUtils;
 
@@ -70,73 +73,22 @@ public class CropImageView extends TransformImageView {
     }
 
     /**
-     * This method crops part of image that fills the crop bounds.
-     * <p/>
-     * First image is downscaled if max size was set and if resulting image is larger that max size.
-     * Then image is rotated accordingly.
-     * Finally new Bitmap object is created and returned.
-     *
-     * @return - cropped Bitmap object or null if current Bitmap is invalid or image rectangle is empty.
+     * Cancels all current animations and sets image to fill crop area (without animation).
+     * Then creates and executes {@link BitmapCropTask} with proper parameters.
      */
-    @Nullable
-    public Bitmap cropImage() {
-        Bitmap viewBitmap = getViewBitmap();
-        if (viewBitmap == null || viewBitmap.isRecycled()) {
-            return null;
-        }
-
+    public void cropAndSaveImage(@NonNull Bitmap.CompressFormat compressFormat, int compressQuality,
+                                 @NonNull Uri outputUri, @Nullable BitmapCropCallback cropCallback) {
         cancelAllAnimations();
         setImageToWrapCropBounds(false);
 
-        RectF currentImageRect = RectUtils.trapToRect(mCurrentImageCorners);
-        if (currentImageRect.isEmpty()) {
-            return null;
-        }
-
-        float currentScale = getCurrentScale();
-        float currentAngle = getCurrentAngle();
-
-        if (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0) {
-            float cropWidth = mCropRect.width() / currentScale;
-            float cropHeight = mCropRect.height() / currentScale;
-
-            if (cropWidth > mMaxResultImageSizeX || cropHeight > mMaxResultImageSizeY) {
-
-                float scaleX = mMaxResultImageSizeX / cropWidth;
-                float scaleY = mMaxResultImageSizeY / cropHeight;
-                float resizeScale = Math.min(scaleX, scaleY);
-
-                Bitmap resizedBitmap = Bitmap.createScaledBitmap(viewBitmap,
-                        Math.round(viewBitmap.getWidth() * resizeScale),
-                        Math.round(viewBitmap.getHeight() * resizeScale), false);
-                if (viewBitmap != resizedBitmap) {
-                    viewBitmap.recycle();
-                }
-                viewBitmap = resizedBitmap;
-
-                currentScale /= resizeScale;
-            }
-        }
-
-        if (currentAngle != 0) {
-            mTempMatrix.reset();
-            mTempMatrix.setRotate(currentAngle, viewBitmap.getWidth() / 2, viewBitmap.getHeight() / 2);
-
-            Bitmap rotatedBitmap = Bitmap.createBitmap(viewBitmap, 0, 0, viewBitmap.getWidth(), viewBitmap.getHeight(),
-                    mTempMatrix, true);
-            if (viewBitmap != rotatedBitmap) {
-                viewBitmap.recycle();
-            }
-            viewBitmap = rotatedBitmap;
-        }
-
-        int top = Math.round((mCropRect.top - currentImageRect.top) / currentScale);
-        int left = Math.round((mCropRect.left - currentImageRect.left) / currentScale);
-        int width = Math.round(mCropRect.width() / currentScale);
-        int height = Math.round(mCropRect.height() / currentScale);
-
-        return Bitmap.createBitmap(viewBitmap, left, top, width, height);
+        new BitmapCropTask(getContext(), getViewBitmap(),
+                mCropRect, RectUtils.trapToRect(mCurrentImageCorners),
+                getCurrentScale(), getCurrentAngle(),
+                mMaxResultImageSizeX, mMaxResultImageSizeY,
+                compressFormat, compressQuality,
+                outputUri, cropCallback).execute();
     }
+
 
     /**
      * @return - maximum scale value for current image and crop ratio

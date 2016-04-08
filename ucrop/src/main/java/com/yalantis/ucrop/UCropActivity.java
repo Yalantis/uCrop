@@ -27,7 +27,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.yalantis.ucrop.util.BitmapLoadUtils;
+import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.util.SelectedStateListDrawable;
 import com.yalantis.ucrop.view.CropImageView;
 import com.yalantis.ucrop.view.GestureCropImageView;
@@ -37,7 +37,6 @@ import com.yalantis.ucrop.view.UCropView;
 import com.yalantis.ucrop.view.widget.AspectRatioTextView;
 import com.yalantis.ucrop.view.widget.HorizontalProgressWheelView;
 
-import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -551,25 +550,23 @@ public class UCropActivity extends AppCompatActivity {
     }
 
     private void cropAndSaveImage() {
-        OutputStream outputStream = null;
-        try {
-            final Bitmap croppedBitmap = mGestureCropImageView.cropImage();
-            if (croppedBitmap != null) {
-                outputStream = getContentResolver().openOutputStream(mOutputUri);
-                croppedBitmap.compress(mCompressFormat, mCompressQuality, outputStream);
-                croppedBitmap.recycle();
+        mShowLoader = true;
+        supportInvalidateOptionsMenu();
 
-                setResultUri(mOutputUri, mGestureCropImageView.getTargetAspectRatio());
-                finish();
-            } else {
-                setResultException(new NullPointerException("CropImageView.cropImage() returned null."));
-            }
-        } catch (Exception e) {
-            setResultException(e);
-            finish();
-        } finally {
-            BitmapLoadUtils.close(outputStream);
-        }
+        mGestureCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, mOutputUri,
+                new BitmapCropCallback() {
+                    @Override
+                    public void onBitmapCropped() {
+                        setResultUri(mOutputUri, mGestureCropImageView.getTargetAspectRatio());
+                        finish();
+                    }
+
+                    @Override
+                    public void onCropFailure(@NonNull Exception bitmapCropException) {
+                        setResultException(bitmapCropException);
+                        finish();
+                    }
+                });
     }
 
     private void setResultUri(Uri uri, float resultAspectRatio) {
