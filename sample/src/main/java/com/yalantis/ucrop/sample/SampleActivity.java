@@ -214,7 +214,7 @@ public class SampleActivity extends BaseActivity {
                         uCrop = uCrop.withAspectRatio(ratioX, ratioY);
                     }
                 } catch (NumberFormatException e) {
-                    Log.e(TAG, "Number please", e);
+                    Log.d(TAG, "Number please");
                 }
                 break;
         }

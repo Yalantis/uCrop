@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.yalantis.ucrop.callback.BitmapCropCallback;
@@ -87,6 +88,7 @@ public class UCropActivity extends AppCompatActivity {
     private ViewGroup mLayoutAspectRatio, mLayoutRotate, mLayoutScale;
     private List<ViewGroup> mCropAspectRatioViews = new ArrayList<>();
     private TextView mTextViewRotateAngle, mTextViewScalePercent;
+    private View mBlockingView;
 
     private Uri mOutputUri;
 
@@ -104,6 +106,7 @@ public class UCropActivity extends AppCompatActivity {
         setupViews(intent);
         setImageData(intent);
         setInitialState();
+        addBlockingView();
     }
 
     @Override
@@ -343,6 +346,7 @@ public class UCropActivity extends AppCompatActivity {
         @Override
         public void onLoadComplete() {
             mUCropView.animate().alpha(1).setDuration(300).setInterpolator(new AccelerateInterpolator());
+            mBlockingView.setClickable(false);
             mShowLoader = false;
             supportInvalidateOptionsMenu();
         }
@@ -549,7 +553,25 @@ public class UCropActivity extends AppCompatActivity {
         mGestureCropImageView.setRotateEnabled(mAllowedGestures[tab] == ALL || mAllowedGestures[tab] == ROTATE);
     }
 
+    /**
+     * Adds view that covers everything below the Toolbar.
+     * When it's clickable - user won't be able to click/touch anything below the Toolbar.
+     * Need to block user input while loading and cropping an image.
+     */
+    private void addBlockingView() {
+        if (mBlockingView == null) {
+            mBlockingView = new View(this);
+            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            lp.addRule(RelativeLayout.BELOW, R.id.toolbar);
+            mBlockingView.setLayoutParams(lp);
+            mBlockingView.setClickable(true);
+        }
+
+        ((RelativeLayout) findViewById(R.id.ucrop_photobox)).addView(mBlockingView);
+    }
+
     private void cropAndSaveImage() {
+        mBlockingView.setClickable(true);
         mShowLoader = true;
         supportInvalidateOptionsMenu();
 
