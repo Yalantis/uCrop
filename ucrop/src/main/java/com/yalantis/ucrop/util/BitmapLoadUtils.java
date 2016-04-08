@@ -69,7 +69,7 @@ public class BitmapLoadUtils {
     static class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerResult> {
 
         private final Context mContext;
-        private Uri mUri;
+        private Uri mInputUri;
         private final Uri mOutputUri;
         private final int mRequiredWidth;
         private final int mRequiredHeight;
@@ -77,56 +77,36 @@ public class BitmapLoadUtils {
         private final BitmapLoadCallback mBitmapLoadCallback;
 
         public BitmapWorkerTask(@NonNull Context context,
-                                @Nullable Uri uri, @Nullable Uri outputUri,
+                                @Nullable Uri inputUri, @Nullable Uri outputUri,
                                 int requiredWidth, int requiredHeight,
                                 BitmapLoadCallback loadCallback) {
             mContext = context;
-            mUri = uri;
+            mInputUri = inputUri;
             mOutputUri = outputUri;
             mRequiredWidth = requiredWidth;
             mRequiredHeight = requiredHeight;
             mBitmapLoadCallback = loadCallback;
         }
 
-        private void downloadFile() throws IOException {
-            OkHttpClient client = new OkHttpClient();
-            Request request = new Request.Builder()
-                    .url(mUri.toString())
-                    .build();
-            Response response = client.newCall(request).execute();
-            OutputStream outputStream = mContext.getContentResolver().openOutputStream(mOutputUri);
-            BufferedSource source = response.body().source();
-            Sink sink = Okio.sink(outputStream);
-            source.readAll(sink);
-
-            source.close();
-            sink.close();
-            response.body().close();
-            client.dispatcher().cancelAll();
-
-            mUri = mOutputUri;
-        }
-
         @Override
         @NonNull
         protected BitmapWorkerResult doInBackground(Void... params) {
-            if (mUri == null || mOutputUri == null) {
+            if (mInputUri == null || mOutputUri == null) {
                 return new BitmapWorkerResult(null, new NullPointerException("Uri cannot be null"));
             }
 
-            if (mUri.getScheme().equals("http") || mUri.getScheme().equals("https")) {
+            if ("http".equals(mInputUri.getScheme()) || "https".equals(mInputUri.getScheme())) {
                 try {
-                    downloadFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "Downloading failed");
+                    downloadFile(mInputUri, mOutputUri);
+                } catch (NullPointerException | IOException e) {
+                    Log.e(TAG, "Downloading failed", e);
                     return new BitmapWorkerResult(null, e);
                 }
             }
 
             final ParcelFileDescriptor parcelFileDescriptor;
             try {
-                parcelFileDescriptor = mContext.getContentResolver().openFileDescriptor(mUri, "r");
+                parcelFileDescriptor = mContext.getContentResolver().openFileDescriptor(mInputUri, "r");
             } catch (FileNotFoundException e) {
                 return new BitmapWorkerResult(null, e);
             }
@@ -169,7 +149,7 @@ public class BitmapLoadUtils {
                 close(parcelFileDescriptor);
             }
 
-            int exifOrientation = getExifOrientation(mContext, mUri);
+            int exifOrientation = getExifOrientation(mContext, mInputUri);
             int exifDegrees = exifToDegrees(exifOrientation);
             int exifTranslation = exifToTranslation(exifOrientation);
 
@@ -185,6 +165,41 @@ public class BitmapLoadUtils {
             }
 
             return new BitmapWorkerResult(decodeSampledBitmap, null);
+        }
+
+        private void downloadFile(@NonNull Uri inputUri, @NonNull Uri outputUri) throws NullPointerException, IOException {
+            OkHttpClient client = new OkHttpClient();
+
+            BufferedSource source = null;
+            Sink sink = null;
+            Response response = null;
+            try {
+                Request request = new Request.Builder()
+                        .url(inputUri.toString())
+                        .build();
+                response = client.newCall(request).execute();
+                source = response.body().source();
+
+                OutputStream outputStream = mContext.getContentResolver().openOutputStream(outputUri);
+                if (outputStream != null) {
+                    sink = Okio.sink(outputStream);
+                    source.readAll(sink);
+                } else {
+                    throw new NullPointerException("OutputStream for given output Uri was null");
+                }
+            } finally {
+                close(source);
+                close(sink);
+                if (response != null) {
+                    close(response.body());
+                }
+            }
+
+            client.dispatcher().cancelAll();
+
+            // swap uris, because input image was downloaded to the output destination
+            // (cropped image will override it later)
+            mInputUri = mOutputUri;
         }
 
         @Override
