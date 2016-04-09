@@ -14,7 +14,7 @@
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:1.4.0' ```
+    ``` compile 'com.yalantis:ucrop:1.4.1' ```
     
 2. Add UCropActivity into your AndroidManifest.xml
 
@@ -69,8 +69,8 @@ Currently you can change:
     
 # Compatibility
   
-  * Library - Android ICS 4.0+ (Android GINGERBREAD 2.3+ for versions <= 1.3.2)
-  * Sample - Android ICS 4.0+
+  * Library - Android ICS 4.0+ (API 14) (Android GINGERBREAD 2.3+ (API 10) for versions <= 1.3.2)
+  * Sample - Android ICS 4.0+ (API 14)
   
 # Changelog
 
