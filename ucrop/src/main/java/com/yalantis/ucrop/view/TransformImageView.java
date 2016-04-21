@@ -49,7 +49,8 @@ public class TransformImageView extends ImageView {
     private float[] mInitialImageCorners;
     private float[] mInitialImageCenter;
 
-    private boolean mBitmapWasLoaded = false;
+    protected boolean mBitmapDecoded = false;
+    protected boolean mBitmapLaidOut = false;
 
     private int mMaxBitmapSize = 0;
     private Uri mImageUri;
@@ -136,9 +137,8 @@ public class TransformImageView extends ImageView {
                 new BitmapLoadCallback() {
                     @Override
                     public void onBitmapLoaded(@NonNull final Bitmap bitmap) {
-                        mBitmapWasLoaded = true;
+                        mBitmapDecoded = true;
                         setImageBitmap(bitmap);
-                        invalidate();
                     }
 
                     @Override
@@ -275,8 +275,7 @@ public class TransformImageView extends ImageView {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        if (changed || mBitmapWasLoaded) {
-            if (mBitmapWasLoaded) mBitmapWasLoaded = false;
+        if (changed || (mBitmapDecoded && !mBitmapLaidOut)) {
 
             left = getPaddingLeft();
             top = getPaddingTop();
@@ -307,6 +306,8 @@ public class TransformImageView extends ImageView {
         RectF initialImageRect = new RectF(0, 0, w, h);
         mInitialImageCorners = RectUtils.getCornersFromRect(initialImageRect);
         mInitialImageCenter = RectUtils.getCenterFromRect(initialImageRect);
+
+        mBitmapLaidOut = true;
 
         if (mTransformImageListener != null) {
             mTransformImageListener.onLoadComplete();

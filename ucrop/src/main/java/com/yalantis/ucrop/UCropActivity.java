@@ -570,7 +570,7 @@ public class UCropActivity extends AppCompatActivity {
         ((RelativeLayout) findViewById(R.id.ucrop_photobox)).addView(mBlockingView);
     }
 
-    private void cropAndSaveImage() {
+    protected void cropAndSaveImage() {
         mBlockingView.setClickable(true);
         mShowLoader = true;
         supportInvalidateOptionsMenu();
@@ -591,13 +591,13 @@ public class UCropActivity extends AppCompatActivity {
                 });
     }
 
-    private void setResultUri(Uri uri, float resultAspectRatio) {
+    protected void setResultUri(Uri uri, float resultAspectRatio) {
         setResult(RESULT_OK, new Intent()
                 .putExtra(UCrop.EXTRA_OUTPUT_URI, uri)
                 .putExtra(UCrop.EXTRA_OUTPUT_CROP_ASPECT_RATIO, resultAspectRatio));
     }
 
-    private void setResultException(Throwable throwable) {
+    protected void setResultException(Throwable throwable) {
         setResult(UCrop.RESULT_ERROR, new Intent().putExtra(UCrop.EXTRA_ERROR, throwable));
     }
 

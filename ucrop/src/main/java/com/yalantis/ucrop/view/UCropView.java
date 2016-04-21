@@ -2,12 +2,15 @@ package com.yalantis.ucrop.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 
 import com.yalantis.ucrop.R;
+import com.yalantis.ucrop.callback.CropBoundsChangeListener;
+import com.yalantis.ucrop.callback.OverlayViewChangeListener;
 
 public class UCropView extends FrameLayout {
 
@@ -25,20 +28,24 @@ public class UCropView extends FrameLayout {
         mGestureCropImageView = (GestureCropImageView) findViewById(R.id.image_view_crop);
         mViewOverlay = (OverlayView) findViewById(R.id.view_overlay);
 
-        mGestureCropImageView.setCropBoundsChangeListener(new CropImageView.CropBoundsChangeListener() {
-            @Override
-            public void onCropBoundsChangedRotate(float cropRatio) {
-                if (mViewOverlay != null) {
-                    mViewOverlay.setTargetAspectRatio(cropRatio);
-                    mViewOverlay.postInvalidate();
-                }
-            }
-        });
-
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ucrop_UCropView);
         mViewOverlay.processStyledAttributes(a);
         mGestureCropImageView.processStyledAttributes(a);
         a.recycle();
+
+
+        mGestureCropImageView.setCropBoundsChangeListener(new CropBoundsChangeListener() {
+            @Override
+            public void onCropAspectRatioChanged(float cropRatio) {
+                mViewOverlay.setTargetAspectRatio(cropRatio);
+            }
+        });
+        mViewOverlay.setOverlayViewChangeListener(new OverlayViewChangeListener() {
+            @Override
+            public void onCropRectUpdated(RectF cropRect) {
+                mGestureCropImageView.setCropRect(cropRect);
+            }
+        });
     }
 
     @Override
