@@ -14,7 +14,7 @@
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:1.4.1' ```
+    ``` compile 'com.yalantis:ucrop:1.5.0' ```
     
 2. Add UCropActivity into your AndroidManifest.xml
 
@@ -77,6 +77,12 @@ Currently you can change:
 ### Version: 2.0 (COMING SOON)
 
   * Native image crop (able to crop high-resolution images).
+  
+### Version: 1.5
+
+  * Introduced "Freestyle" crop (you can resize crop rectangle by dragging it corners) #32
+  * Now image & crop view paddings are not associated #68
+  * Updated API
 
 ### Version: 1.4
 
