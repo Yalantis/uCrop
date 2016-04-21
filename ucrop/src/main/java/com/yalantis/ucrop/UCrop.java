@@ -242,6 +242,7 @@ public class UCrop {
         public static final String EXTRA_UCROP_LOGO_COLOR = EXTRA_PREFIX + ".UcropLogoColor";
 
         public static final String EXTRA_HIDE_BOTTOM_CONTROLS = EXTRA_PREFIX + ".HideBottomControls";
+        public static final String EXTRA_FREE_STYLE_CROP = EXTRA_PREFIX + ".FreeStyleCrop";
 
 
         private final Bundle mOptionBundle;
@@ -422,6 +423,13 @@ public class UCrop {
          */
         public void setHideBottomControls(boolean hide) {
             mOptionBundle.putBoolean(EXTRA_HIDE_BOTTOM_CONTROLS, hide);
+        }
+
+        /**
+         * @param enabled - set to true to let user resize crop bounds (disabled by default)
+         */
+        public void setFreeStyleCropEnabled(boolean enabled) {
+            mOptionBundle.putBoolean(EXTRA_FREE_STYLE_CROP, enabled);
         }
 
     }

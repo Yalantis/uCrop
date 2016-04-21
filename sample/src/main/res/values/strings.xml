@@ -14,6 +14,7 @@
     <string name="label_height">Height</string>
     <string name="label_resize_image_to_max_size">Resize image to max size</string>
     <string name="label_hide_bottom_ui_controls">Hide bottom UI controls</string>
+    <string name="label_freestyle_crop">Freestyle crop</string>
     <string name="label_select_picture">Select Picture</string>
     <string name="label_cancel">Cancel</string>
     <string name="label_ok">OK</string>

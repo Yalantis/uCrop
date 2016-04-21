@@ -73,6 +73,13 @@
                     android:text="@string/label_aspect_ratio"
                     android:textAppearance="?android:textAppearanceSmall"/>
 
+                <CheckBox
+                    android:id="@+id/checkbox_freestyle_crop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_freestyle_crop"
+                    android:textAppearance="?android:textAppearanceMedium"/>
+
                 <RadioButton
                     android:id="@+id/radio_dynamic"
                     android:layout_width="match_parent"
