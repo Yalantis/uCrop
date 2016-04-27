@@ -6,21 +6,16 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.yalantis.ucrop.callback.BitmapLoadCallback;
+import com.yalantis.ucrop.task.BitmapLoadTask;
+
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -29,158 +24,12 @@ public class BitmapLoadUtils {
 
     private static final String TAG = "BitmapLoadUtils";
 
-    public interface BitmapLoadCallback {
-
-        void onBitmapLoaded(@NonNull Bitmap bitmap);
-
-        void onFailure(@NonNull Exception bitmapWorkerException);
-
-    }
-
-    public static void decodeBitmapInBackground(@NonNull Context context, @Nullable Uri uri,
+    public static void decodeBitmapInBackground(@NonNull Context context,
+                                                @Nullable Uri uri, @Nullable Uri outputUri,
                                                 int requiredWidth, int requiredHeight,
                                                 BitmapLoadCallback loadCallback) {
-        new BitmapWorkerTask(context, uri, requiredWidth, requiredHeight, loadCallback).execute();
-    }
 
-    static class BitmapWorkerResult {
-
-        Bitmap mBitmapResult;
-        Exception mBitmapWorkerException;
-
-        public BitmapWorkerResult(@Nullable Bitmap bitmapResult, @Nullable Exception bitmapWorkerException) {
-            mBitmapResult = bitmapResult;
-            mBitmapWorkerException = bitmapWorkerException;
-        }
-
-    }
-
-    /**
-     * Creates and returns a Bitmap for a given Uri.
-     * inSampleSize is calculated based on requiredWidth property. However can be adjusted if OOM occurs.
-     * If any EXIF config is found - bitmap is transformed properly.
-     */
-    static class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerResult> {
-
-        private final Context mContext;
-        private final Uri mUri;
-        private final int mRequiredWidth;
-        private final int mRequiredHeight;
-
-        private final BitmapLoadCallback mBitmapLoadCallback;
-
-        public BitmapWorkerTask(@NonNull Context context, @Nullable Uri uri,
-                                int requiredWidth, int requiredHeight,
-                                BitmapLoadCallback loadCallback) {
-            mContext = context;
-            mUri = uri;
-            mRequiredWidth = requiredWidth;
-            mRequiredHeight = requiredHeight;
-            mBitmapLoadCallback = loadCallback;
-        }
-
-        @Override
-        @NonNull
-        protected BitmapWorkerResult doInBackground(Void... params) {
-            if (mUri == null) {
-                return new BitmapWorkerResult(null, new NullPointerException("Uri cannot be null"));
-            }
-
-//            InputStream is = mContext.getContentResolver().openInputStream(mUri);
-
-            final ParcelFileDescriptor parcelFileDescriptor;
-            try {
-                parcelFileDescriptor = mContext.getContentResolver().openFileDescriptor(mUri, "r");
-            } catch (FileNotFoundException e) {
-                return new BitmapWorkerResult(null, e);
-            }
-
-            final FileDescriptor fileDescriptor;
-            if (parcelFileDescriptor != null) {
-                fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-            } else {
-                return new BitmapWorkerResult(null, new NullPointerException("ParcelFileDescriptor was null for given Uri"));
-            }
-
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-//            BitmapFactory.decodeStream(is)
-            BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
-            options.inSampleSize = calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
-            options.inJustDecodeBounds = false;
-
-            Bitmap decodeSampledBitmap = null;
-
-            boolean success = false;
-            while (!success) {
-                try {
-                    decodeSampledBitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
-                    success = true;
-                } catch (OutOfMemoryError error) {
-                    Log.e(TAG, "doInBackground: BitmapFactory.decodeFileDescriptor: ", error);
-                    options.inSampleSize++;
-                }
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                close(parcelFileDescriptor);
-            }
-
-            int exifOrientation = getExifOrientation(mContext, mUri);
-            int exifDegrees = exifToDegrees(exifOrientation);
-            int exifTranslation = exifToTranslation(exifOrientation);
-
-            Matrix matrix = new Matrix();
-            if (exifDegrees != 0) {
-                matrix.preRotate(exifDegrees);
-            }
-            if (exifTranslation != 1) {
-                matrix.postScale(exifTranslation, 1);
-            }
-            if (!matrix.isIdentity()) {
-                return new BitmapWorkerResult(transformBitmap(decodeSampledBitmap, matrix), null);
-            }
-
-            return new BitmapWorkerResult(decodeSampledBitmap, null);
-        }
-
-        @Override
-        protected void onPostExecute(@NonNull BitmapWorkerResult result) {
-            if (result.mBitmapWorkerException == null) {
-                mBitmapLoadCallback.onBitmapLoaded(result.mBitmapResult);
-            } else {
-                mBitmapLoadCallback.onFailure(result.mBitmapWorkerException);
-            }
-        }
-    }
-
-    // only if i cannot get a path in an ugly/hack way
-    private void copyInputStreamToFile(InputStream in, File file) {
-        try {
-            OutputStream out = new FileOutputStream(file);
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-            out.close();
-            in.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        /*
-        String path = "file.txt";
-        OutputStream stream = new BufferedOutputStream(new FileOutputStream(path));
-        int bufferSize = 1024;
-        byte[] buffer = new byte[bufferSize];
-        int len = 0;
-        while ((len = is.read(buffer)) != -1) {
-            stream.write(buffer, 0, len);
-        }
-        if(stream!=null)
-            stream.close();
-         */
+        new BitmapLoadTask(context, uri, outputUri, requiredWidth, requiredHeight, loadCallback).execute();
     }
 
     public static Bitmap transformBitmap(@NonNull Bitmap bitmap, @NonNull Matrix transformMatrix) {
@@ -212,7 +61,7 @@ public class BitmapLoadUtils {
         return inSampleSize;
     }
 
-    private static int getExifOrientation(@NonNull Context context, @NonNull Uri imageUri) {
+    public static int getExifOrientation(@NonNull Context context, @NonNull Uri imageUri) {
         int orientation = ExifInterface.ORIENTATION_UNDEFINED;
         try {
             InputStream stream = context.getContentResolver().openInputStream(imageUri);
@@ -227,7 +76,7 @@ public class BitmapLoadUtils {
         return orientation;
     }
 
-    private static int exifToDegrees(int exifOrientation) {
+    public static int exifToDegrees(int exifOrientation) {
         int rotation;
         switch (exifOrientation) {
             case ExifInterface.ORIENTATION_ROTATE_90:
@@ -248,7 +97,7 @@ public class BitmapLoadUtils {
         return rotation;
     }
 
-    private static int exifToTranslation(int exifOrientation) {
+    public static int exifToTranslation(int exifOrientation) {
         int translation;
         switch (exifOrientation) {
             case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:

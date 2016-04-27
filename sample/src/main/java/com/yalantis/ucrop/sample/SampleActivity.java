@@ -24,6 +24,8 @@ import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 
 import java.io.File;
+import java.util.Locale;
+import java.util.Random;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -41,6 +43,8 @@ public class SampleActivity extends BaseActivity {
     private CheckBox mCheckBoxMaxSize;
     private SeekBar mSeekBarQuality;
     private TextView mTextViewQuality;
+    private CheckBox mCheckBoxHideBottomControls;
+    private CheckBox mCheckBoxFreeStyleCrop;
 
     private Uri mDestinationUri;
 
@@ -89,12 +93,23 @@ public class SampleActivity extends BaseActivity {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void setupUI() {
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pickFromGallery();
-//                startCropActivity(Uri.fromFile(new File("/storage/emulated/0/Download/spaceships.jpg")));
+            }
+        });
+        findViewById(R.id.button_random_image).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Random random = new Random();
+                int minSizePixels = 800;
+                int maxSizePixels = 1600;
+                startCropActivity(Uri.parse(String.format(Locale.getDefault(), "https://unsplash.it/%d/%d/?random",
+                        minSizePixels + random.nextInt(maxSizePixels - minSizePixels),
+                        minSizePixels + random.nextInt(maxSizePixels - minSizePixels))));
             }
         });
 
@@ -107,6 +122,8 @@ public class SampleActivity extends BaseActivity {
         mEditTextMaxHeight = ((EditText) findViewById(R.id.edit_text_max_height));
         mSeekBarQuality = ((SeekBar) findViewById(R.id.seekbar_quality));
         mTextViewQuality = ((TextView) findViewById(R.id.text_view_quality));
+        mCheckBoxHideBottomControls = ((CheckBox) findViewById(R.id.checkbox_hide_bottom_controls));
+        mCheckBoxFreeStyleCrop = ((CheckBox) findViewById(R.id.checkbox_freestyle_crop));
 
         mRadioGroupAspectRatio.check(R.id.radio_dynamic);
         mEditTextRatioX.addTextChangedListener(mAspectRatioTextWatcher);
@@ -242,6 +259,9 @@ public class SampleActivity extends BaseActivity {
         }
         options.setCompressionQuality(mSeekBarQuality.getProgress());
 
+        options.setHideBottomControls(mCheckBoxHideBottomControls.isChecked());
+        options.setFreeStyleCropEnabled(mCheckBoxFreeStyleCrop.isChecked());
+
         /*
         If you want to configure how gestures work for all UCropActivity tabs
 
@@ -274,7 +294,7 @@ public class SampleActivity extends BaseActivity {
         options.setToolbarColor(ContextCompat.getColor(this, R.color.your_color_res));
         options.setStatusBarColor(ContextCompat.getColor(this, R.color.your_color_res));
         options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
-		options.setToolbarTitleTextColor(ContextCompat.getColor(this, R.color.your_color_res));
+		options.setToolbarWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
 
        */
 

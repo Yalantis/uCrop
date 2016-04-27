@@ -41,8 +41,18 @@
                 android:layout_height="wrap_content"
                 android:text="@string/button_pick_amp_crop"
                 android:textAllCaps="true"
-                android:textColor="@android:color/white"
                 android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"/>
+
+            <Button
+                android:id="@+id/button_random_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_crop_random_image"
+                android:textAllCaps="true"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@android:color/white"
                 android:textStyle="bold"/>
 
             <View
@@ -62,6 +72,13 @@
                     android:layout_gravity="center"
                     android:text="@string/label_aspect_ratio"
                     android:textAppearance="?android:textAppearanceSmall"/>
+
+                <CheckBox
+                    android:id="@+id/checkbox_freestyle_crop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_freestyle_crop"
+                    android:textAppearance="?android:textAppearanceMedium"/>
 
                 <RadioButton
                     android:id="@+id/radio_dynamic"
@@ -227,6 +244,26 @@
                     tools:progress="90"/>
 
             </RadioGroup>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_margin="5dp"
+                android:background="@color/colorAccent"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/label_ui"
+                android:textAppearance="?android:textAppearanceSmall"/>
+
+            <CheckBox
+                android:id="@+id/checkbox_hide_bottom_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_hide_bottom_ui_controls"
+                android:textAppearance="?android:textAppearanceMedium"/>
 
         </LinearLayout>
 

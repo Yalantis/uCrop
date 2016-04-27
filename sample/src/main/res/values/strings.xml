@@ -9,9 +9,12 @@
     <string name="label_square">Square</string>
     <string name="label_max_cropped_image_size">Max cropped image size</string>
     <string name="label_compression_settings">Compression settings</string>
+    <string name="label_ui">UI</string>
     <string name="label_width">Width</string>
     <string name="label_height">Height</string>
     <string name="label_resize_image_to_max_size">Resize image to max size</string>
+    <string name="label_hide_bottom_ui_controls">Hide bottom UI controls</string>
+    <string name="label_freestyle_crop">Freestyle crop</string>
     <string name="label_select_picture">Select Picture</string>
     <string name="label_cancel">Cancel</string>
     <string name="label_ok">OK</string>
@@ -22,6 +25,7 @@
     <string name="menu_download">Download</string>
 
     <string name="button_pick_amp_crop"><![CDATA[Pick & Crop]]></string>
+    <string name="button_crop_random_image">Crop random image</string>
 
     <string name="description_cropped_image">Cropped image</string>
 
