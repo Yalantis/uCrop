@@ -6,6 +6,6 @@ public interface BitmapCropCallback {
 
     void onBitmapCropped();
 
-    void onCropFailure(@NonNull Exception bitmapCropException);
+    void onCropFailure(@NonNull Throwable t);
 
 }

@@ -221,14 +221,6 @@
                     android:textAppearance="?android:textAppearanceMedium"
                     tools:ignore="HardcodedText"/>
 
-                <RadioButton
-                    android:id="@+id/radio_webp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="WEBP"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    tools:ignore="HardcodedText"/>
-
                 <TextView
                     android:id="@+id/text_view_quality"
                     android:layout_width="wrap_content"

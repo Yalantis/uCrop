@@ -3,7 +3,6 @@ package com.yalantis.ucrop.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -12,7 +11,6 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import com.yalantis.ucrop.R;
 import com.yalantis.ucrop.callback.BitmapCropCallback;
@@ -21,7 +19,6 @@ import com.yalantis.ucrop.task.BitmapCropTask;
 import com.yalantis.ucrop.util.CubicEasing;
 import com.yalantis.ucrop.util.RectUtils;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
@@ -32,10 +29,6 @@ import java.util.Arrays;
  * Also it extends parent class methods to add checks for scale; animating zoom in/out.
  */
 public class CropImageView extends TransformImageView {
-
-    static {
-        System.loadLibrary("ucrop");
-    }
 
     public static final int DEFAULT_MAX_BITMAP_SIZE = 0;
     public static final int DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = 500;
@@ -86,72 +79,6 @@ public class CropImageView extends TransformImageView {
                 compressFormat, compressQuality,
                 outputUri, cropCallback).execute();
     }
-
-    /**
-     * fixme
-     * This method crops part of image that fills the crop bounds.
-     * <p/>
-     * First image is downscaled if max size was set and if resulting image is larger that max size.
-     * Then image is rotated accordingly.
-     * Finally new Bitmap object is created and returned.
-     *
-     * @return - cropped Bitmap object or null if current Bitmap is invalid or image rectangle is empty.
-     */
-    public boolean cropImageNative(Uri input, Uri output) throws IOException {
-        Bitmap viewBitmap = getViewBitmap();
-        if (viewBitmap == null || viewBitmap.isRecycled()) {
-            return false;
-        }
-
-        cancelAllAnimations();
-        setImageToWrapCropBounds(false);
-
-        RectF currentImageRect = RectUtils.trapToRect(mCurrentImageCorners);
-        if (currentImageRect.isEmpty()) {
-            return false;
-        }
-
-        float currentScale = getCurrentScale();
-        float currentAngle = getCurrentAngle();
-
-
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(input.getPath(), options);
-
-        float scaleX = options.outWidth / viewBitmap.getWidth();
-        float scaleY = options.outHeight / viewBitmap.getHeight();
-
-        float resizeScale = Math.min(scaleX, scaleY);
-
-        currentScale /= resizeScale;
-
-        Log.d("WTF", "currentScale: " + currentScale + " scaleX: " + scaleX + " scaleY: " + scaleY);
-
-        int top = (int) ((mCropRect.top - currentImageRect.top) / currentScale);
-        int left = (int) ((mCropRect.left - currentImageRect.left) / currentScale);
-        int width = (int) (mCropRect.width() / currentScale);
-        int height = (int) (mCropRect.height() / currentScale);
-
-      /*  if (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0) {
-        float cropWidth = mCropRect.width() / currentScale;
-        float cropHeight = mCropRect.height() / currentScale;
-        if (cropWidth > mMaxResultImageSizeX || cropHeight > mMaxResultImageSizeY) {*/
-
-        Log.d("WTF", String.format("java left: %s top: %s width: %s height: %s angle: %s:", left, top, width, height, currentAngle));
-        long startTime = System.nanoTime();
-        boolean result = cropCImg(input.getPath(), output.getPath(), left, top, width, height, currentAngle);
-
-        long stopTime = System.nanoTime();
-        Log.d("WTF", "sec: " + (stopTime - startTime) / 1000000.f);
-
-        return result;
-    }
-
-    @SuppressWarnings("JniMissingFunction")
-    native public boolean cropCImg(String inputPath, String outputPath, int left, int top, int width, int height, float angle) throws IOException, OutOfMemoryError;
-
-
 
     /**
      * @return - maximum scale value for current image and crop ratio

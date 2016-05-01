@@ -10,9 +10,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.yalantis.ucrop.callback.BitmapCropCallback;
-import com.yalantis.ucrop.util.BitmapLoadUtils;
 
-import java.io.OutputStream;
+import java.io.IOException;
 
 /**
  * Crops part of image that fills the crop bounds.
@@ -21,7 +20,11 @@ import java.io.OutputStream;
  * Then image is rotated accordingly.
  * Finally new Bitmap object is created and saved to file.
  */
-public class BitmapCropTask extends AsyncTask<Void, Void, Exception> {
+public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
+
+    static {
+        System.loadLibrary("ucrop");
+    }
 
     private final Context mContext;
 
@@ -69,7 +72,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Exception> {
 
     @Override
     @Nullable
-    protected Exception doInBackground(Void... params) {
+    protected Throwable doInBackground(Void... params) {
         if (mViewBitmap == null || mViewBitmap.isRecycled()) {
             return new NullPointerException("ViewBitmap is null or already recycled");
         }
@@ -85,19 +88,14 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Exception> {
             rotate();
         }
 
-        crop();
-
-        OutputStream outputStream = null;
         try {
-            outputStream = mContext.getContentResolver().openOutputStream(mOutputUri);
-            mViewBitmap.compress(mCompressFormat, mCompressQuality, outputStream);
+            crop();
             mViewBitmap.recycle();
             mViewBitmap = null;
-        } catch (Exception e) {
-            return e;
-        } finally {
-            BitmapLoadUtils.close(outputStream);
+        } catch (Throwable throwable) {
+            return throwable;
         }
+
         return null;
     }
 
@@ -135,22 +133,29 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Exception> {
         mViewBitmap = rotatedBitmap;
     }
 
-    private void crop() {
+    private boolean crop() throws IOException {
         int top = Math.round((mCropRect.top - mCurrentImageRect.top) / mCurrentScale);
         int left = Math.round((mCropRect.left - mCurrentImageRect.left) / mCurrentScale);
         int width = Math.round(mCropRect.width() / mCurrentScale);
         int height = Math.round(mCropRect.height() / mCurrentScale);
 
-        mViewBitmap = Bitmap.createBitmap(mViewBitmap, left, top, width, height);
+        return cropCImg(mOutputUri.getPath(), mOutputUri.getPath(),
+                left, top, width, height, mCurrentAngle,
+                mCompressFormat.ordinal(), mCompressQuality);
     }
 
+    @SuppressWarnings("JniMissingFunction")
+    native public boolean cropCImg(String inputPath, String outputPath,
+                                   int left, int top, int width, int height, float angle,
+                                   int format, int quality) throws IOException, OutOfMemoryError;
+
     @Override
-    protected void onPostExecute(@Nullable Exception result) {
+    protected void onPostExecute(@Nullable Throwable t) {
         if (mCropCallback != null) {
-            if (result == null) {
+            if (t == null) {
                 mCropCallback.onBitmapCropped();
             } else {
-                mCropCallback.onCropFailure(result);
+                mCropCallback.onCropFailure(t);
             }
         }
     }

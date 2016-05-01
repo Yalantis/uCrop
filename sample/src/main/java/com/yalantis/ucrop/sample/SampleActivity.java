@@ -249,9 +249,6 @@ public class SampleActivity extends BaseActivity {
             case R.id.radio_png:
                 options.setCompressionFormat(Bitmap.CompressFormat.PNG);
                 break;
-            case R.id.radio_webp:
-                options.setCompressionFormat(Bitmap.CompressFormat.WEBP);
-                break;
             case R.id.radio_jpeg:
             default:
                 options.setCompressionFormat(Bitmap.CompressFormat.JPEG);

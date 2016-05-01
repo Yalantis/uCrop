@@ -29,21 +29,10 @@ android {
 
     resourcePrefix 'ucrop_'
 
-//    task buildNative(type: Exec, description: 'Compile JNI source via NDK') {
-//        def ndkDir = android.ndkDirectory
-//        commandLine "$ndkDir/ndk-build",
-//                '-C', file('src/main/jni').absolutePath,
-//                '-j', Runtime.runtime.availableProcessors(),
-//                'all',
-//                'NDK_DEBUG=1'
-//    }
     sourceSets.main {
-//        jniLibs.srcDir 'src/main/libs'
         jni.srcDirs = [];
     }
-//    tasks.withType(JavaCompile) {
-//        compileTask -> compileTask.dependsOn buildNative
-//    }
+
 }
 
 dependencies {

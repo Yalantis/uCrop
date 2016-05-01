@@ -175,13 +175,13 @@ public class UCropActivity extends AppCompatActivity {
 
         if (mInputUri != null && mOutputUri != null) {
             try {
-                mGestureCropImageView.setImageUri(inputUri, mOutputUri);
+                mGestureCropImageView.setImageUri(mInputUri, mOutputUri);
             } catch (Exception e) {
-                setResultException(e);
+                setResultError(e);
                 finish();
             }
         } else {
-            setResultException(new NullPointerException(getString(R.string.ucrop_error_input_data_is_absent)));
+            setResultError(new NullPointerException(getString(R.string.ucrop_error_input_data_is_absent)));
             finish();
         }
 
@@ -356,7 +356,7 @@ public class UCropActivity extends AppCompatActivity {
 
         @Override
         public void onLoadFailure(@NonNull Exception e) {
-            setResultException(e);
+            setResultError(e);
             finish();
         }
 
@@ -587,8 +587,8 @@ public class UCropActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onCropFailure(@NonNull Exception bitmapCropException) {
-                        setResultException(bitmapCropException);
+                    public void onCropFailure(@NonNull Throwable t) {
+                        setResultError(t);
                         finish();
                     }
                 });
@@ -600,7 +600,7 @@ public class UCropActivity extends AppCompatActivity {
                 .putExtra(UCrop.EXTRA_OUTPUT_CROP_ASPECT_RATIO, resultAspectRatio));
     }
 
-    protected void setResultException(Throwable throwable) {
+    protected void setResultError(Throwable throwable) {
         setResult(UCrop.RESULT_ERROR, new Intent().putExtra(UCrop.EXTRA_ERROR, throwable));
     }
 
