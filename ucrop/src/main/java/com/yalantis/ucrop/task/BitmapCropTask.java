@@ -1,13 +1,14 @@
 package com.yalantis.ucrop.task;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.RectF;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 
@@ -27,8 +28,6 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         System.loadLibrary("ucrop");
     }
 
-    private final Context mContext;
-
     private Bitmap mViewBitmap;
 
     private final RectF mCropRect;
@@ -39,17 +38,16 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
     private final Bitmap.CompressFormat mCompressFormat;
     private final int mCompressQuality;
-    private final String mImageInputPath, mImageOuputPath;
+    private final String mImageInputPath, mImageOutputPath;
     private final BitmapCropCallback mCropCallback;
 
-    public BitmapCropTask(@NonNull Context context, @Nullable Bitmap viewBitmap,
+    public BitmapCropTask(@Nullable Bitmap viewBitmap,
                           @NonNull RectF cropRect, @NonNull RectF currentImageRect,
                           float currentScale, float currentAngle,
                           int maxResultImageSizeX, int maxResultImageSizeY,
                           @NonNull Bitmap.CompressFormat compressFormat, int compressQuality,
-                          @NonNull String imageInputPath, @NonNull String imageOuputPath, @Nullable BitmapCropCallback cropCallback) {
-
-        mContext = context;
+                          @NonNull String imageInputPath, @NonNull String imageOutputPath,
+                          @Nullable BitmapCropCallback cropCallback) {
 
         mViewBitmap = viewBitmap;
         mCropRect = cropRect;
@@ -64,7 +62,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         mCompressQuality = compressQuality;
 
         mImageInputPath = imageInputPath;
-        mImageOuputPath = imageOuputPath;
+        mImageOutputPath = imageOutputPath;
 
         mCropCallback = cropCallback;
     }
@@ -122,14 +120,21 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     }
 
     private boolean crop(float resizeScale) throws IOException {
+        ExifInterface originalExif = new ExifInterface(mImageInputPath);
+
         int top = Math.round((mCropRect.top - mCurrentImageRect.top) / mCurrentScale);
         int left = Math.round((mCropRect.left - mCurrentImageRect.left) / mCurrentScale);
         int width = Math.round(mCropRect.width() / mCurrentScale);
         int height = Math.round(mCropRect.height() / mCurrentScale);
 
-        return cropCImg(mImageInputPath, mImageOuputPath,
+        boolean cropped = cropCImg(mImageInputPath, mImageOutputPath,
                 left, top, width, height, mCurrentAngle, resizeScale,
                 mCompressFormat.ordinal(), mCompressQuality);
+        if (cropped) {
+            copyExif(originalExif, width, height);
+        }
+
+        return cropped;
     }
 
     @SuppressWarnings("JniMissingFunction")
@@ -137,11 +142,52 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
                                    int left, int top, int width, int height, float angle, float resizeScale,
                                    int format, int quality) throws IOException, OutOfMemoryError;
 
+    public void copyExif(ExifInterface originalExif, int width, int height) throws IOException {
+        String[] attributes = new String[]{
+                ExifInterface.TAG_APERTURE,
+                ExifInterface.TAG_DATETIME,
+                ExifInterface.TAG_DATETIME_DIGITIZED,
+                ExifInterface.TAG_EXPOSURE_TIME,
+                ExifInterface.TAG_FLASH,
+                ExifInterface.TAG_FOCAL_LENGTH,
+                ExifInterface.TAG_GPS_ALTITUDE,
+                ExifInterface.TAG_GPS_ALTITUDE_REF,
+                ExifInterface.TAG_GPS_DATESTAMP,
+                ExifInterface.TAG_GPS_LATITUDE,
+                ExifInterface.TAG_GPS_LATITUDE_REF,
+                ExifInterface.TAG_GPS_LONGITUDE,
+                ExifInterface.TAG_GPS_LONGITUDE_REF,
+                ExifInterface.TAG_GPS_PROCESSING_METHOD,
+                ExifInterface.TAG_GPS_TIMESTAMP,
+                ExifInterface.TAG_ISO,
+                ExifInterface.TAG_MAKE,
+                ExifInterface.TAG_MODEL,
+                ExifInterface.TAG_SUBSEC_TIME,
+                ExifInterface.TAG_SUBSEC_TIME_DIG,
+                ExifInterface.TAG_SUBSEC_TIME_ORIG,
+                ExifInterface.TAG_WHITE_BALANCE
+        };
+
+        ExifInterface newExif = new ExifInterface(mImageOutputPath);
+        String value;
+        for (String attribute : attributes) {
+            value = originalExif.getAttribute(attribute);
+            if (!TextUtils.isEmpty(value)) {
+                newExif.setAttribute(attribute, value);
+            }
+        }
+        newExif.setAttribute(ExifInterface.TAG_IMAGE_WIDTH, String.valueOf(width));
+        newExif.setAttribute(ExifInterface.TAG_IMAGE_LENGTH, String.valueOf(height));
+        newExif.setAttribute(ExifInterface.TAG_ORIENTATION, "0");
+
+        newExif.saveAttributes();
+    }
+
     @Override
     protected void onPostExecute(@Nullable Throwable t) {
         if (mCropCallback != null) {
             if (t == null) {
-                mCropCallback.onBitmapCropped(Uri.fromFile(new File(mImageOuputPath)));
+                mCropCallback.onBitmapCropped(Uri.fromFile(new File(mImageOutputPath)));
             } else {
                 mCropCallback.onCropFailure(t);
             }

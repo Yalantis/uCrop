@@ -178,11 +178,16 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
     }
 
     private void copyFile(@NonNull Uri inputUri, @NonNull Uri outputUri) throws NullPointerException, IOException {
+        Log.d(TAG, "copyFile");
         InputStream inputStream = null;
         OutputStream outputStream = null;
         try {
             inputStream = mContext.getContentResolver().openInputStream(inputUri);
             outputStream = new FileOutputStream(new File(outputUri.getPath()));
+            if (inputStream == null) {
+                throw new NullPointerException("InputStream for given input Uri is null");
+            }
+
             byte buffer[] = new byte[1024];
             int length;
             while ((length = inputStream.read(buffer)) > 0) {
@@ -199,6 +204,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
     }
 
     private void downloadFile(@NonNull Uri inputUri, @NonNull Uri outputUri) throws NullPointerException, IOException {
+        Log.d(TAG, "downloadFile");
         OkHttpClient client = new OkHttpClient();
 
         BufferedSource source = null;
@@ -216,7 +222,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
                 sink = Okio.sink(outputStream);
                 source.readAll(sink);
             } else {
-                throw new NullPointerException("OutputStream for given output Uri was null");
+                throw new NullPointerException("OutputStream for given output Uri is null");
             }
         } finally {
             BitmapLoadUtils.close(source);

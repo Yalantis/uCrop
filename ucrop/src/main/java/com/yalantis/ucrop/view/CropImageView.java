@@ -71,12 +71,12 @@ public class CropImageView extends TransformImageView {
         cancelAllAnimations();
         setImageToWrapCropBounds(false);
 
-        new BitmapCropTask(getContext(), getViewBitmap(),
-                mCropRect, RectUtils.trapToRect(mCurrentImageCorners),
+        new BitmapCropTask(getViewBitmap(), mCropRect, RectUtils.trapToRect(mCurrentImageCorners),
                 getCurrentScale(), getCurrentAngle(),
                 mMaxResultImageSizeX, mMaxResultImageSizeY,
                 compressFormat, compressQuality,
-                getImageInputPath(), getImageOutputPath(), cropCallback).execute();
+                getImageInputPath(), getImageOutputPath(),
+                cropCallback).execute();
     }
 
     /**

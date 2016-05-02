@@ -41,10 +41,10 @@ JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_task_BitmapCropTask_cropCImg
         CImg<unsigned char> img(file_source_path);
         const int
         x0 = left, y0 = top,
-        x1 = left + width, y1 = top + height;
+        x1 = left + width - 1, y1 = top + height - 1;
 
         const int
-        size_x = cimg::abs(img.width() * resizeScale) - 1, size_y = cimg::abs(img.height() * resizeScale) - 1,
+        size_x = cimg::abs(img.width() * resizeScale), size_y = cimg::abs(img.height() * resizeScale),
         size_z = -100, size_c = -100, interpolation_type = 1;
         const unsigned int boundary_conditions = 0;
         const float
