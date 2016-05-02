@@ -6,7 +6,7 @@
 #include <jni.h>
 #include <vector>
 #include <android/log.h>
-#include "com_yalantis_ucrop_view_CropImageView.h"
+#include "com_yalantis_ucrop_task_BitmapCropTask.h"
 
 using namespace std;
 
@@ -23,25 +23,29 @@ using namespace cimg_library;
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_view_CropImageView_cropCImg(JNIEnv *env, jobject obj, jstring pathSource, jstring pathResult, jint left, jint top, jint width, jint height, jfloat angle) {
+#define SAVE_FORMAT_JPEG 0
+#define SAVE_FORMAT_PNG  1
+
+JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_task_BitmapCropTask_cropCImg
+    (JNIEnv *env, jobject obj,
+    jstring pathSource, jstring pathResult,
+    jint left, jint top, jint width, jint height, jfloat angle,
+    jint format, jint quality) {
 
     LOGD("cropFileCImg");
 
     const char *file_source_path = env->GetStringUTFChars(pathSource, 0);
     const char *file_result_path = env->GetStringUTFChars(pathResult, 0);
-    LOGD("file_source_path: %s \nfile_result_path: %s",file_source_path, file_result_path);
 
     try {
-                LOGD("1");
         const CImg<unsigned char> img(file_source_path);
-            LOGD("2");
         const int
         x0 = left, y0 = top,
         x1 = left + width, y1 = top + height;
 
         // Create warp field.
         CImg<float> warp(cimg::abs(x1 - x0 + 1), cimg::abs(y1 - y0 + 1), 1, 2);
-            LOGD("3");
+
         const float
         rad = angle * cimg::PI/180,
         ca = std::cos(rad), sa = std::sin(rad),
@@ -49,7 +53,7 @@ JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_view_CropImageView_cropCImg(J
         vx = cimg::abs(img.height() * sa), vy = cimg::abs(img.height() * ca),
         w2 = 0.5f * img.width(), h2 = 0.5f * img.height(),
         dw2 = 0.5f * (ux + vx), dh2 = 0.5f * (uy + vy);
-            LOGD("4");
+
         cimg_forXY(warp, x, y) {
             const float
             u = x + x0 - dw2, v = y + y0 - dh2;
@@ -57,10 +61,14 @@ JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_view_CropImageView_cropCImg(J
             warp(x, y, 0) = w2 + u*ca + v*sa;
             warp(x, y, 1) = h2 - u*sa + v*ca;
         }
-            LOGD("5");
-        img.get_warp(warp, 0, 1, 2).save(file_result_path);
+
+        if (format == SAVE_FORMAT_JPEG) {
+            img.get_warp(warp, 0, 1, 2).save_jpeg(file_result_path, quality);
+        } else {
+            img.get_warp(warp, 0, 1, 2).save_png(file_result_path, 0);
+        }
+
         ~img;
-            LOGD("6");
         env->ReleaseStringUTFChars(pathSource, file_source_path);
         env->ReleaseStringUTFChars(pathResult, file_result_path);
 
