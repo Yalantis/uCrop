@@ -68,13 +68,10 @@ public class ResultActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.menu_download:
-                saveCroppedImage();
-                break;
+        if (item.getItemId() == R.id.menu_download) {
+            saveCroppedImage();
+        } else if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
         }
         return super.onOptionsItemSelected(item);
     }

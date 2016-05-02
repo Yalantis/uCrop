@@ -46,14 +46,10 @@ public class SampleActivity extends BaseActivity {
     private CheckBox mCheckBoxHideBottomControls;
     private CheckBox mCheckBoxFreeStyleCrop;
 
-    private Uri mDestinationUri;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);
-
-        mDestinationUri = Uri.fromFile(new File(getCacheDir(), SAMPLE_CROPPED_IMAGE_NAME));
 
         setupUI();
     }
@@ -106,7 +102,7 @@ public class SampleActivity extends BaseActivity {
             public void onClick(View v) {
                 Random random = new Random();
                 int minSizePixels = 800;
-                int maxSizePixels = 1600;
+                int maxSizePixels = 2400;
                 startCropActivity(Uri.parse(String.format(Locale.getDefault(), "https://unsplash.it/%d/%d/?random",
                         minSizePixels + random.nextInt(maxSizePixels - minSizePixels),
                         minSizePixels + random.nextInt(maxSizePixels - minSizePixels))));
@@ -128,6 +124,12 @@ public class SampleActivity extends BaseActivity {
         mRadioGroupAspectRatio.check(R.id.radio_dynamic);
         mEditTextRatioX.addTextChangedListener(mAspectRatioTextWatcher);
         mEditTextRatioY.addTextChangedListener(mAspectRatioTextWatcher);
+        mRadioGroupCompressionSettings.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                mSeekBarQuality.setEnabled(checkedId == R.id.radio_jpeg);
+            }
+        });
         mRadioGroupCompressionSettings.check(R.id.radio_jpeg);
         mSeekBarQuality.setProgress(UCropActivity.DEFAULT_COMPRESS_QUALITY);
         mTextViewQuality.setText(String.format(getString(R.string.format_quality_d), mSeekBarQuality.getProgress()));
@@ -183,7 +185,17 @@ public class SampleActivity extends BaseActivity {
     }
 
     private void startCropActivity(@NonNull Uri uri) {
-        UCrop uCrop = UCrop.of(uri, mDestinationUri);
+        String destinationFileName = SAMPLE_CROPPED_IMAGE_NAME;
+        switch (mRadioGroupCompressionSettings.getCheckedRadioButtonId()) {
+            case R.id.radio_png:
+                destinationFileName += ".png";
+                break;
+            case R.id.radio_jpeg:
+                destinationFileName += ".jpg";
+                break;
+        }
+
+        UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), destinationFileName)));
 
         uCrop = basisConfig(uCrop);
         uCrop = advancedConfig(uCrop);

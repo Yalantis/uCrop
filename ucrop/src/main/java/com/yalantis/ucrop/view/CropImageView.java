@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -68,7 +67,7 @@ public class CropImageView extends TransformImageView {
      * Then creates and executes {@link BitmapCropTask} with proper parameters.
      */
     public void cropAndSaveImage(@NonNull Bitmap.CompressFormat compressFormat, int compressQuality,
-                                 @NonNull Uri outputUri, @Nullable BitmapCropCallback cropCallback) {
+                                 @Nullable BitmapCropCallback cropCallback) {
         cancelAllAnimations();
         setImageToWrapCropBounds(false);
 
@@ -77,7 +76,7 @@ public class CropImageView extends TransformImageView {
                 getCurrentScale(), getCurrentAngle(),
                 mMaxResultImageSizeX, mMaxResultImageSizeY,
                 compressFormat, compressQuality,
-                outputUri, cropCallback).execute();
+                getImageInputPath(), getImageOutputPath(), cropCallback).execute();
     }
 
     /**

@@ -10,14 +10,19 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
+import com.yalantis.ucrop.util.FileUtils;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import okhttp3.OkHttpClient;
@@ -38,7 +43,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
 
     private final Context mContext;
     private Uri mInputUri;
-    private final Uri mOutputUri;
+    private Uri mOutputUri;
     private final int mRequiredWidth;
     private final int mRequiredHeight;
 
@@ -75,13 +80,10 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
             return new BitmapWorkerResult(null, new NullPointerException("Uri cannot be null"));
         }
 
-        if ("http".equals(mInputUri.getScheme()) || "https".equals(mInputUri.getScheme())) {
-            try {
-                downloadFile(mInputUri, mOutputUri);
-            } catch (NullPointerException | IOException e) {
-                Log.e(TAG, "Downloading failed", e);
-                return new BitmapWorkerResult(null, e);
-            }
+        try {
+            processInputUri();
+        } catch (NullPointerException | IOException e) {
+            return new BitmapWorkerResult(null, e);
         }
 
         final ParcelFileDescriptor parcelFileDescriptor;
@@ -147,6 +149,55 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         return new BitmapWorkerResult(decodeSampledBitmap, null);
     }
 
+    private void processInputUri() throws NullPointerException, IOException {
+        String inputUriScheme = mInputUri.getScheme();
+        Log.d(TAG, "Uri scheme: " + inputUriScheme);
+        if ("http".equals(inputUriScheme) || "https".equals(inputUriScheme)) {
+            try {
+                downloadFile(mInputUri, mOutputUri);
+            } catch (NullPointerException | IOException e) {
+                Log.e(TAG, "Downloading failed", e);
+                throw e;
+            }
+        } else if ("content".equals(inputUriScheme)) {
+            String path = FileUtils.getPath(mContext, mInputUri);
+            if (!TextUtils.isEmpty(path) && new File(path).exists()) {
+                mInputUri = Uri.fromFile(new File(path));
+            } else {
+                try {
+                    copyFile(mInputUri, mOutputUri);
+                } catch (NullPointerException | IOException e) {
+                    Log.e(TAG, "Copying failed", e);
+                    throw e;
+                }
+            }
+        } else if (!"file".equals(inputUriScheme)) {
+            Log.e(TAG, "Invalid Uri scheme " + inputUriScheme);
+            throw new IllegalArgumentException("Invalid Uri scheme" + inputUriScheme);
+        }
+    }
+
+    private void copyFile(@NonNull Uri inputUri, @NonNull Uri outputUri) throws NullPointerException, IOException {
+        InputStream inputStream = null;
+        OutputStream outputStream = null;
+        try {
+            inputStream = mContext.getContentResolver().openInputStream(inputUri);
+            outputStream = new FileOutputStream(new File(outputUri.getPath()));
+            byte buffer[] = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+        } finally {
+            BitmapLoadUtils.close(outputStream);
+            BitmapLoadUtils.close(inputStream);
+
+            // swap uris, because input image was copied to the output destination
+            // (cropped image will override it later)
+            mInputUri = mOutputUri;
+        }
+    }
+
     private void downloadFile(@NonNull Uri inputUri, @NonNull Uri outputUri) throws NullPointerException, IOException {
         OkHttpClient client = new OkHttpClient();
 
@@ -173,19 +224,18 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
             if (response != null) {
                 BitmapLoadUtils.close(response.body());
             }
+            client.dispatcher().cancelAll();
+
+            // swap uris, because input image was downloaded to the output destination
+            // (cropped image will override it later)
+            mInputUri = mOutputUri;
         }
-
-        client.dispatcher().cancelAll();
-
-        // swap uris, because input image was downloaded to the output destination
-        // (cropped image will override it later)
-        mInputUri = mOutputUri;
     }
 
     @Override
     protected void onPostExecute(@NonNull BitmapWorkerResult result) {
         if (result.mBitmapWorkerException == null) {
-            mBitmapLoadCallback.onBitmapLoaded(result.mBitmapResult);
+            mBitmapLoadCallback.onBitmapLoaded(result.mBitmapResult, mInputUri.getPath(), mOutputUri.getPath());
         } else {
             mBitmapLoadCallback.onFailure(result.mBitmapWorkerException);
         }

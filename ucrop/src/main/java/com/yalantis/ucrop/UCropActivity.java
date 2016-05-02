@@ -42,6 +42,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -90,8 +91,6 @@ public class UCropActivity extends AppCompatActivity {
     private List<ViewGroup> mCropAspectRatioViews = new ArrayList<>();
     private TextView mTextViewRotateAngle, mTextViewScalePercent;
     private View mBlockingView;
-
-    private Uri mInputUri, mOutputUri;
 
     private Bitmap.CompressFormat mCompressFormat = DEFAULT_COMPRESS_FORMAT;
     private int mCompressQuality = DEFAULT_COMPRESS_QUALITY;
@@ -169,13 +168,13 @@ public class UCropActivity extends AppCompatActivity {
      * This method extracts all data from the incoming intent and setups views properly.
      */
     private void setImageData(@NonNull Intent intent) {
-        mInputUri = intent.getParcelableExtra(UCrop.EXTRA_INPUT_URI);
-        mOutputUri = intent.getParcelableExtra(UCrop.EXTRA_OUTPUT_URI);
+        Uri inputUri = intent.getParcelableExtra(UCrop.EXTRA_INPUT_URI);
+        Uri outputUri = intent.getParcelableExtra(UCrop.EXTRA_OUTPUT_URI);
         processOptions(intent);
 
-        if (mInputUri != null && mOutputUri != null) {
+        if (inputUri != null && outputUri != null) {
             try {
-                mGestureCropImageView.setImageUri(mInputUri, mOutputUri);
+                mGestureCropImageView.setImageUri(inputUri, outputUri);
             } catch (Exception e) {
                 setResultError(e);
                 finish();
@@ -490,13 +489,13 @@ public class UCropActivity extends AppCompatActivity {
 
     private void setAngleText(float angle) {
         if (mTextViewRotateAngle != null) {
-            mTextViewRotateAngle.setText(String.format("%.1f°", angle));
+            mTextViewRotateAngle.setText(String.format(Locale.getDefault(), "%.1f°", angle));
         }
     }
 
     private void setScaleText(float scale) {
         if (mTextViewScalePercent != null) {
-            mTextViewScalePercent.setText(String.format("%d%%", (int) (scale * 100)));
+            mTextViewScalePercent.setText(String.format(Locale.getDefault(), "%d%%", (int) (scale * 100)));
         }
     }
 
@@ -578,20 +577,20 @@ public class UCropActivity extends AppCompatActivity {
         mShowLoader = true;
         supportInvalidateOptionsMenu();
 
-        mGestureCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, mOutputUri,
-                new BitmapCropCallback() {
-                    @Override
-                    public void onBitmapCropped() {
-                        setResultUri(mOutputUri, mGestureCropImageView.getTargetAspectRatio());
-                        finish();
-                    }
+        mGestureCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, new BitmapCropCallback() {
 
-                    @Override
-                    public void onCropFailure(@NonNull Throwable t) {
-                        setResultError(t);
-                        finish();
-                    }
-                });
+            @Override
+            public void onBitmapCropped(@NonNull Uri resultUri) {
+                setResultUri(resultUri, mGestureCropImageView.getTargetAspectRatio());
+                finish();
+            }
+
+            @Override
+            public void onCropFailure(@NonNull Throwable t) {
+                setResultError(t);
+                finish();
+            }
+        });
     }
 
     protected void setResultUri(Uri uri, float resultAspectRatio) {

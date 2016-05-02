@@ -29,7 +29,7 @@ using namespace cimg_library;
 JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_task_BitmapCropTask_cropCImg
     (JNIEnv *env, jobject obj,
     jstring pathSource, jstring pathResult,
-    jint left, jint top, jint width, jint height, jfloat angle,
+    jint left, jint top, jint width, jint height, jfloat angle, jfloat resizeScale,
     jint format, jint quality) {
 
     LOGD("cropFileCImg");
@@ -38,10 +38,20 @@ JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_task_BitmapCropTask_cropCImg
     const char *file_result_path = env->GetStringUTFChars(pathResult, 0);
 
     try {
-        const CImg<unsigned char> img(file_source_path);
+        CImg<unsigned char> img(file_source_path);
         const int
         x0 = left, y0 = top,
         x1 = left + width, y1 = top + height;
+
+        const int
+        size_x = cimg::abs(img.width() * resizeScale) - 1, size_y = cimg::abs(img.height() * resizeScale) - 1,
+        size_z = -100, size_c = -100, interpolation_type = 1;
+        const unsigned int boundary_conditions = 0;
+        const float
+        centering_x = 0, centering_y = 0, centering_z = 0, centering_c = 0;
+        if (resizeScale != 1) {
+            img.resize(size_x, size_y, size_z, size_c, interpolation_type, boundary_conditions, centering_x, centering_y, centering_z, centering_c);
+        }
 
         // Create warp field.
         CImg<float> warp(cimg::abs(x1 - x0 + 1), cimg::abs(y1 - y0 + 1), 1, 2);
@@ -64,8 +74,10 @@ JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_task_BitmapCropTask_cropCImg
 
         if (format == SAVE_FORMAT_JPEG) {
             img.get_warp(warp, 0, 1, 2).save_jpeg(file_result_path, quality);
-        } else {
+        } else if (format == SAVE_FORMAT_PNG) {
             img.get_warp(warp, 0, 1, 2).save_png(file_result_path, 0);
+        } else {
+            img.get_warp(warp, 0, 1, 2).save(file_result_path);
         }
 
         ~img;

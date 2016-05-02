@@ -53,7 +53,8 @@ public class TransformImageView extends ImageView {
     protected boolean mBitmapLaidOut = false;
 
     private int mMaxBitmapSize = 0;
-    private Uri mImageUri;
+
+    private String mImageInputPath, mImageOutputPath;
 
     /**
      * Interface for rotation and scale change notifying.
@@ -118,9 +119,12 @@ public class TransformImageView extends ImageView {
         setImageDrawable(new FastBitmapDrawable(bitmap));
     }
 
-    @Nullable
-    public Uri getImageUri() {
-        return mImageUri;
+    public String getImageInputPath() {
+        return mImageInputPath;
+    }
+
+    public String getImageOutputPath() {
+        return mImageOutputPath;
     }
 
     /**
@@ -130,13 +134,16 @@ public class TransformImageView extends ImageView {
      * @throws Exception - can throw exception if having problems with decoding Uri or OOM.
      */
     public void setImageUri(@NonNull Uri imageUri, @NonNull Uri outputUri) throws Exception {
-        mImageUri = imageUri;
         int maxBitmapSize = getMaxBitmapSize();
 
         BitmapLoadUtils.decodeBitmapInBackground(getContext(), imageUri, outputUri, maxBitmapSize, maxBitmapSize,
                 new BitmapLoadCallback() {
+
                     @Override
-                    public void onBitmapLoaded(@NonNull final Bitmap bitmap) {
+                    public void onBitmapLoaded(@NonNull Bitmap bitmap, @NonNull String imageInputPath, @NonNull String imageOutputPath) {
+                        mImageInputPath = imageInputPath;
+                        mImageOutputPath = imageOutputPath;
+
                         mBitmapDecoded = true;
                         setImageBitmap(bitmap);
                     }

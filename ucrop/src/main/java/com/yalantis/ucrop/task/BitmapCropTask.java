@@ -2,7 +2,7 @@ package com.yalantis.ucrop.task;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
+import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -32,16 +33,13 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
     private final RectF mCropRect;
     private final RectF mCurrentImageRect;
-    private final Matrix mTempMatrix = new Matrix();
 
     private float mCurrentScale, mCurrentAngle;
     private final int mMaxResultImageSizeX, mMaxResultImageSizeY;
 
     private final Bitmap.CompressFormat mCompressFormat;
     private final int mCompressQuality;
-
-    private final Uri mOutputUri;
-
+    private final String mImageInputPath, mImageOuputPath;
     private final BitmapCropCallback mCropCallback;
 
     public BitmapCropTask(@NonNull Context context, @Nullable Bitmap viewBitmap,
@@ -49,7 +47,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
                           float currentScale, float currentAngle,
                           int maxResultImageSizeX, int maxResultImageSizeY,
                           @NonNull Bitmap.CompressFormat compressFormat, int compressQuality,
-                          @NonNull Uri outputUri, @Nullable BitmapCropCallback cropCallback) {
+                          @NonNull String imageInputPath, @NonNull String imageOuputPath, @Nullable BitmapCropCallback cropCallback) {
 
         mContext = context;
 
@@ -65,7 +63,8 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         mCompressFormat = compressFormat;
         mCompressQuality = compressQuality;
 
-        mOutputUri = outputUri;
+        mImageInputPath = imageInputPath;
+        mImageOuputPath = imageOuputPath;
 
         mCropCallback = cropCallback;
     }
@@ -80,16 +79,10 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
             return new NullPointerException("CurrentImageRect is empty");
         }
 
-        if (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0) {
-            resize();
-        }
-
-        if (mCurrentAngle != 0) {
-            rotate();
-        }
+        float resizeScale = resize();
 
         try {
-            crop();
+            crop(resizeScale);
             mViewBitmap.recycle();
             mViewBitmap = null;
         } catch (Throwable throwable) {
@@ -99,61 +92,56 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         return null;
     }
 
-    private void resize() {
-        float cropWidth = mCropRect.width() / mCurrentScale;
-        float cropHeight = mCropRect.height() / mCurrentScale;
+    private float resize() {
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mImageInputPath, options);
 
-        if (cropWidth > mMaxResultImageSizeX || cropHeight > mMaxResultImageSizeY) {
+        float scaleX = options.outWidth / mViewBitmap.getWidth();
+        float scaleY = options.outHeight / mViewBitmap.getHeight();
 
-            float scaleX = mMaxResultImageSizeX / cropWidth;
-            float scaleY = mMaxResultImageSizeY / cropHeight;
-            float resizeScale = Math.min(scaleX, scaleY);
+        float resizeScale = Math.min(scaleX, scaleY);
 
-            Bitmap resizedBitmap = Bitmap.createScaledBitmap(mViewBitmap,
-                    Math.round(mViewBitmap.getWidth() * resizeScale),
-                    Math.round(mViewBitmap.getHeight() * resizeScale), false);
-            if (mViewBitmap != resizedBitmap) {
-                mViewBitmap.recycle();
+        mCurrentScale /= resizeScale;
+
+        resizeScale = 1;
+        if (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0) {
+            float cropWidth = mCropRect.width() / mCurrentScale;
+            float cropHeight = mCropRect.height() / mCurrentScale;
+
+            if (cropWidth > mMaxResultImageSizeX || cropHeight > mMaxResultImageSizeY) {
+
+                scaleX = mMaxResultImageSizeX / cropWidth;
+                scaleY = mMaxResultImageSizeY / cropHeight;
+                resizeScale = Math.min(scaleX, scaleY);
+
+                mCurrentScale /= resizeScale;
             }
-            mViewBitmap = resizedBitmap;
-
-            mCurrentScale /= resizeScale;
         }
+        return resizeScale;
     }
 
-    private void rotate() {
-        mTempMatrix.reset();
-        mTempMatrix.setRotate(mCurrentAngle, mViewBitmap.getWidth() / 2, mViewBitmap.getHeight() / 2);
-
-        Bitmap rotatedBitmap = Bitmap.createBitmap(mViewBitmap, 0, 0, mViewBitmap.getWidth(), mViewBitmap.getHeight(),
-                mTempMatrix, true);
-        if (mViewBitmap != rotatedBitmap) {
-            mViewBitmap.recycle();
-        }
-        mViewBitmap = rotatedBitmap;
-    }
-
-    private boolean crop() throws IOException {
+    private boolean crop(float resizeScale) throws IOException {
         int top = Math.round((mCropRect.top - mCurrentImageRect.top) / mCurrentScale);
         int left = Math.round((mCropRect.left - mCurrentImageRect.left) / mCurrentScale);
         int width = Math.round(mCropRect.width() / mCurrentScale);
         int height = Math.round(mCropRect.height() / mCurrentScale);
 
-        return cropCImg(mOutputUri.getPath(), mOutputUri.getPath(),
-                left, top, width, height, mCurrentAngle,
+        return cropCImg(mImageInputPath, mImageOuputPath,
+                left, top, width, height, mCurrentAngle, resizeScale,
                 mCompressFormat.ordinal(), mCompressQuality);
     }
 
     @SuppressWarnings("JniMissingFunction")
     native public boolean cropCImg(String inputPath, String outputPath,
-                                   int left, int top, int width, int height, float angle,
+                                   int left, int top, int width, int height, float angle, float resizeScale,
                                    int format, int quality) throws IOException, OutOfMemoryError;
 
     @Override
     protected void onPostExecute(@Nullable Throwable t) {
         if (mCropCallback != null) {
             if (t == null) {
-                mCropCallback.onBitmapCropped();
+                mCropCallback.onBitmapCropped(Uri.fromFile(new File(mImageOuputPath)));
             } else {
                 mCropCallback.onCropFailure(t);
             }
