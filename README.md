@@ -83,8 +83,8 @@ Currently you can change:
   
 ### Version: 1.5
 
-  * Introduced "Freestyle" crop (you can resize crop rectangle by dragging it corners) #32
-  * Now image & crop view paddings are not associated #68
+  * Introduced "Freestyle" crop (you can resize crop rectangle by dragging it corners) [#32](https://github.com/Yalantis/uCrop/issues/32)
+  * Now image & crop view paddings are not associated [#68](https://github.com/Yalantis/uCrop/issues/68)
   * Updated API
 
 ### Version: 1.4
