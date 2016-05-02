@@ -14,7 +14,7 @@
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:1.5.0' ```
+    ``` compile 'com.yalantis:ucrop:2.0.0@aar' ```
     
 2. Add UCropActivity into your AndroidManifest.xml
 
@@ -71,12 +71,15 @@ Currently you can change:
   
   * Library - Android ICS 4.0+ (API 14) (Android GINGERBREAD 2.3+ (API 10) for versions <= 1.3.2)
   * Sample - Android ICS 4.0+ (API 14)
+  * CPU - armeabi-v7a x86 arm64-v8a (for versions >= 2.0.0)
   
 # Changelog
 
-### Version: 2.0 (COMING SOON)
+### Version: 2.0
 
-  * Native image crop (able to crop high-resolution images).
+  * Native image crop (able to crop high-resolution images, e.g. 16MP & 32MP images on Nexus 5X).
+  * WebP compression format is not supported at the moment (choose JPEG or PNG).
+  * Now library copies EXIF data to cropped image (size and orientation are updated).
   
 ### Version: 1.5
 
