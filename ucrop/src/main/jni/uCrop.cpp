@@ -53,31 +53,37 @@ JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_task_BitmapCropTask_cropCImg
             img.resize(size_x, size_y, size_z, size_c, interpolation_type, boundary_conditions, centering_x, centering_y, centering_z, centering_c);
         }
 
-        // Create warp field.
-        CImg<float> warp(cimg::abs(x1 - x0 + 1), cimg::abs(y1 - y0 + 1), 1, 2);
 
-        const float
-        rad = angle * cimg::PI/180,
-        ca = std::cos(rad), sa = std::sin(rad),
-        ux = cimg::abs(img.width() * ca), uy = cimg::abs(img.width() * sa),
-        vx = cimg::abs(img.height() * sa), vy = cimg::abs(img.height() * ca),
-        w2 = 0.5f * img.width(), h2 = 0.5f * img.height(),
-        dw2 = 0.5f * (ux + vx), dh2 = 0.5f * (uy + vy);
+        if (!(img.width() == width && img.height() == height && angle == 0)) {
 
-        cimg_forXY(warp, x, y) {
+            // Create warp field.
+            CImg<float> warp(cimg::abs(x1 - x0 + 1), cimg::abs(y1 - y0 + 1), 1, 2);
+
             const float
-            u = x + x0 - dw2, v = y + y0 - dh2;
+            rad = angle * cimg::PI/180,
+            ca = std::cos(rad), sa = std::sin(rad),
+            ux = cimg::abs(img.width() * ca), uy = cimg::abs(img.width() * sa),
+            vx = cimg::abs(img.height() * sa), vy = cimg::abs(img.height() * ca),
+            w2 = 0.5f * img.width(), h2 = 0.5f * img.height(),
+            dw2 = 0.5f * (ux + vx), dh2 = 0.5f * (uy + vy);
 
-            warp(x, y, 0) = w2 + u*ca + v*sa;
-            warp(x, y, 1) = h2 - u*sa + v*ca;
+            cimg_forXY(warp, x, y) {
+                const float
+                u = x + x0 - dw2, v = y + y0 - dh2;
+
+                warp(x, y, 0) = w2 + u*ca + v*sa;
+                warp(x, y, 1) = h2 - u*sa + v*ca;
+            }
+
+            img = img.get_warp(warp, 0, 1, 2);
         }
 
         if (format == SAVE_FORMAT_JPEG) {
-            img.get_warp(warp, 0, 1, 2).save_jpeg(file_result_path, quality);
+            img.save_jpeg(file_result_path, quality);
         } else if (format == SAVE_FORMAT_PNG) {
-            img.get_warp(warp, 0, 1, 2).save_png(file_result_path, 0);
+            img.save_png(file_result_path, 0);
         } else {
-            img.get_warp(warp, 0, 1, 2).save(file_result_path);
+            img.save(file_result_path);
         }
 
         ~img;

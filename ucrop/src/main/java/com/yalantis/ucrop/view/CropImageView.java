@@ -297,8 +297,6 @@ public class CropImageView extends TransformImageView {
 
                 deltaScale = Math.max(tempCropRect.width() / currentImageSides[0],
                         tempCropRect.height() / currentImageSides[1]);
-                // Ugly but there are always couple pixels that want to hide because of all these calculations
-                deltaScale *= 1.01;
                 deltaScale = deltaScale * currentScale - currentScale;
             }
 
