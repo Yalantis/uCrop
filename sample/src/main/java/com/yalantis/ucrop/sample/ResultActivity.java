@@ -6,8 +6,11 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -16,10 +19,15 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.yalantis.ucrop.callback.BitmapLoadCallback;
+import com.yalantis.ucrop.util.BitmapLoadUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,6 +42,9 @@ public class ResultActivity extends BaseActivity {
 
     private static final String TAG = "ResultActivity";
     private static final int DOWNLOAD_NOTIFICATION_ID_DONE = 911;
+    private static final String SAMPLE_CROPPED_IMAGE_NAME = "SampleCropImage.preview";
+
+    private ImageView imageView;
 
     public static void startWithUri(@NonNull Context context, @NonNull Uri uri) {
         Intent intent = new Intent(context, ResultActivity.class);
@@ -45,8 +56,9 @@ public class ResultActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
+        imageView = ((ImageView) findViewById(R.id.image_view_preview));
 
-        ((ImageView) findViewById(R.id.image_view_preview)).setImageURI(getIntent().getData());
+        setImageData(getIntent().getData());
 
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -58,6 +70,62 @@ public class ResultActivity extends BaseActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(getString(R.string.format_crop_result_d_d, options.outWidth, options.outHeight));
         }
+    }
+
+    private void setImageData(@NonNull final Uri uri) {
+        Uri outputUri = Uri.fromFile(new File(getCacheDir(), SAMPLE_CROPPED_IMAGE_NAME));
+
+        int maxBitmapSize = calculateMaxBitmapSize();
+
+        BitmapLoadUtils.decodeBitmapInBackground(this, uri, outputUri, maxBitmapSize, maxBitmapSize,
+                new BitmapLoadCallback() {
+
+                    @Override
+                    public void onBitmapLoaded(@NonNull Bitmap bitmap, @NonNull String imageInputPath, @NonNull String imageOutputPath) {
+                        if (isFinishing()) {
+                            return;
+                        }
+
+                        try {
+                            imageView.setImageBitmap(bitmap);
+                        } catch (OutOfMemoryError e) {
+                            Log.e(TAG, uri.toString(), e);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Exception bitmapWorkerException) {
+                        if (isFinishing()) {
+                            return;
+                        }
+
+                        Log.e(TAG, "onFailure: setImageData", bitmapWorkerException);
+                    }
+                });
+    }
+
+    /**
+     * This method calculates maximum size of both width and height of bitmap.
+     * It is twice the device screen diagonal for default implementation.
+     *
+     * @return - max bitmap size in pixels.
+     */
+    @SuppressWarnings({"SuspiciousNameCombination", "deprecation"})
+    protected int calculateMaxBitmapSize() {
+        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+
+        Point size = new Point();
+        int width, height;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            display.getSize(size);
+            width = size.x;
+            height = size.y;
+        } else {
+            width = display.getWidth();
+            height = display.getHeight();
+        }
+        return (int) Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)) * 2;
     }
 
     @Override
@@ -75,7 +143,6 @@ public class ResultActivity extends BaseActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     /**
      * Callback received when a permissions request has been completed.
