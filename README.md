@@ -14,7 +14,7 @@
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:1.5.0' ```
+    ``` compile 'com.yalantis:ucrop:2.0.0' ```
     
 2. Add UCropActivity into your AndroidManifest.xml
 
