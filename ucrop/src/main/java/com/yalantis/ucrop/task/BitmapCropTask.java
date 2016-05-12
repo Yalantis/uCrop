@@ -81,7 +81,6 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
         try {
             crop(resizeScale);
-            mViewBitmap.recycle();
             mViewBitmap = null;
         } catch (Throwable throwable) {
             return throwable;

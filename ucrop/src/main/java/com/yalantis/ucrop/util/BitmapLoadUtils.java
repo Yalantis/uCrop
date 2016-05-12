@@ -36,7 +36,6 @@ public class BitmapLoadUtils {
         try {
             Bitmap converted = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), transformMatrix, true);
             if (bitmap != converted) {
-                bitmap.recycle();
                 bitmap = converted;
             }
         } catch (OutOfMemoryError error) {
