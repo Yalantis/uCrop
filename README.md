@@ -121,6 +121,11 @@ Currently you can change:
 
 We’d be really happy if you sent us links to your projects where you use our component. Just send an email to github@yalantis.com And do let us know if you have any questions or suggestion regarding the library. 
 
+#### Apps using uCrop
+
+- [Thirty](https://play.google.com/store/apps/details?id=com.twominds.thirty).
+- [Light Smart HD](https://play.google.com/store/apps/details?id=com.SmartCamera.simple).
+
 ## License
 
     Copyright 2016, Yalantis
