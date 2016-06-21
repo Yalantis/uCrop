@@ -14,7 +14,7 @@
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:2.0.0@aar' ```
+    ``` compile 'com.yalantis:ucrop:1.5.0' ```
     
 2. Add UCropActivity into your AndroidManifest.xml
 
@@ -75,7 +75,7 @@ Currently you can change:
   
 # Changelog
 
-### Version: 2.0
+### Version: 2.0 (WARNING - Due to high amount of issues, this version seems to be unstable, please use 1.5.0 until further patches)
 
   * Native image crop (able to crop high-resolution images, e.g. 16MP & 32MP images on Nexus 5X).
   * WebP compression format is not supported at the moment (choose JPEG or PNG).
@@ -120,6 +120,12 @@ Currently you can change:
 ### Let us know!
 
 We’d be really happy if you sent us links to your projects where you use our component. Just send an email to github@yalantis.com And do let us know if you have any questions or suggestion regarding the library. 
+
+#### Apps using uCrop
+
+- [Thirty](https://play.google.com/store/apps/details?id=com.twominds.thirty).
+- [Light Smart HD](https://play.google.com/store/apps/details?id=com.SmartCamera.simple).
+- [BCReader] (https://play.google.com/store/apps/details?id=com.iac.bcreader).
 
 ## License
 
