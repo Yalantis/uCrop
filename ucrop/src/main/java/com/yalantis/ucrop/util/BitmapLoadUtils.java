@@ -4,11 +4,15 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
 
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
 import com.yalantis.ucrop.task.BitmapLoadTask;
@@ -25,7 +29,7 @@ public class BitmapLoadUtils {
     private static final String TAG = "BitmapLoadUtils";
 
     public static void decodeBitmapInBackground(@NonNull Context context,
-                                                @Nullable Uri uri, @Nullable Uri outputUri,
+                                                @NonNull Uri uri, @Nullable Uri outputUri,
                                                 int requiredWidth, int requiredHeight,
                                                 BitmapLoadCallback loadCallback) {
 
@@ -35,8 +39,7 @@ public class BitmapLoadUtils {
     public static Bitmap transformBitmap(@NonNull Bitmap bitmap, @NonNull Matrix transformMatrix) {
         try {
             Bitmap converted = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), transformMatrix, true);
-            if (bitmap != converted) {
-                bitmap.recycle();
+            if (!bitmap.sameAs(converted)) {
                 bitmap = converted;
             }
         } catch (OutOfMemoryError error) {
@@ -110,6 +113,30 @@ public class BitmapLoadUtils {
                 translation = 1;
         }
         return translation;
+    }
+
+    /**
+     * This method calculates maximum size of both width and height of bitmap.
+     * It is twice the device screen diagonal for default implementation.
+     *
+     * @return - max bitmap size in pixels.
+     */
+    @SuppressWarnings({"SuspiciousNameCombination", "deprecation"})
+    public static int calculateMaxBitmapSize(@NonNull Context context) {
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+
+        Point size = new Point();
+        int width, height;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            display.getSize(size);
+            width = size.x;
+            height = size.y;
+        } else {
+            width = display.getWidth();
+            height = display.getHeight();
+        }
+        return (int) Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)) * 2;
     }
 
     @SuppressWarnings("ConstantConditions")

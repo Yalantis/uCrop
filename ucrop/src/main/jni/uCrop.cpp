@@ -43,6 +43,7 @@ JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_task_BitmapCropTask_cropCImg
         x0 = left, y0 = top,
         x1 = left + width - 1, y1 = top + height - 1;
 
+        // TODO abs what is it good for? - absolutely nothing
         const int
         size_x = cimg::abs(img.width() * resizeScale), size_y = cimg::abs(img.height() * resizeScale),
         size_z = -100, size_c = -100, interpolation_type = 1;
@@ -53,7 +54,7 @@ JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_task_BitmapCropTask_cropCImg
             img.resize(size_x, size_y, size_z, size_c, interpolation_type, boundary_conditions, centering_x, centering_y, centering_z, centering_c);
         }
 
-
+        // TODO why allocate memory at all?
         if (!(img.width() == width && img.height() == height && angle == 0)) {
 
             // Create warp field.
@@ -86,7 +87,10 @@ JNIEXPORT jboolean JNICALL Java_com_yalantis_ucrop_task_BitmapCropTask_cropCImg
             img.save(file_result_path);
         }
 
+        // todo
+        // delete img;
         ~img;
+
         env->ReleaseStringUTFChars(pathSource, file_source_path);
         env->ReleaseStringUTFChars(pathResult, file_result_path);
 

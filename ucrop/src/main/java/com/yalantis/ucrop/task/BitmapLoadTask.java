@@ -62,7 +62,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
     }
 
     public BitmapLoadTask(@NonNull Context context,
-                          @Nullable Uri inputUri, @Nullable Uri outputUri,
+                          @NonNull Uri inputUri, @Nullable Uri outputUri,
                           int requiredWidth, int requiredHeight,
                           BitmapLoadCallback loadCallback) {
         mContext = context;
@@ -76,8 +76,8 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
     @Override
     @NonNull
     protected BitmapWorkerResult doInBackground(Void... params) {
-        if (mInputUri == null || mOutputUri == null) {
-            return new BitmapWorkerResult(null, new NullPointerException("Uri cannot be null"));
+        if (mInputUri == null) {
+            return new BitmapWorkerResult(null, new NullPointerException("Input Uri cannot be null"));
         }
 
         try {
@@ -97,14 +97,14 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         if (parcelFileDescriptor != null) {
             fileDescriptor = parcelFileDescriptor.getFileDescriptor();
         } else {
-            return new BitmapWorkerResult(null, new NullPointerException("ParcelFileDescriptor was null for given Uri"));
+            return new BitmapWorkerResult(null, new NullPointerException("ParcelFileDescriptor was null for given Uri: [" + mInputUri + "]"));
         }
 
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
         if (options.outWidth == -1 || options.outHeight == -1) {
-            return new BitmapWorkerResult(null, new IllegalArgumentException("Bounds for bitmap could not be retrieved from Uri"));
+            return new BitmapWorkerResult(null, new IllegalArgumentException("Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]"));
         }
 
         options.inSampleSize = BitmapLoadUtils.calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
@@ -124,7 +124,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         }
 
         if (decodeSampledBitmap == null) {
-            return new BitmapWorkerResult(null, new IllegalArgumentException("Bitmap could not be decoded from Uri"));
+            return new BitmapWorkerResult(null, new IllegalArgumentException("Bitmap could not be decoded from the Uri: [" + mInputUri + "]"));
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -177,8 +177,13 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         }
     }
 
-    private void copyFile(@NonNull Uri inputUri, @NonNull Uri outputUri) throws NullPointerException, IOException {
+    private void copyFile(@NonNull Uri inputUri, @Nullable Uri outputUri) throws NullPointerException, IOException {
         Log.d(TAG, "copyFile");
+
+        if (outputUri == null) {
+            throw new NullPointerException("Output Uri is null - cannot copy image");
+        }
+
         InputStream inputStream = null;
         OutputStream outputStream = null;
         try {
@@ -203,8 +208,13 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         }
     }
 
-    private void downloadFile(@NonNull Uri inputUri, @NonNull Uri outputUri) throws NullPointerException, IOException {
+    private void downloadFile(@NonNull Uri inputUri, @Nullable Uri outputUri) throws NullPointerException, IOException {
         Log.d(TAG, "downloadFile");
+
+        if (outputUri == null) {
+            throw new NullPointerException("Output Uri is null - cannot download image");
+        }
+
         OkHttpClient client = new OkHttpClient();
 
         BufferedSource source = null;
@@ -241,7 +251,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
     @Override
     protected void onPostExecute(@NonNull BitmapWorkerResult result) {
         if (result.mBitmapWorkerException == null) {
-            mBitmapLoadCallback.onBitmapLoaded(result.mBitmapResult, mInputUri.getPath(), mOutputUri.getPath());
+            mBitmapLoadCallback.onBitmapLoaded(result.mBitmapResult, mInputUri.getPath(), (mOutputUri == null) ? null : mOutputUri.getPath());
         } else {
             mBitmapLoadCallback.onFailure(result.mBitmapWorkerException);
         }

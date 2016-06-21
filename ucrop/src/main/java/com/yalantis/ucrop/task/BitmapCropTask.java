@@ -70,10 +70,11 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     @Override
     @Nullable
     protected Throwable doInBackground(Void... params) {
-        if (mViewBitmap == null || mViewBitmap.isRecycled()) {
-            return new NullPointerException("ViewBitmap is null or already recycled");
-        }
-        if (mCurrentImageRect.isEmpty()) {
+        if (mViewBitmap == null) {
+            return new NullPointerException("ViewBitmap is null");
+        } else if (mViewBitmap.isRecycled()) {
+            return new NullPointerException("ViewBitmap is recycled");
+        } else if (mCurrentImageRect.isEmpty()) {
             return new NullPointerException("CurrentImageRect is empty");
         }
 
@@ -81,7 +82,6 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
         try {
             crop(resizeScale);
-            mViewBitmap.recycle();
             mViewBitmap = null;
         } catch (Throwable throwable) {
             return throwable;
