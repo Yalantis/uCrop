@@ -16,6 +16,7 @@
 
 package com.yalantis.ucrop.util;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -224,6 +225,8 @@ public class FileUtils {
                 final int column_index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(column_index);
             }
+        } catch (IllegalArgumentException ex) {
+            Log.i(TAG, "getDataColumn: _data", ex);
         } finally {
             if (cursor != null)
                 cursor.close();
@@ -245,6 +248,7 @@ public class FileUtils {
      * @see #isLocal(String)
      * @see #getFile(Context, Uri)
      */
+    @SuppressLint("NewApi")
     public static String getPath(final Context context, final Uri uri) {
 
         if (DEBUG)

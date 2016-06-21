@@ -3,6 +3,7 @@ package com.yalantis.ucrop.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.media.ExifInterface;
@@ -117,7 +118,8 @@ public class BitmapLoadUtils {
 
     /**
      * This method calculates maximum size of both width and height of bitmap.
-     * It is twice the device screen diagonal for default implementation.
+     * It is twice the device screen diagonal for default implementation (extra quality to zoom image).
+     * Size cannot exceed max texture size.
      *
      * @return - max bitmap size in pixels.
      */
@@ -136,7 +138,11 @@ public class BitmapLoadUtils {
             width = display.getWidth();
             height = display.getHeight();
         }
-        return (int) Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)) * 2;
+
+        int screenDiagonal = (int) Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
+
+        Canvas canvas = new Canvas();
+        return Math.min(screenDiagonal * 2, Math.min(canvas.getMaximumBitmapWidth(), canvas.getMaximumBitmapHeight()));
     }
 
     @SuppressWarnings("ConstantConditions")
