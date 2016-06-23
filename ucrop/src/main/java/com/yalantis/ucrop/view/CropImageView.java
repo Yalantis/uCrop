@@ -14,6 +14,8 @@ import android.util.AttributeSet;
 import com.yalantis.ucrop.R;
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.callback.CropBoundsChangeListener;
+import com.yalantis.ucrop.model.CropParameters;
+import com.yalantis.ucrop.model.ImageState;
 import com.yalantis.ucrop.task.BitmapCropTask;
 import com.yalantis.ucrop.util.CubicEasing;
 import com.yalantis.ucrop.util.RectUtils;
@@ -71,12 +73,16 @@ public class CropImageView extends TransformImageView {
         cancelAllAnimations();
         setImageToWrapCropBounds(false);
 
-        new BitmapCropTask(getViewBitmap(), mCropRect, RectUtils.trapToRect(mCurrentImageCorners),
-                getCurrentScale(), getCurrentAngle(),
+        final ImageState imageState = new ImageState(
+                mCropRect, RectUtils.trapToRect(mCurrentImageCorners),
+                getCurrentScale(), getCurrentAngle());
+
+        final CropParameters cropParameters = new CropParameters(
                 mMaxResultImageSizeX, mMaxResultImageSizeY,
                 compressFormat, compressQuality,
-                getImageInputPath(), getImageOutputPath(),
-                cropCallback).execute();
+                getImageInputPath(), getImageOutputPath(), getExifInfo());
+
+        new BitmapCropTask(getViewBitmap(), imageState, cropParameters, cropCallback).execute();
     }
 
     /**

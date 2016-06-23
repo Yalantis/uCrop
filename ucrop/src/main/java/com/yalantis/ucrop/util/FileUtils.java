@@ -29,11 +29,16 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
 import java.util.Comparator;
 
@@ -513,4 +518,20 @@ public class FileUtils {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         return intent;
     }
+
+    public static void copyFile(@NonNull String pathFrom, @NonNull String pathTo) throws IOException {
+        FileChannel outputChannel = null;
+        FileChannel inputChannel = null;
+        try {
+            inputChannel = new FileInputStream(new File(pathFrom)).getChannel();
+            outputChannel = new FileOutputStream(new File(pathTo)).getChannel();
+            inputChannel.transferTo(0, inputChannel.size(), outputChannel);
+            inputChannel.close();
+        } finally {
+            if (inputChannel != null) inputChannel.close();
+            if (outputChannel != null) outputChannel.close();
+        }
+
+    }
+
 }

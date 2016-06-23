@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
+import com.yalantis.ucrop.model.ExifInfo;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.util.FastBitmapDrawable;
 import com.yalantis.ucrop.util.RectUtils;
@@ -51,6 +52,7 @@ public class TransformImageView extends ImageView {
     private int mMaxBitmapSize = 0;
 
     private String mImageInputPath, mImageOutputPath;
+    private ExifInfo mExifInfo;
 
     /**
      * Interface for rotation and scale change notifying.
@@ -123,6 +125,10 @@ public class TransformImageView extends ImageView {
         return mImageOutputPath;
     }
 
+    public ExifInfo getExifInfo() {
+        return mExifInfo;
+    }
+
     /**
      * This method takes an Uri as a parameter, then calls method to decode it into Bitmap with specified size.
      *
@@ -136,9 +142,10 @@ public class TransformImageView extends ImageView {
                 new BitmapLoadCallback() {
 
                     @Override
-                    public void onBitmapLoaded(@NonNull Bitmap bitmap, @NonNull String imageInputPath, @Nullable String imageOutputPath) {
+                    public void onBitmapLoaded(@NonNull Bitmap bitmap, @NonNull ExifInfo exifInfo, @NonNull String imageInputPath, @Nullable String imageOutputPath) {
                         mImageInputPath = imageInputPath;
                         mImageOutputPath = imageOutputPath;
+                        mExifInfo = exifInfo;
 
                         mBitmapDecoded = true;
                         setImageBitmap(bitmap);

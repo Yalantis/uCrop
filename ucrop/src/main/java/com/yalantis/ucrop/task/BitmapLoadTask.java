@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
+import com.yalantis.ucrop.model.ExifInfo;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.util.FileUtils;
 
@@ -52,10 +53,15 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
     public static class BitmapWorkerResult {
 
         Bitmap mBitmapResult;
+        ExifInfo mExifInfo;
         Exception mBitmapWorkerException;
 
-        public BitmapWorkerResult(@Nullable Bitmap bitmapResult, @Nullable Exception bitmapWorkerException) {
+        public BitmapWorkerResult(@NonNull Bitmap bitmapResult, @NonNull ExifInfo exifInfo) {
             mBitmapResult = bitmapResult;
+            mExifInfo = exifInfo;
+        }
+
+        public BitmapWorkerResult(@NonNull Exception bitmapWorkerException) {
             mBitmapWorkerException = bitmapWorkerException;
         }
 
@@ -77,34 +83,34 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
     @NonNull
     protected BitmapWorkerResult doInBackground(Void... params) {
         if (mInputUri == null) {
-            return new BitmapWorkerResult(null, new NullPointerException("Input Uri cannot be null"));
+            return new BitmapWorkerResult(new NullPointerException("Input Uri cannot be null"));
         }
 
         try {
             processInputUri();
         } catch (NullPointerException | IOException e) {
-            return new BitmapWorkerResult(null, e);
+            return new BitmapWorkerResult(e);
         }
 
         final ParcelFileDescriptor parcelFileDescriptor;
         try {
             parcelFileDescriptor = mContext.getContentResolver().openFileDescriptor(mInputUri, "r");
         } catch (FileNotFoundException e) {
-            return new BitmapWorkerResult(null, e);
+            return new BitmapWorkerResult(e);
         }
 
         final FileDescriptor fileDescriptor;
         if (parcelFileDescriptor != null) {
             fileDescriptor = parcelFileDescriptor.getFileDescriptor();
         } else {
-            return new BitmapWorkerResult(null, new NullPointerException("ParcelFileDescriptor was null for given Uri: [" + mInputUri + "]"));
+            return new BitmapWorkerResult(new NullPointerException("ParcelFileDescriptor was null for given Uri: [" + mInputUri + "]"));
         }
 
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
         if (options.outWidth == -1 || options.outHeight == -1) {
-            return new BitmapWorkerResult(null, new IllegalArgumentException("Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]"));
+            return new BitmapWorkerResult(new IllegalArgumentException("Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]"));
         }
 
         options.inSampleSize = BitmapLoadUtils.calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
@@ -124,7 +130,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         }
 
         if (decodeSampledBitmap == null) {
-            return new BitmapWorkerResult(null, new IllegalArgumentException("Bitmap could not be decoded from the Uri: [" + mInputUri + "]"));
+            return new BitmapWorkerResult(new IllegalArgumentException("Bitmap could not be decoded from the Uri: [" + mInputUri + "]"));
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -135,6 +141,8 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         int exifDegrees = BitmapLoadUtils.exifToDegrees(exifOrientation);
         int exifTranslation = BitmapLoadUtils.exifToTranslation(exifOrientation);
 
+        ExifInfo exifInfo = new ExifInfo(exifOrientation, exifDegrees, exifTranslation);
+
         Matrix matrix = new Matrix();
         if (exifDegrees != 0) {
             matrix.preRotate(exifDegrees);
@@ -143,10 +151,10 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
             matrix.postScale(exifTranslation, 1);
         }
         if (!matrix.isIdentity()) {
-            return new BitmapWorkerResult(BitmapLoadUtils.transformBitmap(decodeSampledBitmap, matrix), null);
+            return new BitmapWorkerResult(BitmapLoadUtils.transformBitmap(decodeSampledBitmap, matrix), exifInfo);
         }
 
-        return new BitmapWorkerResult(decodeSampledBitmap, null);
+        return new BitmapWorkerResult(decodeSampledBitmap, exifInfo);
     }
 
     private void processInputUri() throws NullPointerException, IOException {
@@ -251,7 +259,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
     @Override
     protected void onPostExecute(@NonNull BitmapWorkerResult result) {
         if (result.mBitmapWorkerException == null) {
-            mBitmapLoadCallback.onBitmapLoaded(result.mBitmapResult, mInputUri.getPath(), (mOutputUri == null) ? null : mOutputUri.getPath());
+            mBitmapLoadCallback.onBitmapLoaded(result.mBitmapResult, result.mExifInfo, mInputUri.getPath(), (mOutputUri == null) ? null : mOutputUri.getPath());
         } else {
             mBitmapLoadCallback.onFailure(result.mBitmapWorkerException);
         }

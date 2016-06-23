@@ -8,9 +8,14 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
+import android.util.Log;
 
 import com.yalantis.ucrop.callback.BitmapCropCallback;
+import com.yalantis.ucrop.model.CropParameters;
+import com.yalantis.ucrop.model.ExifInfo;
+import com.yalantis.ucrop.model.ImageState;
+import com.yalantis.ucrop.util.FileUtils;
+import com.yalantis.ucrop.util.ImageHeaderParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +28,8 @@ import java.io.IOException;
  * Finally new Bitmap object is created and saved to file.
  */
 public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
+
+    private static final String TAG = "BitmapCropTask";
 
     static {
         System.loadLibrary("ucrop");
@@ -39,30 +46,27 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     private final Bitmap.CompressFormat mCompressFormat;
     private final int mCompressQuality;
     private final String mImageInputPath, mImageOutputPath;
+    private final ExifInfo mExifInfo;
     private final BitmapCropCallback mCropCallback;
 
-    public BitmapCropTask(@Nullable Bitmap viewBitmap,
-                          @NonNull RectF cropRect, @NonNull RectF currentImageRect,
-                          float currentScale, float currentAngle,
-                          int maxResultImageSizeX, int maxResultImageSizeY,
-                          @NonNull Bitmap.CompressFormat compressFormat, int compressQuality,
-                          @NonNull String imageInputPath, @NonNull String imageOutputPath,
+    public BitmapCropTask(@Nullable Bitmap viewBitmap, @NonNull ImageState imageState, @NonNull CropParameters cropParameters,
                           @Nullable BitmapCropCallback cropCallback) {
 
         mViewBitmap = viewBitmap;
-        mCropRect = cropRect;
-        mCurrentImageRect = currentImageRect;
+        mCropRect = imageState.getCropRect();
+        mCurrentImageRect = imageState.getCurrentImageRect();
 
-        mCurrentScale = currentScale;
-        mCurrentAngle = currentAngle;
-        mMaxResultImageSizeX = maxResultImageSizeX;
-        mMaxResultImageSizeY = maxResultImageSizeY;
+        mCurrentScale = imageState.getCurrentScale();
+        mCurrentAngle = imageState.getCurrentAngle();
+        mMaxResultImageSizeX = cropParameters.getMaxResultImageSizeX();
+        mMaxResultImageSizeY = cropParameters.getMaxResultImageSizeY();
 
-        mCompressFormat = compressFormat;
-        mCompressQuality = compressQuality;
+        mCompressFormat = cropParameters.getCompressFormat();
+        mCompressQuality = cropParameters.getCompressQuality();
 
-        mImageInputPath = imageInputPath;
-        mImageOutputPath = imageOutputPath;
+        mImageInputPath = cropParameters.getImageInputPath();
+        mImageOutputPath = cropParameters.getImageOutputPath();
+        mExifInfo = cropParameters.getExifInfo();
 
         mCropCallback = cropCallback;
     }
@@ -95,8 +99,9 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(mImageInputPath, options);
 
-        float scaleX = options.outWidth / mViewBitmap.getWidth();
-        float scaleY = options.outHeight / mViewBitmap.getHeight();
+        boolean swapSides = mExifInfo.getExifDegrees() == 90 || mExifInfo.getExifDegrees() == 270;
+        float scaleX = (swapSides ? options.outHeight : options.outWidth) / (float) mViewBitmap.getWidth();
+        float scaleY = (swapSides ? options.outWidth : options.outHeight) / (float) mViewBitmap.getHeight();
 
         float resizeScale = Math.min(scaleX, scaleY);
 
@@ -127,61 +132,49 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         int width = Math.round(mCropRect.width() / mCurrentScale);
         int height = Math.round(mCropRect.height() / mCurrentScale);
 
-        boolean cropped = cropCImg(mImageInputPath, mImageOutputPath,
-                left, top, width, height, mCurrentAngle, resizeScale,
-                mCompressFormat.ordinal(), mCompressQuality);
-        if (cropped) {
-            copyExif(originalExif, width, height);
-        }
+        boolean shouldCrop = shouldCrop(width, height);
+        Log.i(TAG, "Should crop: " + shouldCrop);
 
-        return cropped;
+        if (shouldCrop) {
+            boolean cropped = cropCImg(mImageInputPath, mImageOutputPath,
+                    left, top, width, height, mCurrentAngle, resizeScale,
+                    mCompressFormat.ordinal(), mCompressQuality,
+                    mExifInfo.getExifDegrees(), mExifInfo.getExifTranslation());
+            if (cropped) {
+                ImageHeaderParser.copyExif(originalExif, width, height, mImageOutputPath);
+            }
+            return cropped;
+        } else {
+            FileUtils.copyFile(mImageInputPath, mImageOutputPath);
+            return false;
+        }
+    }
+
+    /**
+     * Check whether an image should be cropped at all or just file can be copied to the destination path.
+     * For each 1000 pixels there is one pixel of error due to matrix calculations etc.
+     *
+     * @param width  - crop area width
+     * @param height - crop area height
+     * @return - true if image must be cropped, false - if original image fits requirements
+     */
+    private boolean shouldCrop(int width, int height) {
+        int pixelError = 1;
+        pixelError += Math.round(Math.max(width, height) / 1000f);
+        return (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0)
+                || Math.abs(mCropRect.left - mCurrentImageRect.left) > pixelError
+                || Math.abs(mCropRect.top - mCurrentImageRect.top) > pixelError
+                || Math.abs(mCropRect.bottom - mCurrentImageRect.bottom) > pixelError
+                || Math.abs(mCropRect.right - mCurrentImageRect.right) > pixelError;
     }
 
     @SuppressWarnings("JniMissingFunction")
-    native public boolean cropCImg(String inputPath, String outputPath,
-                                   int left, int top, int width, int height, float angle, float resizeScale,
-                                   int format, int quality) throws IOException, OutOfMemoryError;
-
-    public void copyExif(ExifInterface originalExif, int width, int height) throws IOException {
-        String[] attributes = new String[]{
-                ExifInterface.TAG_APERTURE,
-                ExifInterface.TAG_DATETIME,
-                ExifInterface.TAG_DATETIME_DIGITIZED,
-                ExifInterface.TAG_EXPOSURE_TIME,
-                ExifInterface.TAG_FLASH,
-                ExifInterface.TAG_FOCAL_LENGTH,
-                ExifInterface.TAG_GPS_ALTITUDE,
-                ExifInterface.TAG_GPS_ALTITUDE_REF,
-                ExifInterface.TAG_GPS_DATESTAMP,
-                ExifInterface.TAG_GPS_LATITUDE,
-                ExifInterface.TAG_GPS_LATITUDE_REF,
-                ExifInterface.TAG_GPS_LONGITUDE,
-                ExifInterface.TAG_GPS_LONGITUDE_REF,
-                ExifInterface.TAG_GPS_PROCESSING_METHOD,
-                ExifInterface.TAG_GPS_TIMESTAMP,
-                ExifInterface.TAG_ISO,
-                ExifInterface.TAG_MAKE,
-                ExifInterface.TAG_MODEL,
-                ExifInterface.TAG_SUBSEC_TIME,
-                ExifInterface.TAG_SUBSEC_TIME_DIG,
-                ExifInterface.TAG_SUBSEC_TIME_ORIG,
-                ExifInterface.TAG_WHITE_BALANCE
-        };
-
-        ExifInterface newExif = new ExifInterface(mImageOutputPath);
-        String value;
-        for (String attribute : attributes) {
-            value = originalExif.getAttribute(attribute);
-            if (!TextUtils.isEmpty(value)) {
-                newExif.setAttribute(attribute, value);
-            }
-        }
-        newExif.setAttribute(ExifInterface.TAG_IMAGE_WIDTH, String.valueOf(width));
-        newExif.setAttribute(ExifInterface.TAG_IMAGE_LENGTH, String.valueOf(height));
-        newExif.setAttribute(ExifInterface.TAG_ORIENTATION, "0");
-
-        newExif.saveAttributes();
-    }
+    native public boolean
+    cropCImg(String inputPath, String outputPath,
+             int left, int top, int width, int height,
+             float angle, float resizeScale,
+             int format, int quality,
+             int exifDegrees, int exifTranslation) throws IOException, OutOfMemoryError;
 
     @Override
     protected void onPostExecute(@Nullable Throwable t) {
