@@ -87,8 +87,8 @@ public class UCrop {
      */
     public UCrop useSourceImageAspectRatio() {
         mCropOptionsBundle.putBoolean(EXTRA_ASPECT_RATIO_SET, true);
-        mCropOptionsBundle.putInt(EXTRA_ASPECT_RATIO_X, 0);
-        mCropOptionsBundle.putInt(EXTRA_ASPECT_RATIO_Y, 0);
+        mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_X, 0);
+        mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_Y, 0);
         return this;
     }
 
@@ -456,6 +456,41 @@ public class UCrop {
             }
             mOptionBundle.putInt(EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT, selectedByDefault);
             mOptionBundle.putParcelableArrayList(EXTRA_ASPECT_RATIO_OPTIONS, new ArrayList<Parcelable>(Arrays.asList(aspectRatio)));
+        }
+
+        /**
+         * Set an aspect ratio for crop bounds.
+         * User won't see the menu with other ratios options.
+         *
+         * @param x aspect ratio X
+         * @param y aspect ratio Y
+         */
+        public void withAspectRatio(float x, float y) {
+            mOptionBundle.putBoolean(EXTRA_ASPECT_RATIO_SET, true);
+            mOptionBundle.putFloat(EXTRA_ASPECT_RATIO_X, x);
+            mOptionBundle.putFloat(EXTRA_ASPECT_RATIO_Y, y);
+        }
+
+        /**
+         * Set an aspect ratio for crop bounds that is evaluated from source image width and height.
+         * User won't see the menu with other ratios options.
+         */
+        public void useSourceImageAspectRatio() {
+            mOptionBundle.putBoolean(EXTRA_ASPECT_RATIO_SET, true);
+            mOptionBundle.putFloat(EXTRA_ASPECT_RATIO_X, 0);
+            mOptionBundle.putFloat(EXTRA_ASPECT_RATIO_Y, 0);
+        }
+
+        /**
+         * Set maximum size for result cropped image.
+         *
+         * @param width  max cropped image width
+         * @param height max cropped image height
+         */
+        public void withMaxResultSize(@IntRange(from = 100) int width, @IntRange(from = 100) int height) {
+            mOptionBundle.putBoolean(EXTRA_MAX_SIZE_SET, true);
+            mOptionBundle.putInt(EXTRA_MAX_SIZE_X, width);
+            mOptionBundle.putInt(EXTRA_MAX_SIZE_Y, height);
         }
 
     }
