@@ -4,8 +4,9 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := ucrop
 LOCAL_SRC_FILES := uCrop.cpp
+
 LOCAL_LDLIBS    := -landroid -llog -lz
-LOCAL_STATIC_LIBRARIES :=  libpng libjpeg
+LOCAL_STATIC_LIBRARIES := libpng libjpeg_static
 
 include $(BUILD_SHARED_LIBRARY)
 
