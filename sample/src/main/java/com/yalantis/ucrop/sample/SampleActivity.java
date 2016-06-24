@@ -305,6 +305,14 @@ public class SampleActivity extends BaseActivity {
         options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
 		options.setToolbarWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
 
+		// Aspect ratio options
+        options.setAspectRatioOptions(1,
+            new AspectRatio("WOW", 1, 2),
+            new AspectRatio("MUCH", 3, 4),
+            new AspectRatio("RATIO", CropImageView.DEFAULT_ASPECT_RATIO, CropImageView.DEFAULT_ASPECT_RATIO),
+            new AspectRatio("SO", 16, 9),
+            new AspectRatio("ASPECT", 1, 1));
+
        */
 
         return uCrop.withOptions(options);

@@ -17,6 +17,7 @@ import android.view.Gravity;
 import android.widget.TextView;
 
 import com.yalantis.ucrop.R;
+import com.yalantis.ucrop.model.AspectRatio;
 import com.yalantis.ucrop.view.CropImageView;
 
 /**
@@ -60,6 +61,20 @@ public class AspectRatioTextView extends TextView {
     public void setActiveColor(@ColorInt int activeColor) {
         applyActiveColor(activeColor);
         invalidate();
+    }
+
+    public void setAspectRatio(@NonNull AspectRatio aspectRatio) {
+        mAspectRatioTitle = aspectRatio.getAspectRatioTitle();
+        mAspectRatioX = aspectRatio.getAspectRatioX();
+        mAspectRatioY = aspectRatio.getAspectRatioY();
+
+        if (mAspectRatioX == CropImageView.SOURCE_IMAGE_ASPECT_RATIO || mAspectRatioY == CropImageView.SOURCE_IMAGE_ASPECT_RATIO) {
+            mAspectRatio = CropImageView.SOURCE_IMAGE_ASPECT_RATIO;
+        } else {
+            mAspectRatio = mAspectRatioX / mAspectRatioY;
+        }
+
+        setTitle();
     }
 
     public float getAspectRatio(boolean toggleRatio) {

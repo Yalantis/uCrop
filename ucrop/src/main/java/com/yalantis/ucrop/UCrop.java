@@ -9,11 +9,18 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.yalantis.ucrop.model.AspectRatio;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -244,6 +251,9 @@ public class UCrop {
         public static final String EXTRA_HIDE_BOTTOM_CONTROLS = EXTRA_PREFIX + ".HideBottomControls";
         public static final String EXTRA_FREE_STYLE_CROP = EXTRA_PREFIX + ".FreeStyleCrop";
 
+        public static final String EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT = EXTRA_PREFIX + ".AspectRatioSelectedByDefault";
+        public static final String EXTRA_ASPECT_RATIO_OPTIONS = EXTRA_PREFIX + ".AspectRatioOptions";
+
 
         private final Bundle mOptionBundle;
 
@@ -430,6 +440,22 @@ public class UCrop {
          */
         public void setFreeStyleCropEnabled(boolean enabled) {
             mOptionBundle.putBoolean(EXTRA_FREE_STYLE_CROP, enabled);
+        }
+
+        /**
+         * Pass an ordered list of desired aspect ratios that should be available for a user.
+         *
+         * @param selectedByDefault - index of aspect ratio option that is selected by default (starts with 0).
+         * @param aspectRatio       - list of aspect ratio options that are available to user
+         */
+        public void setAspectRatioOptions(int selectedByDefault, AspectRatio... aspectRatio) {
+            if (selectedByDefault > aspectRatio.length) {
+                throw new IllegalArgumentException(String.format(Locale.US,
+                        "Index [selectedByDefault = %d] cannot be higher than aspect ratio options count [count = %d].",
+                        selectedByDefault, aspectRatio.length));
+            }
+            mOptionBundle.putInt(EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT, selectedByDefault);
+            mOptionBundle.putParcelableArrayList(EXTRA_ASPECT_RATIO_OPTIONS, new ArrayList<Parcelable>(Arrays.asList(aspectRatio)));
         }
 
     }
