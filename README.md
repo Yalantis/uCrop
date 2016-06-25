@@ -14,7 +14,7 @@
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:1.5.0' ```
+    ``` compile 'com.yalantis:ucrop:2.1.0' ```
     
 2. Add UCropActivity into your AndroidManifest.xml
 
@@ -47,7 +47,13 @@
         }
     }
     ```
+5. You may want to add this to your PROGUARD config:
 
+    ```
+    -dontwarn com.yalantis.ucrop**
+    -keep class com.yalantis.ucrop** { *; }
+    -keep interface com.yalantis.ucrop** { *; }
+    ```
 
 # Customization
 
@@ -75,7 +81,14 @@ Currently you can change:
   
 # Changelog
 
-### Version: 2.0 (WARNING - Due to high amount of issues, this version seems to be unstable, please use 1.5.0 until further patches)
+### Version: 2.1
+
+  * Fixes issue with EXIF data (images taken on front camera with Samsung devices mostly) [#130](https://github.com/Yalantis/uCrop/issues/130) [#111](https://github.com/Yalantis/uCrop/issues/111)
+  * Added API to set custom set of aspect ratio options for user. [#131](https://github.com/Yalantis/uCrop/issues/131)
+  * Added API to set all configs via UCrop.Options class. [#126](https://github.com/Yalantis/uCrop/issues/126)
+  * Added ABI x86_64 support. [#105](https://github.com/Yalantis/uCrop/issues/105)
+
+### Version: 2.0
 
   * Native image crop (able to crop high-resolution images, e.g. 16MP & 32MP images on Nexus 5X).
   * WebP compression format is not supported at the moment (choose JPEG or PNG).
