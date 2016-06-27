@@ -4,7 +4,7 @@
 
 #### [How We Created uCrop] (https://yalantis.com/blog/how-we-created-ucrop-our-own-image-cropping-library-for-android/)
 
-<img src="https://d13yacurqjgara.cloudfront.net/users/221935/screenshots/2474295/animation.gif" alt="alt text" style="width:200;height:200">
+<img src="preview.gif" width="800" height="600">
 
 # Usage
 
@@ -77,7 +77,7 @@ Currently you can change:
   
   * Library - Android ICS 4.0+ (API 14) (Android GINGERBREAD 2.3+ (API 10) for versions <= 1.3.2)
   * Sample - Android ICS 4.0+ (API 14)
-  * CPU - armeabi-v7a x86 arm64-v8a (for versions >= 2.0.0)
+  * CPU - armeabi-v7a x86 x86_64 arm64-v8a (for versions >= 2.1.0)
   
 # Changelog
 
