@@ -39,11 +39,9 @@ public class UCrop {
     public static final String EXTRA_OUTPUT_CROP_ASPECT_RATIO = EXTRA_PREFIX + ".CropAspectRatio";
     public static final String EXTRA_ERROR = EXTRA_PREFIX + ".Error";
 
-    public static final String EXTRA_ASPECT_RATIO_SET = EXTRA_PREFIX + ".AspectRatioSet";
     public static final String EXTRA_ASPECT_RATIO_X = EXTRA_PREFIX + ".AspectRatioX";
     public static final String EXTRA_ASPECT_RATIO_Y = EXTRA_PREFIX + ".AspectRatioY";
 
-    public static final String EXTRA_MAX_SIZE_SET = EXTRA_PREFIX + ".MaxSizeSet";
     public static final String EXTRA_MAX_SIZE_X = EXTRA_PREFIX + ".MaxSizeX";
     public static final String EXTRA_MAX_SIZE_Y = EXTRA_PREFIX + ".MaxSizeY";
 
@@ -75,7 +73,6 @@ public class UCrop {
      * @param y aspect ratio Y
      */
     public UCrop withAspectRatio(float x, float y) {
-        mCropOptionsBundle.putBoolean(EXTRA_ASPECT_RATIO_SET, true);
         mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_X, x);
         mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_Y, y);
         return this;
@@ -86,7 +83,6 @@ public class UCrop {
      * User won't see the menu with other ratios options.
      */
     public UCrop useSourceImageAspectRatio() {
-        mCropOptionsBundle.putBoolean(EXTRA_ASPECT_RATIO_SET, true);
         mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_X, 0);
         mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_Y, 0);
         return this;
@@ -99,7 +95,6 @@ public class UCrop {
      * @param height max cropped image height
      */
     public UCrop withMaxResultSize(@IntRange(from = 100) int width, @IntRange(from = 100) int height) {
-        mCropOptionsBundle.putBoolean(EXTRA_MAX_SIZE_SET, true);
         mCropOptionsBundle.putInt(EXTRA_MAX_SIZE_X, width);
         mCropOptionsBundle.putInt(EXTRA_MAX_SIZE_Y, height);
         return this;
@@ -466,7 +461,6 @@ public class UCrop {
          * @param y aspect ratio Y
          */
         public void withAspectRatio(float x, float y) {
-            mOptionBundle.putBoolean(EXTRA_ASPECT_RATIO_SET, true);
             mOptionBundle.putFloat(EXTRA_ASPECT_RATIO_X, x);
             mOptionBundle.putFloat(EXTRA_ASPECT_RATIO_Y, y);
         }
@@ -476,7 +470,6 @@ public class UCrop {
          * User won't see the menu with other ratios options.
          */
         public void useSourceImageAspectRatio() {
-            mOptionBundle.putBoolean(EXTRA_ASPECT_RATIO_SET, true);
             mOptionBundle.putFloat(EXTRA_ASPECT_RATIO_X, 0);
             mOptionBundle.putFloat(EXTRA_ASPECT_RATIO_Y, 0);
         }
@@ -488,7 +481,6 @@ public class UCrop {
          * @param height max cropped image height
          */
         public void withMaxResultSize(@IntRange(from = 100) int width, @IntRange(from = 100) int height) {
-            mOptionBundle.putBoolean(EXTRA_MAX_SIZE_SET, true);
             mOptionBundle.putInt(EXTRA_MAX_SIZE_X, width);
             mOptionBundle.putInt(EXTRA_MAX_SIZE_Y, height);
         }

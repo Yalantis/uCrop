@@ -20,6 +20,8 @@ import com.yalantis.ucrop.R;
 import com.yalantis.ucrop.model.AspectRatio;
 import com.yalantis.ucrop.view.CropImageView;
 
+import java.util.Locale;
+
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
  */
@@ -154,7 +156,7 @@ public class AspectRatioTextView extends TextView {
         if (!TextUtils.isEmpty(mAspectRatioTitle)) {
             setText(mAspectRatioTitle);
         } else {
-            setText(String.format("%d:%d", (int) mAspectRatioX, (int) mAspectRatioY));
+            setText(String.format(Locale.US, "%d:%d", (int) mAspectRatioX, (int) mAspectRatioY));
         }
     }
 

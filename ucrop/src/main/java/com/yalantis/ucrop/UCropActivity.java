@@ -186,33 +186,6 @@ public class UCropActivity extends AppCompatActivity {
             setResultError(new NullPointerException(getString(R.string.ucrop_error_input_data_is_absent)));
             finish();
         }
-
-        if (intent.getBooleanExtra(UCrop.EXTRA_ASPECT_RATIO_SET, false)) {
-            if (mShowBottomControls) {
-                mWrapperStateAspectRatio.setVisibility(View.GONE);
-            }
-
-            float aspectRatioX = intent.getFloatExtra(UCrop.EXTRA_ASPECT_RATIO_X, 0);
-            float aspectRatioY = intent.getFloatExtra(UCrop.EXTRA_ASPECT_RATIO_Y, 0);
-
-            if (aspectRatioX > 0 && aspectRatioY > 0) {
-                mGestureCropImageView.setTargetAspectRatio(aspectRatioX / aspectRatioY);
-            } else {
-                mGestureCropImageView.setTargetAspectRatio(CropImageView.SOURCE_IMAGE_ASPECT_RATIO);
-            }
-        }
-
-        if (intent.getBooleanExtra(UCrop.EXTRA_MAX_SIZE_SET, false)) {
-            int maxSizeX = intent.getIntExtra(UCrop.EXTRA_MAX_SIZE_X, 0);
-            int maxSizeY = intent.getIntExtra(UCrop.EXTRA_MAX_SIZE_Y, 0);
-
-            if (maxSizeX > 0 && maxSizeY > 0) {
-                mGestureCropImageView.setMaxResultImageSizeX(maxSizeX);
-                mGestureCropImageView.setMaxResultImageSizeY(maxSizeY);
-            } else {
-                Log.w(TAG, "EXTRA_MAX_SIZE_X and EXTRA_MAX_SIZE_Y must be greater than 0");
-            }
-        }
     }
 
     /**
@@ -258,6 +231,34 @@ public class UCropActivity extends AppCompatActivity {
         mOverlayView.setCropGridColumnCount(intent.getIntExtra(UCrop.Options.EXTRA_CROP_GRID_COLUMN_COUNT, OverlayView.DEFAULT_CROP_GRID_COLUMN_COUNT));
         mOverlayView.setCropGridColor(intent.getIntExtra(UCrop.Options.EXTRA_CROP_GRID_COLOR, getResources().getColor(R.color.ucrop_color_default_crop_grid)));
         mOverlayView.setCropGridStrokeWidth(intent.getIntExtra(UCrop.Options.EXTRA_CROP_GRID_STROKE_WIDTH, getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_grid_stoke_width)));
+
+        // Aspect ratio options
+        float aspectRatioX = intent.getFloatExtra(UCrop.EXTRA_ASPECT_RATIO_X, 0);
+        float aspectRatioY = intent.getFloatExtra(UCrop.EXTRA_ASPECT_RATIO_Y, 0);
+
+        int aspectRationSelectedByDefault = intent.getIntExtra(UCrop.Options.EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT, 0);
+        ArrayList<AspectRatio> aspectRatioList = intent.getParcelableArrayListExtra(UCrop.Options.EXTRA_ASPECT_RATIO_OPTIONS);
+
+        if (aspectRatioX > 0 && aspectRatioY > 0) {
+            if (mWrapperStateAspectRatio != null) {
+                mWrapperStateAspectRatio.setVisibility(View.GONE);
+            }
+            mGestureCropImageView.setTargetAspectRatio(aspectRatioX / aspectRatioY);
+        } else if (aspectRatioList != null && aspectRationSelectedByDefault < aspectRatioList.size()) {
+            mGestureCropImageView.setTargetAspectRatio(aspectRatioList.get(aspectRationSelectedByDefault).getAspectRatioX() /
+                    aspectRatioList.get(aspectRationSelectedByDefault).getAspectRatioY());
+        } else {
+            mGestureCropImageView.setTargetAspectRatio(CropImageView.SOURCE_IMAGE_ASPECT_RATIO);
+        }
+
+        // Result bitmap max size options
+        int maxSizeX = intent.getIntExtra(UCrop.EXTRA_MAX_SIZE_X, 0);
+        int maxSizeY = intent.getIntExtra(UCrop.EXTRA_MAX_SIZE_Y, 0);
+
+        if (maxSizeX > 0 && maxSizeY > 0) {
+            mGestureCropImageView.setMaxResultImageSizeX(maxSizeX);
+            mGestureCropImageView.setMaxResultImageSizeY(maxSizeY);
+        }
     }
 
     private void setupViews(@NonNull Intent intent) {
@@ -270,15 +271,24 @@ public class UCropActivity extends AppCompatActivity {
         mLogoColor = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_LOGO_COLOR, ContextCompat.getColor(this, R.color.ucrop_color_default_logo));
         mShowBottomControls = !intent.getBooleanExtra(UCrop.Options.EXTRA_HIDE_BOTTOM_CONTROLS, false);
 
-        if (mShowBottomControls) {
-            ViewGroup photoBox = (ViewGroup) findViewById(R.id.ucrop_photobox);
-            View.inflate(this, R.layout.ucrop_controls, photoBox);
-        }
-
         setupAppBar();
         initiateRootViews();
 
         if (mShowBottomControls) {
+            ViewGroup photoBox = (ViewGroup) findViewById(R.id.ucrop_photobox);
+            View.inflate(this, R.layout.ucrop_controls, photoBox);
+
+            mWrapperStateAspectRatio = (ViewGroup) findViewById(R.id.state_aspect_ratio);
+            mWrapperStateAspectRatio.setOnClickListener(mStateClickListener);
+            mWrapperStateRotate = (ViewGroup) findViewById(R.id.state_rotate);
+            mWrapperStateRotate.setOnClickListener(mStateClickListener);
+            mWrapperStateScale = (ViewGroup) findViewById(R.id.state_scale);
+            mWrapperStateScale.setOnClickListener(mStateClickListener);
+
+            mLayoutAspectRatio = (ViewGroup) findViewById(R.id.layout_aspect_ratio);
+            mLayoutRotate = (ViewGroup) findViewById(R.id.layout_rotate_wheel);
+            mLayoutScale = (ViewGroup) findViewById(R.id.layout_scale_wheel);
+
             setupAspectRatioWidget(intent);
             setupRotateWidget();
             setupScaleWidget();
@@ -320,19 +330,6 @@ public class UCropActivity extends AppCompatActivity {
         mOverlayView = mUCropView.getOverlayView();
 
         mGestureCropImageView.setTransformImageListener(mImageListener);
-
-        if (mShowBottomControls) {
-            mWrapperStateAspectRatio = (ViewGroup) findViewById(R.id.state_aspect_ratio);
-            mWrapperStateAspectRatio.setOnClickListener(mStateClickListener);
-            mWrapperStateRotate = (ViewGroup) findViewById(R.id.state_rotate);
-            mWrapperStateRotate.setOnClickListener(mStateClickListener);
-            mWrapperStateScale = (ViewGroup) findViewById(R.id.state_scale);
-            mWrapperStateScale.setOnClickListener(mStateClickListener);
-
-            mLayoutAspectRatio = (ViewGroup) findViewById(R.id.layout_aspect_ratio);
-            mLayoutRotate = (ViewGroup) findViewById(R.id.layout_rotate_wheel);
-            mLayoutScale = (ViewGroup) findViewById(R.id.layout_scale_wheel);
-        }
 
         ((ImageView) findViewById(R.id.image_view_logo)).setColorFilter(mLogoColor, PorterDuff.Mode.SRC_ATOP);
     }
@@ -549,20 +546,21 @@ public class UCropActivity extends AppCompatActivity {
                 setWidgetState(R.id.state_scale);
             }
         } else {
-            setAllowedGestures(2);
+            mGestureCropImageView.setScaleEnabled(true);
+            mGestureCropImageView.setRotateEnabled(true);
         }
     }
 
     private void setWidgetState(@IdRes int stateViewId) {
-        if (mShowBottomControls) {
-            mWrapperStateAspectRatio.setSelected(stateViewId == R.id.state_aspect_ratio);
-            mWrapperStateRotate.setSelected(stateViewId == R.id.state_rotate);
-            mWrapperStateScale.setSelected(stateViewId == R.id.state_scale);
+        if (!mShowBottomControls) return;
 
-            mLayoutAspectRatio.setVisibility(stateViewId == R.id.state_aspect_ratio ? View.VISIBLE : View.GONE);
-            mLayoutRotate.setVisibility(stateViewId == R.id.state_rotate ? View.VISIBLE : View.GONE);
-            mLayoutScale.setVisibility(stateViewId == R.id.state_scale ? View.VISIBLE : View.GONE);
-        }
+        mWrapperStateAspectRatio.setSelected(stateViewId == R.id.state_aspect_ratio);
+        mWrapperStateRotate.setSelected(stateViewId == R.id.state_rotate);
+        mWrapperStateScale.setSelected(stateViewId == R.id.state_scale);
+
+        mLayoutAspectRatio.setVisibility(stateViewId == R.id.state_aspect_ratio ? View.VISIBLE : View.GONE);
+        mLayoutRotate.setVisibility(stateViewId == R.id.state_rotate ? View.VISIBLE : View.GONE);
+        mLayoutScale.setVisibility(stateViewId == R.id.state_scale ? View.VISIBLE : View.GONE);
 
         if (stateViewId == R.id.state_scale) {
             setAllowedGestures(0);
