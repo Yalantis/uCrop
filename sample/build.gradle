@@ -8,8 +8,8 @@ android {
         applicationId "com.yalantis.ucrop.sample"
         minSdkVersion 14
         targetSdkVersion 24
-        versionCode 8
-        versionName "1.2.0"
+        versionCode 9
+        versionName "1.2.1"
     }
     buildTypes {
         release {
