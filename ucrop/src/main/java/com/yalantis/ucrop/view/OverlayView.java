@@ -187,10 +187,16 @@ public class OverlayView extends View {
      *
      * @param targetAspectRatio - aspect ratio for image crop (e.g. 1.77(7) for 16:9)
      */
-    public void setTargetAspectRatio(float targetAspectRatio) {
-        mTargetAspectRatio = targetAspectRatio;
-        setupCropBounds();
-        postInvalidate();
+    public void setTargetAspectRatio(final float targetAspectRatio) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                mTargetAspectRatio = targetAspectRatio;
+                setupCropBounds();
+                postInvalidate();
+            }
+        });
+
     }
 
     /**
