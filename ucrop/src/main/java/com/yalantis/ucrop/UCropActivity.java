@@ -601,8 +601,8 @@ public class UCropActivity extends AppCompatActivity {
         mGestureCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, new BitmapCropCallback() {
 
             @Override
-            public void onBitmapCropped(@NonNull Uri resultUri) {
-                setResultUri(resultUri, mGestureCropImageView.getTargetAspectRatio());
+            public void onBitmapCropped(@NonNull Uri resultUri, float[] croppedCorners) {
+                setResultUri(resultUri, mGestureCropImageView.getTargetAspectRatio(), croppedCorners);
                 finish();
             }
 
@@ -614,9 +614,10 @@ public class UCropActivity extends AppCompatActivity {
         });
     }
 
-    protected void setResultUri(Uri uri, float resultAspectRatio) {
+    protected void setResultUri(Uri uri, float resultAspectRatio, float[] croppedCorners) {
         setResult(RESULT_OK, new Intent()
                 .putExtra(UCrop.EXTRA_OUTPUT_URI, uri)
+                .putExtra(UCrop.EXTRA_OUTPUT_CROP_AREA, croppedCorners)
                 .putExtra(UCrop.EXTRA_OUTPUT_CROP_ASPECT_RATIO, resultAspectRatio));
     }
 

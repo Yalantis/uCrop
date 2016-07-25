@@ -16,6 +16,7 @@ import com.yalantis.ucrop.model.ExifInfo;
 import com.yalantis.ucrop.model.ImageState;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yalantis.ucrop.util.ImageHeaderParser;
+import com.yalantis.ucrop.util.RectUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -180,7 +181,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     protected void onPostExecute(@Nullable Throwable t) {
         if (mCropCallback != null) {
             if (t == null) {
-                mCropCallback.onBitmapCropped(Uri.fromFile(new File(mImageOutputPath)));
+                mCropCallback.onBitmapCropped(Uri.fromFile(new File(mImageOutputPath)), RectUtils.getCornersFromRect(mCropRect));
             } else {
                 mCropCallback.onCropFailure(t);
             }
