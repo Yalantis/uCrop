@@ -37,6 +37,7 @@ public class UCrop {
     public static final String EXTRA_INPUT_URI = EXTRA_PREFIX + ".InputUri";
     public static final String EXTRA_OUTPUT_URI = EXTRA_PREFIX + ".OutputUri";
     public static final String EXTRA_OUTPUT_CROP_ASPECT_RATIO = EXTRA_PREFIX + ".CropAspectRatio";
+    public static final String EXTRA_OUTPUT_CROP_AREA = EXTRA_PREFIX + ".CropArea";
     public static final String EXTRA_ERROR = EXTRA_PREFIX + ".Error";
 
     public static final String EXTRA_ASPECT_RATIO_X = EXTRA_PREFIX + ".AspectRatioX";
