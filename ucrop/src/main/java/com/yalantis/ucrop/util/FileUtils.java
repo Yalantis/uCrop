@@ -520,6 +520,14 @@ public class FileUtils {
     }
 
     public static void copyFile(@NonNull String pathFrom, @NonNull String pathTo) throws IOException {
+        /*
+        In the event that the paths are the same, trying to copy one file to the other
+        will cause both files to become null. simply skipping this step if the paths
+        are identical solves that problem
+         */
+        if(pathFrom.equalsIgnoreCase(pathTo)){
+            return;
+        }
         FileChannel outputChannel = null;
         FileChannel inputChannel = null;
         try {
