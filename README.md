@@ -140,6 +140,7 @@ We’d be really happy if you sent us links to your projects where you use our c
 - [Thirty](https://play.google.com/store/apps/details?id=com.twominds.thirty).
 - [Light Smart HD](https://play.google.com/store/apps/details?id=com.SmartCamera.simple).
 - [BCReader] (https://play.google.com/store/apps/details?id=com.iac.bcreader).
+- [Xprezia: Share Your Passion] (https://play.google.com/store/apps/details?id=com.xprezzia.cnj).
 
 ## License
 
