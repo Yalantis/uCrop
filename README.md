@@ -11,7 +11,7 @@
 
 *For a working implementation, please have a look at the Sample Project - sample*
 
-<a href="https://play.google.com/store/apps/details?id=com.yalantis.ucrop.sample&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1"><img alt="Get it on Google Play" src="https://play.google.com/store/apps/details?id=ua.gov.dp.econtact&hl=en" width="185" height="60"/></a>
+<a href="https://play.google.com/store/apps/details?id=com.yalantis.ucrop.sample&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1"><img alt="Get it on Google Play" src="https://play.google.com/store/apps/details?id=com.yalantis.ucrop.sample&hl=en" width="185" height="60"/></a>
 
 1. Include the library as local library project.
 
