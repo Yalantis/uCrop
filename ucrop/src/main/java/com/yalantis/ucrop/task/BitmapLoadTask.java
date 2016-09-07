@@ -45,8 +45,8 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
     private final Context mContext;
     private Uri mInputUri;
     private Uri mOutputUri;
-    private final int mRequiredWidth;
-    private final int mRequiredHeight;
+    private int mRequiredWidth;
+    private int mRequiredHeight;
 
     private final BitmapLoadCallback mBitmapLoadCallback;
 
@@ -110,7 +110,23 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
         if (options.outWidth == -1 || options.outHeight == -1) {
-            return new BitmapWorkerResult(new IllegalArgumentException("Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]"));
+            //return new BitmapWorkerResult(new IllegalArgumentException("Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]"));
+			
+			try {
+                ExifInterface exifInterface = new ExifInterface(mInputUri.getPath());
+                int height = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, ExifInterface.ORIENTATION_NORMAL);//获取图片的高度
+                int width = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, ExifInterface.ORIENTATION_NORMAL);//获取图片的宽度
+                Log.d(TAG, "exif height: " + height);
+                Log.d(TAG, "exif width: " + width);
+                options.outWidth = width;
+                options.outHeight = height;
+
+                mRequiredWidth=width/3;
+                mRequiredHeight=height/3;
+            } catch (IOException e) {
+                //e.printStackTrace();
+				 Log.d(TAG,e.getMessage());
+            }
         }
 
         options.inSampleSize = BitmapLoadUtils.calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
