@@ -49,6 +49,8 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     private final ExifInfo mExifInfo;
     private final BitmapCropCallback mCropCallback;
 
+    private int mCroppedImageWidth, mCroppedImageHeight;
+
     public BitmapCropTask(@Nullable Bitmap viewBitmap, @NonNull ImageState imageState, @NonNull CropParameters cropParameters,
                           @Nullable BitmapCropCallback cropCallback) {
 
@@ -129,19 +131,19 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
         int top = Math.round((mCropRect.top - mCurrentImageRect.top) / mCurrentScale);
         int left = Math.round((mCropRect.left - mCurrentImageRect.left) / mCurrentScale);
-        int width = Math.round(mCropRect.width() / mCurrentScale);
-        int height = Math.round(mCropRect.height() / mCurrentScale);
+        mCroppedImageWidth = Math.round(mCropRect.width() / mCurrentScale);
+        mCroppedImageHeight = Math.round(mCropRect.height() / mCurrentScale);
 
-        boolean shouldCrop = shouldCrop(width, height);
+        boolean shouldCrop = shouldCrop(mCroppedImageWidth, mCroppedImageHeight);
         Log.i(TAG, "Should crop: " + shouldCrop);
 
         if (shouldCrop) {
             boolean cropped = cropCImg(mImageInputPath, mImageOutputPath,
-                    left, top, width, height, mCurrentAngle, resizeScale,
+                    left, top, mCroppedImageWidth, mCroppedImageHeight, mCurrentAngle, resizeScale,
                     mCompressFormat.ordinal(), mCompressQuality,
                     mExifInfo.getExifDegrees(), mExifInfo.getExifTranslation());
             if (cropped) {
-                ImageHeaderParser.copyExif(originalExif, width, height, mImageOutputPath);
+                ImageHeaderParser.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputPath);
             }
             return cropped;
         } else {
@@ -180,7 +182,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     protected void onPostExecute(@Nullable Throwable t) {
         if (mCropCallback != null) {
             if (t == null) {
-                mCropCallback.onBitmapCropped(Uri.fromFile(new File(mImageOutputPath)));
+                mCropCallback.onBitmapCropped(Uri.fromFile(new File(mImageOutputPath)), mCroppedImageWidth, mCroppedImageHeight);
             } else {
                 mCropCallback.onCropFailure(t);
             }

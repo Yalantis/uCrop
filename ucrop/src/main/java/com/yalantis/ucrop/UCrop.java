@@ -37,6 +37,8 @@ public class UCrop {
     public static final String EXTRA_INPUT_URI = EXTRA_PREFIX + ".InputUri";
     public static final String EXTRA_OUTPUT_URI = EXTRA_PREFIX + ".OutputUri";
     public static final String EXTRA_OUTPUT_CROP_ASPECT_RATIO = EXTRA_PREFIX + ".CropAspectRatio";
+    public static final String EXTRA_OUTPUT_IMAGE_WIDTH = EXTRA_PREFIX + ".ImageWidth";
+    public static final String EXTRA_OUTPUT_IMAGE_HEIGHT = EXTRA_PREFIX + ".ImageHeight";
     public static final String EXTRA_ERROR = EXTRA_PREFIX + ".Error";
 
     public static final String EXTRA_ASPECT_RATIO_X = EXTRA_PREFIX + ".AspectRatioX";
@@ -222,7 +224,7 @@ public class UCrop {
         public static final String EXTRA_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = EXTRA_PREFIX + ".ImageToCropBoundsAnimDuration";
 
         public static final String EXTRA_DIMMED_LAYER_COLOR = EXTRA_PREFIX + ".DimmedLayerColor";
-        public static final String EXTRA_OVAL_DIMMED_LAYER = EXTRA_PREFIX + ".OvalDimmedLayer";
+        public static final String EXTRA_CIRCLE_DIMMED_LAYER = EXTRA_PREFIX + ".CircleDimmedLayer";
 
         public static final String EXTRA_SHOW_CROP_FRAME = EXTRA_PREFIX + ".ShowCropFrame";
         public static final String EXTRA_CROP_FRAME_COLOR = EXTRA_PREFIX + ".CropFrameColor";
@@ -319,10 +321,10 @@ public class UCrop {
         }
 
         /**
-         * @param isOval - set it to true if you want dimmed layer to have an oval inside
+         * @param isCircle - set it to true if you want dimmed layer to have an circle inside
          */
-        public void setOvalDimmedLayer(boolean isOval) {
-            mOptionBundle.putBoolean(EXTRA_OVAL_DIMMED_LAYER, isOval);
+        public void setCircleDimmedLayer(boolean isCircle) {
+            mOptionBundle.putBoolean(EXTRA_CIRCLE_DIMMED_LAYER, isCircle);
         }
 
         /**

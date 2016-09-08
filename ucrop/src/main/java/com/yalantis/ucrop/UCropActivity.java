@@ -23,6 +23,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -126,7 +128,7 @@ public class UCropActivity extends AppCompatActivity {
                 menuItemLoaderIcon.setColorFilter(mToolbarWidgetColor, PorterDuff.Mode.SRC_ATOP);
                 menuItemLoader.setIcon(menuItemLoaderIcon);
             } catch (IllegalStateException e) {
-                Log.e(TAG, String.format("%s - %s", e.getMessage(), getString(R.string.ucrop_mutate_exception_hint)));
+                Log.i(TAG, String.format("%s - %s", e.getMessage(), getString(R.string.ucrop_mutate_exception_hint)));
             }
             ((Animatable) menuItemLoader.getIcon()).start();
         }
@@ -220,7 +222,7 @@ public class UCropActivity extends AppCompatActivity {
         mOverlayView.setFreestyleCropEnabled(intent.getBooleanExtra(UCrop.Options.EXTRA_FREE_STYLE_CROP, OverlayView.DEFAULT_FREESTYLE_CROP_ENABLED));
 
         mOverlayView.setDimmedColor(intent.getIntExtra(UCrop.Options.EXTRA_DIMMED_LAYER_COLOR, getResources().getColor(R.color.ucrop_color_default_dimmed)));
-        mOverlayView.setOvalDimmedLayer(intent.getBooleanExtra(UCrop.Options.EXTRA_OVAL_DIMMED_LAYER, OverlayView.DEFAULT_OVAL_DIMMED_LAYER));
+        mOverlayView.setCircleDimmedLayer(intent.getBooleanExtra(UCrop.Options.EXTRA_CIRCLE_DIMMED_LAYER, OverlayView.DEFAULT_CIRCLE_DIMMED_LAYER));
 
         mOverlayView.setShowCropFrame(intent.getBooleanExtra(UCrop.Options.EXTRA_SHOW_CROP_FRAME, OverlayView.DEFAULT_SHOW_CROP_FRAME));
         mOverlayView.setCropFrameColor(intent.getIntExtra(UCrop.Options.EXTRA_CROP_FRAME_COLOR, getResources().getColor(R.color.ucrop_color_default_crop_frame)));
@@ -383,8 +385,10 @@ public class UCropActivity extends AppCompatActivity {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setStatusBarColor(@ColorInt int color) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (getWindow() != null) {
-                getWindow().setStatusBarColor(color);
+            final Window window = getWindow();
+            if (window != null) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                window.setStatusBarColor(color);
             }
         }
     }
@@ -601,8 +605,8 @@ public class UCropActivity extends AppCompatActivity {
         mGestureCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, new BitmapCropCallback() {
 
             @Override
-            public void onBitmapCropped(@NonNull Uri resultUri) {
-                setResultUri(resultUri, mGestureCropImageView.getTargetAspectRatio());
+            public void onBitmapCropped(@NonNull Uri resultUri, int imageWidth, int imageHeight) {
+                setResultUri(resultUri, mGestureCropImageView.getTargetAspectRatio(), imageWidth, imageHeight);
                 finish();
             }
 
@@ -614,10 +618,13 @@ public class UCropActivity extends AppCompatActivity {
         });
     }
 
-    protected void setResultUri(Uri uri, float resultAspectRatio) {
+    protected void setResultUri(Uri uri, float resultAspectRatio, int imageWidth, int imageHeight) {
         setResult(RESULT_OK, new Intent()
                 .putExtra(UCrop.EXTRA_OUTPUT_URI, uri)
-                .putExtra(UCrop.EXTRA_OUTPUT_CROP_ASPECT_RATIO, resultAspectRatio));
+                .putExtra(UCrop.EXTRA_OUTPUT_CROP_ASPECT_RATIO, resultAspectRatio)
+                .putExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, imageWidth)
+                .putExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, imageHeight)
+        );
     }
 
     protected void setResultError(Throwable throwable) {

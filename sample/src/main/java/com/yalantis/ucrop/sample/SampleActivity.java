@@ -292,7 +292,7 @@ public class SampleActivity extends BaseActivity {
         options.setMaxScaleMultiplier(5);
         options.setImageToCropBoundsAnimDuration(666);
         options.setDimmedLayerColor(Color.CYAN);
-        options.setOvalDimmedLayer(true);
+        options.setCircleDimmedLayer(true);
         options.setShowCropFrame(false);
         options.setCropGridStrokeWidth(20);
         options.setCropGridColor(Color.GREEN);
