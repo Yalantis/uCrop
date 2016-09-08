@@ -10,6 +10,7 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.yalantis.ucrop.R;
 import com.yalantis.ucrop.callback.BitmapCropCallback;
@@ -461,10 +462,11 @@ public class CropImageView extends TransformImageView {
      * @param drawableHeight - image height
      */
     private void calculateImageScaleBounds(float drawableWidth, float drawableHeight) {
-        float widthScale = mCropRect.width() / drawableWidth;
-        float heightScale = mCropRect.height() / drawableHeight;
+        float widthScale = Math.min(mCropRect.width() / drawableWidth, mCropRect.width() / drawableHeight);
+        float heightScale = Math.min(mCropRect.height() / drawableHeight, mCropRect.height() / drawableWidth);
 
-        mMinScale = Math.max(widthScale, heightScale);
+        mMinScale = Math.min(widthScale, heightScale);
+        Log.d("WTF", "MIN SCALE : " + mMinScale);
         mMaxScale = mMinScale * mMaxScaleMultiplier;
     }
 
