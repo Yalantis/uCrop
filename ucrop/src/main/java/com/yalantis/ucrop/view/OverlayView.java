@@ -53,6 +53,8 @@ public class OverlayView extends View {
 
     private boolean mIsFreestyleCropEnabled = DEFAULT_FREESTYLE_CROP_ENABLED;
     protected float[] mCropGridCorners;
+    protected float[] mCropGridCenter;
+    private float mPreviousTouchX = -1, mPreviousTouchY = -1;
     private int mCurrentTouchCornerIndex = -1;
     private int mTouchPointThreshold;
     private int mCropRectMinSize;
@@ -225,6 +227,7 @@ public class OverlayView extends View {
 
     private void updateGridPoints() {
         mCropGridCorners = RectUtils.getCornersFromRect(mCropViewRect);
+        mCropGridCenter = RectUtils.getCenterFromRect(mCropViewRect);
 
         mGridPoints = null;
         mCircularPath.reset();
@@ -275,7 +278,11 @@ public class OverlayView extends View {
         float y = event.getY();
 
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
-            mCurrentTouchCornerIndex = getCurrentTouchCorner(x, y);
+            if (mPreviousTouchX < 0) {
+                mPreviousTouchX = x;
+                mPreviousTouchY = y;
+            }
+            mCurrentTouchCornerIndex = getCurrentTouchIndex(x, y);
             return mCurrentTouchCornerIndex != -1;
         }
 
@@ -285,14 +292,20 @@ public class OverlayView extends View {
                 x = Math.min(Math.max(x, getPaddingLeft()), getWidth() - getPaddingRight());
                 y = Math.min(Math.max(y, getPaddingTop()), getHeight() - getPaddingBottom());
 
-                resizeCropViewRect(x, y);
+                updateCropViewRect(x, y);
+
+                mPreviousTouchX = x;
+                mPreviousTouchY = y;
 
                 return true;
             }
         }
 
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
+            mPreviousTouchX = -1;
+            mPreviousTouchY = -1;
             mCurrentTouchCornerIndex = -1;
+
             if (mCallback != null) {
                 mCallback.onCropRectUpdated(mCropViewRect);
             }
@@ -305,14 +318,15 @@ public class OverlayView extends View {
      * * The order of the corners is:
      * 0------->1
      * ^        |
-     * |        |
+     * |   4    |
      * |        v
      * 3<-------2
      */
-    private void resizeCropViewRect(float touchX, float touchY) {
+    private void updateCropViewRect(float touchX, float touchY) {
         mTempRect.set(mCropViewRect);
 
         switch (mCurrentTouchCornerIndex) {
+            // resize rectangle
             case 0:
                 mTempRect.set(touchX, touchY, mCropViewRect.right, mCropViewRect.bottom);
                 break;
@@ -325,6 +339,16 @@ public class OverlayView extends View {
             case 3:
                 mTempRect.set(touchX, mCropViewRect.top, mCropViewRect.right, touchY);
                 break;
+            // move rectangle
+            case 4:
+                mTempRect.offset(touchX - mPreviousTouchX, touchY - mPreviousTouchY);
+                if (mTempRect.left > getLeft() && mTempRect.top > getTop()
+                        && mTempRect.right < getRight() && mTempRect.bottom < getBottom()) {
+                    mCropViewRect.set(mTempRect);
+                    updateGridPoints();
+                    postInvalidate();
+                }
+                return;
         }
 
         boolean changeHeight = mTempRect.height() >= mCropRectMinSize;
@@ -345,13 +369,13 @@ public class OverlayView extends View {
      * * The order of the corners in the float array is:
      * 0------->1
      * ^        |
-     * |        |
+     * |   4    |
      * |        v
      * 3<-------2
      *
      * @return - index of corner that is being dragged
      */
-    private int getCurrentTouchCorner(float touchX, float touchY) {
+    private int getCurrentTouchIndex(float touchX, float touchY) {
         int closestPointIndex = -1;
         double closestPointDistance = mTouchPointThreshold;
         for (int i = 0; i < 8; i += 2) {
@@ -362,6 +386,25 @@ public class OverlayView extends View {
                 closestPointIndex = i / 2;
             }
         }
+        if (closestPointIndex < 0 && mCropViewRect.contains(touchX, touchY)) {
+            return 4;
+        }
+
+//        for (int i = 0; i <= 8; i += 2) {
+//
+//            double distanceToCorner;
+//            if (i < 8) { // corners
+//                distanceToCorner = Math.sqrt(Math.pow(touchX - mCropGridCorners[i], 2)
+//                        + Math.pow(touchY - mCropGridCorners[i + 1], 2));
+//            } else { // center
+//                distanceToCorner = Math.sqrt(Math.pow(touchX - mCropGridCenter[0], 2)
+//                        + Math.pow(touchY - mCropGridCenter[1], 2));
+//            }
+//            if (distanceToCorner < closestPointDistance) {
+//                closestPointDistance = distanceToCorner;
+//                closestPointIndex = i / 2;
+//            }
+//        }
         return closestPointIndex;
     }
 
