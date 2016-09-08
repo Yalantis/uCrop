@@ -550,8 +550,7 @@ public class UCropActivity extends AppCompatActivity {
                 setWidgetState(R.id.state_scale);
             }
         } else {
-            mGestureCropImageView.setScaleEnabled(true);
-            mGestureCropImageView.setRotateEnabled(true);
+            setAllowedGestures(0);
         }
     }
 

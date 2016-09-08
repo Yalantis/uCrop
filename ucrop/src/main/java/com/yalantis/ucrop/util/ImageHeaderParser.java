@@ -375,7 +375,7 @@ public class ImageHeaderParser {
         }
     }
 
-    public static void copyExif(ExifInterface originalExif, int width, int height, String imageOutputPath) throws IOException {
+    public static void copyExif(ExifInterface originalExif, int width, int height, String imageOutputPath) {
         String[] attributes = new String[]{
                 ExifInterface.TAG_APERTURE,
                 ExifInterface.TAG_DATETIME,
@@ -401,19 +401,24 @@ public class ImageHeaderParser {
                 ExifInterface.TAG_WHITE_BALANCE
         };
 
-        ExifInterface newExif = new ExifInterface(imageOutputPath);
-        String value;
-        for (String attribute : attributes) {
-            value = originalExif.getAttribute(attribute);
-            if (!TextUtils.isEmpty(value)) {
-                newExif.setAttribute(attribute, value);
+        try {
+            ExifInterface newExif = new ExifInterface(imageOutputPath);
+            String value;
+            for (String attribute : attributes) {
+                value = originalExif.getAttribute(attribute);
+                if (!TextUtils.isEmpty(value)) {
+                    newExif.setAttribute(attribute, value);
+                }
             }
-        }
-        newExif.setAttribute(ExifInterface.TAG_IMAGE_WIDTH, String.valueOf(width));
-        newExif.setAttribute(ExifInterface.TAG_IMAGE_LENGTH, String.valueOf(height));
-        newExif.setAttribute(ExifInterface.TAG_ORIENTATION, "0");
+            newExif.setAttribute(ExifInterface.TAG_IMAGE_WIDTH, String.valueOf(width));
+            newExif.setAttribute(ExifInterface.TAG_IMAGE_LENGTH, String.valueOf(height));
+            newExif.setAttribute(ExifInterface.TAG_ORIENTATION, "0");
 
-        newExif.saveAttributes();
+            newExif.saveAttributes();
+
+        } catch (IOException e) {
+            Log.d(TAG, e.getMessage());
+        }
     }
 
 }

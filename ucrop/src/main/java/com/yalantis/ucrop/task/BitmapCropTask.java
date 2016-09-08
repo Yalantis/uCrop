@@ -142,7 +142,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
                     left, top, mCroppedImageWidth, mCroppedImageHeight, mCurrentAngle, resizeScale,
                     mCompressFormat.ordinal(), mCompressQuality,
                     mExifInfo.getExifDegrees(), mExifInfo.getExifTranslation());
-            if (cropped) {
+            if (cropped && mCompressFormat.equals(Bitmap.CompressFormat.JPEG)) {
                 ImageHeaderParser.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputPath);
             }
             return cropped;
