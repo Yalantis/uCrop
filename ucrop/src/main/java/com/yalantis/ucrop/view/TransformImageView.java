@@ -195,6 +195,7 @@ public class TransformImageView extends ImageView {
     @Override
     public void setImageMatrix(Matrix matrix) {
         super.setImageMatrix(matrix);
+        mCurrentImageMatrix.set(matrix);
         updateCurrentImagePoints();
     }
 
