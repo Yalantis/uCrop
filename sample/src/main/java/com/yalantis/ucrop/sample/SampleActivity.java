@@ -24,6 +24,8 @@ import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 
 import java.io.File;
+import java.util.Locale;
+import java.util.Random;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -33,7 +35,7 @@ public class SampleActivity extends BaseActivity {
     private static final String TAG = "SampleActivity";
 
     private static final int REQUEST_SELECT_PICTURE = 0x01;
-    private static final String SAMPLE_CROPPED_IMAGE_NAME = "SampleCropImage.jpeg";
+    private static final String SAMPLE_CROPPED_IMAGE_NAME = "SampleCropImage";
 
     private RadioGroup mRadioGroupAspectRatio, mRadioGroupCompressionSettings;
     private EditText mEditTextMaxWidth, mEditTextMaxHeight;
@@ -42,15 +44,12 @@ public class SampleActivity extends BaseActivity {
     private SeekBar mSeekBarQuality;
     private TextView mTextViewQuality;
     private CheckBox mCheckBoxHideBottomControls;
-
-    private Uri mDestinationUri;
+    private CheckBox mCheckBoxFreeStyleCrop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);
-
-        mDestinationUri = Uri.fromFile(new File(getCacheDir(), SAMPLE_CROPPED_IMAGE_NAME));
 
         setupUI();
     }
@@ -90,11 +89,23 @@ public class SampleActivity extends BaseActivity {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void setupUI() {
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pickFromGallery();
+            }
+        });
+        findViewById(R.id.button_random_image).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Random random = new Random();
+                int minSizePixels = 800;
+                int maxSizePixels = 2400;
+                startCropActivity(Uri.parse(String.format(Locale.getDefault(), "https://unsplash.it/%d/%d/?random",
+                        minSizePixels + random.nextInt(maxSizePixels - minSizePixels),
+                        minSizePixels + random.nextInt(maxSizePixels - minSizePixels))));
             }
         });
 
@@ -108,10 +119,17 @@ public class SampleActivity extends BaseActivity {
         mSeekBarQuality = ((SeekBar) findViewById(R.id.seekbar_quality));
         mTextViewQuality = ((TextView) findViewById(R.id.text_view_quality));
         mCheckBoxHideBottomControls = ((CheckBox) findViewById(R.id.checkbox_hide_bottom_controls));
+        mCheckBoxFreeStyleCrop = ((CheckBox) findViewById(R.id.checkbox_freestyle_crop));
 
         mRadioGroupAspectRatio.check(R.id.radio_dynamic);
         mEditTextRatioX.addTextChangedListener(mAspectRatioTextWatcher);
         mEditTextRatioY.addTextChangedListener(mAspectRatioTextWatcher);
+        mRadioGroupCompressionSettings.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                mSeekBarQuality.setEnabled(checkedId == R.id.radio_jpeg);
+            }
+        });
         mRadioGroupCompressionSettings.check(R.id.radio_jpeg);
         mSeekBarQuality.setProgress(UCropActivity.DEFAULT_COMPRESS_QUALITY);
         mTextViewQuality.setText(String.format(getString(R.string.format_quality_d), mSeekBarQuality.getProgress()));
@@ -151,7 +169,7 @@ public class SampleActivity extends BaseActivity {
     };
 
     private void pickFromGallery() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN // Permission was added in API Level 16
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -167,7 +185,17 @@ public class SampleActivity extends BaseActivity {
     }
 
     private void startCropActivity(@NonNull Uri uri) {
-        UCrop uCrop = UCrop.of(uri, mDestinationUri);
+        String destinationFileName = SAMPLE_CROPPED_IMAGE_NAME;
+        switch (mRadioGroupCompressionSettings.getCheckedRadioButtonId()) {
+            case R.id.radio_png:
+                destinationFileName += ".png";
+                break;
+            case R.id.radio_jpeg:
+                destinationFileName += ".jpg";
+                break;
+        }
+
+        UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), destinationFileName)));
 
         uCrop = basisConfig(uCrop);
         uCrop = advancedConfig(uCrop);
@@ -200,7 +228,7 @@ public class SampleActivity extends BaseActivity {
                         uCrop = uCrop.withAspectRatio(ratioX, ratioY);
                     }
                 } catch (NumberFormatException e) {
-                    Log.e(TAG, "Number please", e);
+                    Log.i(TAG, String.format("Number please: %s", e.getMessage()));
                 }
                 break;
         }
@@ -233,9 +261,6 @@ public class SampleActivity extends BaseActivity {
             case R.id.radio_png:
                 options.setCompressionFormat(Bitmap.CompressFormat.PNG);
                 break;
-            case R.id.radio_webp:
-                options.setCompressionFormat(Bitmap.CompressFormat.WEBP);
-                break;
             case R.id.radio_jpeg:
             default:
                 options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
@@ -244,6 +269,7 @@ public class SampleActivity extends BaseActivity {
         options.setCompressionQuality(mSeekBarQuality.getProgress());
 
         options.setHideBottomControls(mCheckBoxHideBottomControls.isChecked());
+        options.setFreeStyleCropEnabled(mCheckBoxFreeStyleCrop.isChecked());
 
         /*
         If you want to configure how gestures work for all UCropActivity tabs
@@ -266,7 +292,7 @@ public class SampleActivity extends BaseActivity {
         options.setMaxScaleMultiplier(5);
         options.setImageToCropBoundsAnimDuration(666);
         options.setDimmedLayerColor(Color.CYAN);
-        options.setOvalDimmedLayer(true);
+        options.setCircleDimmedLayer(true);
         options.setShowCropFrame(false);
         options.setCropGridStrokeWidth(20);
         options.setCropGridColor(Color.GREEN);
@@ -277,7 +303,15 @@ public class SampleActivity extends BaseActivity {
         options.setToolbarColor(ContextCompat.getColor(this, R.color.your_color_res));
         options.setStatusBarColor(ContextCompat.getColor(this, R.color.your_color_res));
         options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
-		options.setToolbarTitleTextColor(ContextCompat.getColor(this, R.color.your_color_res));
+		options.setToolbarWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
+
+		// Aspect ratio options
+        options.setAspectRatioOptions(1,
+            new AspectRatio("WOW", 1, 2),
+            new AspectRatio("MUCH", 3, 4),
+            new AspectRatio("RATIO", CropImageView.DEFAULT_ASPECT_RATIO, CropImageView.DEFAULT_ASPECT_RATIO),
+            new AspectRatio("SO", 16, 9),
+            new AspectRatio("ASPECT", 1, 1));
 
        */
 

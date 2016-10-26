@@ -8,7 +8,7 @@
 
         <!--Overlay view-->
         <attr name="ucrop_show_oval_crop_frame" format="boolean"/>
-        <attr name="ucrop_oval_dimmed_layer" format="boolean"/>
+        <attr name="ucrop_circle_dimmed_layer" format="boolean"/>
         <attr name="ucrop_dimmed_color" format="color"/>
 
         <attr name="ucrop_grid_stroke_size" format="dimension"/>

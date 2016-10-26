@@ -45,6 +45,16 @@
                 android:textColor="@android:color/white"
                 android:textStyle="bold"/>
 
+            <Button
+                android:id="@+id/button_random_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_crop_random_image"
+                android:textAllCaps="true"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"/>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -62,6 +72,13 @@
                     android:layout_gravity="center"
                     android:text="@string/label_aspect_ratio"
                     android:textAppearance="?android:textAppearanceSmall"/>
+
+                <CheckBox
+                    android:id="@+id/checkbox_freestyle_crop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_freestyle_crop"
+                    android:textAppearance="?android:textAppearanceMedium"/>
 
                 <RadioButton
                     android:id="@+id/radio_dynamic"
@@ -201,14 +218,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="PNG"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    tools:ignore="HardcodedText"/>
-
-                <RadioButton
-                    android:id="@+id/radio_webp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="WEBP"
                     android:textAppearance="?android:textAppearanceMedium"
                     tools:ignore="HardcodedText"/>
 

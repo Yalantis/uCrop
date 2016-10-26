@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    tools:showIn="@layout/ucrop_activity_photobox">
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <FrameLayout
         android:id="@+id/wrapper_controls"
@@ -10,9 +8,12 @@
         android:layout_above="@+id/wrapper_states"
         android:background="@color/ucrop_color_widget_background">
 
-        <include
+        <LinearLayout
             android:id="@+id/layout_aspect_ratio"
-            layout="@layout/ucrop_layout_aspect_ratio"/>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal"/>
 
         <include
             android:id="@+id/layout_rotate_wheel"

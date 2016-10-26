@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -18,8 +19,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.yalantis.ucrop.view.UCropView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,7 +48,16 @@ public class ResultActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
-        ((ImageView) findViewById(R.id.image_view_preview)).setImageURI(getIntent().getData());
+        try {
+            UCropView uCropView = (UCropView) findViewById(R.id.ucrop);
+            uCropView.getCropImageView().setImageUri(getIntent().getData(), null);
+            uCropView.getOverlayView().setShowCropFrame(false);
+            uCropView.getOverlayView().setShowCropGrid(false);
+            uCropView.getOverlayView().setDimmedColor(Color.TRANSPARENT);
+        } catch (Exception e) {
+            Log.e(TAG, "setImageUri", e);
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
 
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -68,13 +79,10 @@ public class ResultActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.menu_download:
-                saveCroppedImage();
-                break;
+        if (item.getItemId() == R.id.menu_download) {
+            saveCroppedImage();
+        } else if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
         }
         return super.onOptionsItemSelected(item);
     }

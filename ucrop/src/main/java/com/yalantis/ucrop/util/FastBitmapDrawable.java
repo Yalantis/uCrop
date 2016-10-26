@@ -20,7 +20,6 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
 public class FastBitmapDrawable extends Drawable {
@@ -39,8 +38,7 @@ public class FastBitmapDrawable extends Drawable {
     @Override
     public void draw(Canvas canvas) {
         if (mBitmap != null && !mBitmap.isRecycled()) {
-            final Rect r = getBounds();
-            canvas.drawBitmap(mBitmap, null, r, mPaint);
+            canvas.drawBitmap(mBitmap, null, getBounds(), mPaint);
         }
     }
 

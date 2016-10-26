@@ -3,18 +3,21 @@
 #### This project aims to provide an ultimate and flexible image cropping experience. Made in [Yalantis] (https://yalantis.com/?utm_source=github)
 
 #### [How We Created uCrop] (https://yalantis.com/blog/how-we-created-ucrop-our-own-image-cropping-library-for-android/)
+#### Check this [project on Dribbble] (https://dribbble.com/shots/2484752-uCrop-Image-Cropping-Library)
 
-<img src="https://d13yacurqjgara.cloudfront.net/users/221935/screenshots/2474295/animation.gif" alt="alt text" style="width:200;height:200">
+<img src="preview.gif" width="800" height="600">
 
 # Usage
 
 *For a working implementation, please have a look at the Sample Project - sample*
 
-<a href="https://play.google.com/store/apps/details?id=com.yalantis.ucrop.sample&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png" width="185" height="60"/></a>
+<a href="https://play.google.com/store/apps/details?id=com.yalantis.ucrop.sample&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="185" height="70"/></a>
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:1.3.+' ```
+    ``` compile 'com.yalantis:ucrop:2.2.0' ``` - lightweight general solution 
+    
+    ``` compile 'com.yalantis:ucrop:2.2.0-native' ``` - get power of the native code to preserve image quality (+ about 1.5 MB to an apk size)
     
 2. Add UCropActivity into your AndroidManifest.xml
 
@@ -47,7 +50,13 @@
         }
     }
     ```
+5. You may want to add this to your PROGUARD config:
 
+    ```
+    -dontwarn com.yalantis.ucrop**
+    -keep class com.yalantis.ucrop** { *; }
+    -keep interface com.yalantis.ucrop** { *; }
+    ```
 
 # Customization
 
@@ -69,17 +78,51 @@ Currently you can change:
     
 # Compatibility
   
-  * Library - Android GINGERBREAD 2.3+
-  * Sample - Android ICS 4.0+
+  * Library - Android ICS 4.0+ (API 14) (Android GINGERBREAD 2.3+ (API 10) for versions <= 1.3.2)
+  * Sample - Android ICS 4.0+ (API 14)
+  * CPU - armeabi armeabi-v7a x86 x86_64 arm64-v8a (for versions >= 2.1.2)
   
 # Changelog
+
+### Version: 2.2
+
+  * Several fixes including [#121](https://github.com/Yalantis/uCrop/issues/121), [#173](https://github.com/Yalantis/uCrop/issues/173), [#184](https://github.com/Yalantis/uCrop/issues/184) and more!
+  * New APIs introduced [#149](https://github.com/Yalantis/uCrop/issues/149), [#186](https://github.com/Yalantis/uCrop/issues/186) and [#156](https://github.com/Yalantis/uCrop/issues/156)
+
+### Version: 2.1
+
+  * Fixes issue with EXIF data (images taken on front camera with Samsung devices mostly) [#130](https://github.com/Yalantis/uCrop/issues/130) [#111](https://github.com/Yalantis/uCrop/issues/111)
+  * Added API to set custom set of aspect ratio options for user. [#131](https://github.com/Yalantis/uCrop/issues/131)
+  * Added API to set all configs via UCrop.Options class. [#126](https://github.com/Yalantis/uCrop/issues/126)
+  * Added ABI x86_64 support. [#105](https://github.com/Yalantis/uCrop/issues/105)
+
+### Version: 2.0
+
+  * Native image crop (able to crop high-resolution images, e.g. 16MP & 32MP images on Nexus 5X).
+  * WebP compression format is not supported at the moment (choose JPEG or PNG).
+  * Now library copies EXIF data to cropped image (size and orientation are updated).
+  
+### Version: 1.5
+
+  * Introduced "Freestyle" crop (you can resize crop rectangle by dragging it corners) [#32](https://github.com/Yalantis/uCrop/issues/32)
+  * Now image & crop view paddings are not associated [#68](https://github.com/Yalantis/uCrop/issues/68)
+  * Updated API
+
+### Version: 1.4
+
+  * Introduced http(s) Uri support!
+  * Image is cropped in background thread.
+  * Showing loader while Bitmap is processed (both loading and cropping).
+  * Several bug fixes.
+  * Couple new things to configure.
+  * Updated minSdkVersion to Android ICS 4.0 (no reason to support couple percents of old phones).
 
 ### Version: 1.3
 
   * Image is loaded in background thread. Better error-handling for image decoding.
   * Improved EXIF data support (rotation and mirror).
   * Small UI updates.
-  * Couple new things to configure
+  * Couple new things to configure.
   
   * Sample updated with possibility to choose custom aspect ratio.
 
@@ -98,6 +141,13 @@ Currently you can change:
 ### Let us know!
 
 We’d be really happy if you sent us links to your projects where you use our component. Just send an email to github@yalantis.com And do let us know if you have any questions or suggestion regarding the library. 
+
+#### Apps using uCrop
+
+- [Thirty](https://play.google.com/store/apps/details?id=com.twominds.thirty).
+- [Light Smart HD](https://play.google.com/store/apps/details?id=com.SmartCamera.simple).
+- [BCReader] (https://play.google.com/store/apps/details?id=com.iac.bcreader).
+- [Xprezia: Share Your Passion] (https://play.google.com/store/apps/details?id=com.xprezzia.cnj).
 
 ## License
 

@@ -9,11 +9,18 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.yalantis.ucrop.model.AspectRatio;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -30,13 +37,13 @@ public class UCrop {
     public static final String EXTRA_INPUT_URI = EXTRA_PREFIX + ".InputUri";
     public static final String EXTRA_OUTPUT_URI = EXTRA_PREFIX + ".OutputUri";
     public static final String EXTRA_OUTPUT_CROP_ASPECT_RATIO = EXTRA_PREFIX + ".CropAspectRatio";
+    public static final String EXTRA_OUTPUT_IMAGE_WIDTH = EXTRA_PREFIX + ".ImageWidth";
+    public static final String EXTRA_OUTPUT_IMAGE_HEIGHT = EXTRA_PREFIX + ".ImageHeight";
     public static final String EXTRA_ERROR = EXTRA_PREFIX + ".Error";
 
-    public static final String EXTRA_ASPECT_RATIO_SET = EXTRA_PREFIX + ".AspectRatioSet";
     public static final String EXTRA_ASPECT_RATIO_X = EXTRA_PREFIX + ".AspectRatioX";
     public static final String EXTRA_ASPECT_RATIO_Y = EXTRA_PREFIX + ".AspectRatioY";
 
-    public static final String EXTRA_MAX_SIZE_SET = EXTRA_PREFIX + ".MaxSizeSet";
     public static final String EXTRA_MAX_SIZE_X = EXTRA_PREFIX + ".MaxSizeX";
     public static final String EXTRA_MAX_SIZE_Y = EXTRA_PREFIX + ".MaxSizeY";
 
@@ -68,7 +75,6 @@ public class UCrop {
      * @param y aspect ratio Y
      */
     public UCrop withAspectRatio(float x, float y) {
-        mCropOptionsBundle.putBoolean(EXTRA_ASPECT_RATIO_SET, true);
         mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_X, x);
         mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_Y, y);
         return this;
@@ -79,9 +85,8 @@ public class UCrop {
      * User won't see the menu with other ratios options.
      */
     public UCrop useSourceImageAspectRatio() {
-        mCropOptionsBundle.putBoolean(EXTRA_ASPECT_RATIO_SET, true);
-        mCropOptionsBundle.putInt(EXTRA_ASPECT_RATIO_X, 0);
-        mCropOptionsBundle.putInt(EXTRA_ASPECT_RATIO_Y, 0);
+        mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_X, 0);
+        mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_Y, 0);
         return this;
     }
 
@@ -92,7 +97,6 @@ public class UCrop {
      * @param height max cropped image height
      */
     public UCrop withMaxResultSize(@IntRange(from = 100) int width, @IntRange(from = 100) int height) {
-        mCropOptionsBundle.putBoolean(EXTRA_MAX_SIZE_SET, true);
         mCropOptionsBundle.putInt(EXTRA_MAX_SIZE_X, width);
         mCropOptionsBundle.putInt(EXTRA_MAX_SIZE_Y, height);
         return this;
@@ -220,7 +224,7 @@ public class UCrop {
         public static final String EXTRA_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = EXTRA_PREFIX + ".ImageToCropBoundsAnimDuration";
 
         public static final String EXTRA_DIMMED_LAYER_COLOR = EXTRA_PREFIX + ".DimmedLayerColor";
-        public static final String EXTRA_OVAL_DIMMED_LAYER = EXTRA_PREFIX + ".OvalDimmedLayer";
+        public static final String EXTRA_CIRCLE_DIMMED_LAYER = EXTRA_PREFIX + ".CircleDimmedLayer";
 
         public static final String EXTRA_SHOW_CROP_FRAME = EXTRA_PREFIX + ".ShowCropFrame";
         public static final String EXTRA_CROP_FRAME_COLOR = EXTRA_PREFIX + ".CropFrameColor";
@@ -236,12 +240,16 @@ public class UCrop {
         public static final String EXTRA_STATUS_BAR_COLOR = EXTRA_PREFIX + ".StatusBarColor";
         public static final String EXTRA_UCROP_COLOR_WIDGET_ACTIVE = EXTRA_PREFIX + ".UcropColorWidgetActive";
 
-        public static final String EXTRA_UCROP_TITLE_COLOR_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarTitleColor";
+        public static final String EXTRA_UCROP_WIDGET_COLOR_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarWidgetColor";
         public static final String EXTRA_UCROP_TITLE_TEXT_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarTitleText";
 
         public static final String EXTRA_UCROP_LOGO_COLOR = EXTRA_PREFIX + ".UcropLogoColor";
 
         public static final String EXTRA_HIDE_BOTTOM_CONTROLS = EXTRA_PREFIX + ".HideBottomControls";
+        public static final String EXTRA_FREE_STYLE_CROP = EXTRA_PREFIX + ".FreeStyleCrop";
+
+        public static final String EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT = EXTRA_PREFIX + ".AspectRatioSelectedByDefault";
+        public static final String EXTRA_ASPECT_RATIO_OPTIONS = EXTRA_PREFIX + ".AspectRatioOptions";
 
 
         private final Bundle mOptionBundle;
@@ -313,10 +321,10 @@ public class UCrop {
         }
 
         /**
-         * @param isOval - set it to true if you want dimmed layer to have an oval inside
+         * @param isCircle - set it to true if you want dimmed layer to have an circle inside
          */
-        public void setOvalDimmedLayer(boolean isOval) {
-            mOptionBundle.putBoolean(EXTRA_OVAL_DIMMED_LAYER, isOval);
+        public void setCircleDimmedLayer(boolean isCircle) {
+            mOptionBundle.putBoolean(EXTRA_CIRCLE_DIMMED_LAYER, isCircle);
         }
 
         /**
@@ -399,8 +407,8 @@ public class UCrop {
         /**
          * @param color - desired resolved color of Toolbar text and buttons (default is darker orange)
          */
-        public void setToolbarTitleTextColor(@ColorInt int color) {
-            mOptionBundle.putInt(EXTRA_UCROP_TITLE_COLOR_TOOLBAR, color);
+        public void setToolbarWidgetColor(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_UCROP_WIDGET_COLOR_TOOLBAR, color);
         }
 
         /**
@@ -422,6 +430,61 @@ public class UCrop {
          */
         public void setHideBottomControls(boolean hide) {
             mOptionBundle.putBoolean(EXTRA_HIDE_BOTTOM_CONTROLS, hide);
+        }
+
+        /**
+         * @param enabled - set to true to let user resize crop bounds (disabled by default)
+         */
+        public void setFreeStyleCropEnabled(boolean enabled) {
+            mOptionBundle.putBoolean(EXTRA_FREE_STYLE_CROP, enabled);
+        }
+
+        /**
+         * Pass an ordered list of desired aspect ratios that should be available for a user.
+         *
+         * @param selectedByDefault - index of aspect ratio option that is selected by default (starts with 0).
+         * @param aspectRatio       - list of aspect ratio options that are available to user
+         */
+        public void setAspectRatioOptions(int selectedByDefault, AspectRatio... aspectRatio) {
+            if (selectedByDefault > aspectRatio.length) {
+                throw new IllegalArgumentException(String.format(Locale.US,
+                        "Index [selectedByDefault = %d] cannot be higher than aspect ratio options count [count = %d].",
+                        selectedByDefault, aspectRatio.length));
+            }
+            mOptionBundle.putInt(EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT, selectedByDefault);
+            mOptionBundle.putParcelableArrayList(EXTRA_ASPECT_RATIO_OPTIONS, new ArrayList<Parcelable>(Arrays.asList(aspectRatio)));
+        }
+
+        /**
+         * Set an aspect ratio for crop bounds.
+         * User won't see the menu with other ratios options.
+         *
+         * @param x aspect ratio X
+         * @param y aspect ratio Y
+         */
+        public void withAspectRatio(float x, float y) {
+            mOptionBundle.putFloat(EXTRA_ASPECT_RATIO_X, x);
+            mOptionBundle.putFloat(EXTRA_ASPECT_RATIO_Y, y);
+        }
+
+        /**
+         * Set an aspect ratio for crop bounds that is evaluated from source image width and height.
+         * User won't see the menu with other ratios options.
+         */
+        public void useSourceImageAspectRatio() {
+            mOptionBundle.putFloat(EXTRA_ASPECT_RATIO_X, 0);
+            mOptionBundle.putFloat(EXTRA_ASPECT_RATIO_Y, 0);
+        }
+
+        /**
+         * Set maximum size for result cropped image.
+         *
+         * @param width  max cropped image width
+         * @param height max cropped image height
+         */
+        public void withMaxResultSize(@IntRange(from = 100) int width, @IntRange(from = 100) int height) {
+            mOptionBundle.putInt(EXTRA_MAX_SIZE_X, width);
+            mOptionBundle.putInt(EXTRA_MAX_SIZE_Y, height);
         }
 
     }

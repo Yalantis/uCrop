@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/ucrop_label_edit_photo"
-            android:textColor="@color/ucrop_color_title"/>
+            android:textColor="@color/ucrop_color_toolbar_widget"/>
 
     </android.support.v7.widget.Toolbar>
 
@@ -45,7 +45,7 @@
             android:id="@+id/ucrop"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="invisible"/>
+            android:alpha="0"/>
 
     </FrameLayout>
 

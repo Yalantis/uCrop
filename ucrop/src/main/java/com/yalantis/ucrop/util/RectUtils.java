@@ -58,8 +58,8 @@ public class RectUtils {
         RectF r = new RectF(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY,
                 Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
         for (int i = 1; i < array.length; i += 2) {
-            float x = array[i - 1];
-            float y = array[i];
+            float x = Math.round(array[i - 1] * 10) / 10.f;
+            float y = Math.round(array[i] * 10) / 10.f;
             r.left = (x < r.left) ? x : r.left;
             r.top = (y < r.top) ? y : r.top;
             r.right = (x > r.right) ? x : r.right;
