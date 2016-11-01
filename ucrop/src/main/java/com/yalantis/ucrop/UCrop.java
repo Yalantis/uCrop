@@ -187,6 +187,24 @@ public class UCrop {
     }
 
     /**
+     * Retrieve the width of the cropped image
+     *
+     * @param intent crop result intent
+     */
+    public static int getOutputImageWidth(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_OUTPUT_IMAGE_WIDTH, -1);
+    }
+
+    /**
+     * Retrieve the height of the cropped image
+     *
+     * @param intent crop result intent
+     */
+    public static int getOutputImageHeight(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_OUTPUT_IMAGE_HEIGHT, -1);
+    }
+
+    /**
      * Retrieve cropped image aspect ratio from the result Intent
      *
      * @param intent crop result intent
