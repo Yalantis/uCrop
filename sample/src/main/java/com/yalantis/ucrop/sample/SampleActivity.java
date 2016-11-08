@@ -298,14 +298,17 @@ public class SampleActivity extends BaseActivity {
         options.setCropGridColor(Color.GREEN);
         options.setCropGridColumnCount(2);
         options.setCropGridRowCount(1);
+        options.setToolbarCropDrawable(R.drawable.your_crop_icon);
+        options.setToolbarCancelDrawable(R.drawable.your_cancel_icon);
 
         // Color palette
         options.setToolbarColor(ContextCompat.getColor(this, R.color.your_color_res));
         options.setStatusBarColor(ContextCompat.getColor(this, R.color.your_color_res));
         options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
-		options.setToolbarWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
+        options.setToolbarWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
+        options.setRootViewBackgroundColor(ContextCompat.getColor(this, R.color.your_color_res));
 
-		// Aspect ratio options
+        // Aspect ratio options
         options.setAspectRatioOptions(1,
             new AspectRatio("WOW", 1, 2),
             new AspectRatio("MUCH", 3, 4),
