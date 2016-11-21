@@ -278,12 +278,16 @@ public class OverlayView extends View {
         float y = event.getY();
 
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
-            if (mPreviousTouchX < 0) {
+            mCurrentTouchCornerIndex = getCurrentTouchIndex(x, y);
+            boolean shouldHandle = mCurrentTouchCornerIndex != -1;
+            if (!shouldHandle) {
+                mPreviousTouchX = -1;
+                mPreviousTouchY = -1;
+            } else if (mPreviousTouchX < 0) {
                 mPreviousTouchX = x;
                 mPreviousTouchY = y;
             }
-            mCurrentTouchCornerIndex = getCurrentTouchIndex(x, y);
-            return mCurrentTouchCornerIndex != -1;
+            return shouldHandle;
         }
 
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE) {
