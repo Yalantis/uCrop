@@ -127,6 +127,7 @@ public class OverlayView extends View {
 
     public void setFreestyleCropMode(@FreestyleMode int mFreestyleCropMode) {
         this.mFreestyleCropMode = mFreestyleCropMode;
+        postInvalidate();
     }
 
     /**
