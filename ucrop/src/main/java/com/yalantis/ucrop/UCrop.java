@@ -253,6 +253,7 @@ public class UCrop {
         public static final String EXTRA_CROP_GRID_ROW_COUNT = EXTRA_PREFIX + ".CropGridRowCount";
         public static final String EXTRA_CROP_GRID_COLUMN_COUNT = EXTRA_PREFIX + ".CropGridColumnCount";
         public static final String EXTRA_CROP_GRID_COLOR = EXTRA_PREFIX + ".CropGridColor";
+        public static final String EXTRA_CROP_GRID_CORNER_COLOR = EXTRA_PREFIX + ".CropGridCornerColor";
         public static final String EXTRA_CROP_GRID_STROKE_WIDTH = EXTRA_PREFIX + ".CropGridStrokeWidth";
 
         public static final String EXTRA_TOOL_BAR_COLOR = EXTRA_PREFIX + ".ToolbarColor";
@@ -397,6 +398,13 @@ public class UCrop {
          */
         public void setCropGridColor(@ColorInt int color) {
             mOptionBundle.putInt(EXTRA_CROP_GRID_COLOR, color);
+        }
+
+        /**
+         * @param color - desired color of crop grid/guidelines corner
+         */
+        public void setCropGridCornerColor(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_CROP_GRID_CORNER_COLOR, color);
         }
 
         /**
