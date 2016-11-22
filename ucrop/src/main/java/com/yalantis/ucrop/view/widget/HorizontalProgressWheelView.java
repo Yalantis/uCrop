@@ -25,13 +25,15 @@ public class HorizontalProgressWheelView extends View {
     private float mLastTouchedPosition;
 
     private Paint mProgressLinePaint;
-    private int mProgressLineWidth, mProgressLineHeight;
-    private int mProgressLineMargin;
+    private int mProgressLineHeight;
 
     private boolean mScrollStarted;
     private float mTotalScrollDistance;
 
     private int mMiddleLineColor;
+    private int mProgressLineColor;
+    private int mLinesCount;
+    private int mProgressLineTotalWidth;
 
     public HorizontalProgressWheelView(Context context) {
         this(context, null);
@@ -93,27 +95,60 @@ public class HorizontalProgressWheelView extends View {
         super.onDraw(canvas);
         canvas.getClipBounds(mCanvasClipBounds);
 
-        int linesCount = mCanvasClipBounds.width() / (mProgressLineWidth + mProgressLineMargin);
-        float deltaX = (mTotalScrollDistance) % (float) (mProgressLineMargin + mProgressLineWidth);
+        if (mLinesCount == 0) {
+            mLinesCount = mCanvasClipBounds.width() / mProgressLineTotalWidth;
 
-        mProgressLinePaint.setColor(getResources().getColor(R.color.ucrop_color_progress_wheel_line));
-        for (int i = 0; i < linesCount; i++) {
-            if (i < (linesCount / 4)) {
-                mProgressLinePaint.setAlpha((int) (255 * (i / (float) (linesCount / 4))));
-            } else if (i > (linesCount * 3 / 4)) {
-                mProgressLinePaint.setAlpha((int) (255 * ((linesCount - i) / (float) (linesCount / 4))));
+            // Make the count be odd number so we can center the lines.
+            if (mLinesCount % 2 == 0) {
+                if (mLinesCount == 0) {
+                    mLinesCount = 1;
+                } else {
+                    mLinesCount--;
+                }
+            }
+        }
+
+        float deltaX = mTotalScrollDistance % (float) mProgressLineTotalWidth;
+
+        // Make the value of deltaX to be between (-mProgressLineTotalWidth / 2, mProgressLineTotalWidth / 2).
+        if (deltaX < -mProgressLineTotalWidth / 2) {
+            deltaX += mProgressLineTotalWidth;
+        } else if (deltaX > mProgressLineTotalWidth / 2) {
+            deltaX -= mProgressLineTotalWidth;
+        }
+
+        // Set center progress line properties first and all other lines are relative to center progress line.
+        int centerProgressLine = mLinesCount / 2;
+        float centerProgressLineX = mCanvasClipBounds.centerX() - deltaX;
+
+        mProgressLinePaint.setColor(mProgressLineColor);
+
+        for (int i = 0; i < mLinesCount; i++) {
+
+            // Relative to center progress line.
+            float progressLineX = (i - centerProgressLine) * mProgressLineTotalWidth + centerProgressLineX;
+
+            if (i < (mLinesCount / 4)) {
+                mProgressLinePaint.setAlpha((int) (255 * (i / (float) (mLinesCount / 4))));
+            } else if (i > (mLinesCount * 3 / 4)) {
+                mProgressLinePaint.setAlpha((int) (255 * ((mLinesCount - i) / (float) (mLinesCount / 4))));
             } else {
                 mProgressLinePaint.setAlpha(255);
             }
+
             canvas.drawLine(
-                    -deltaX + mCanvasClipBounds.left + i * (mProgressLineWidth + mProgressLineMargin),
+                    progressLineX,
                     mCanvasClipBounds.centerY() - mProgressLineHeight / 4.0f,
-                    -deltaX + mCanvasClipBounds.left + i * (mProgressLineWidth + mProgressLineMargin),
+                    progressLineX,
                     mCanvasClipBounds.centerY() + mProgressLineHeight / 4.0f, mProgressLinePaint);
         }
 
         mProgressLinePaint.setColor(mMiddleLineColor);
-        canvas.drawLine(mCanvasClipBounds.centerX(), mCanvasClipBounds.centerY() - mProgressLineHeight / 2.0f, mCanvasClipBounds.centerX(), mCanvasClipBounds.centerY() + mProgressLineHeight / 2.0f, mProgressLinePaint);
+        canvas.drawLine(mCanvasClipBounds.centerX(),
+                        mCanvasClipBounds.centerY() - mProgressLineHeight / 2.0f,
+                        mCanvasClipBounds.centerX(),
+                        mCanvasClipBounds.centerY() + mProgressLineHeight / 2.0f,
+                        mProgressLinePaint);
 
     }
 
@@ -126,17 +161,27 @@ public class HorizontalProgressWheelView extends View {
         }
     }
 
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+
+        // Allow recalculate of lines count when on draw.
+        mLinesCount = 0;
+    }
+
     private void init() {
         mMiddleLineColor = ContextCompat.getColor(getContext(), R.color.ucrop_color_progress_wheel_line);
+        mProgressLineColor = ContextCompat.getColor(getContext(), R.color.ucrop_color_progress_wheel_line);
 
-        mProgressLineWidth = getContext().getResources().getDimensionPixelSize(R.dimen.ucrop_width_horizontal_wheel_progress_line);
+        int mProgressLineWidth = getContext().getResources().getDimensionPixelSize(R.dimen.ucrop_width_horizontal_wheel_progress_line);
         mProgressLineHeight = getContext().getResources().getDimensionPixelSize(R.dimen.ucrop_height_horizontal_wheel_progress_line);
-        mProgressLineMargin = getContext().getResources().getDimensionPixelSize(R.dimen.ucrop_margin_horizontal_wheel_progress_line);
+        int mProgressLineMargin = getContext().getResources().getDimensionPixelSize(R.dimen.ucrop_margin_horizontal_wheel_progress_line);
 
         mProgressLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mProgressLinePaint.setStyle(Paint.Style.STROKE);
         mProgressLinePaint.setStrokeWidth(mProgressLineWidth);
 
+        mProgressLineTotalWidth = mProgressLineWidth + mProgressLineMargin;
     }
 
     public interface ScrollingListener {
