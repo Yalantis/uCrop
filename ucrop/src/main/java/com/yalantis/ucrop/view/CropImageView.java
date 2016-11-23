@@ -73,9 +73,7 @@ public class CropImageView extends TransformImageView {
         cancelAllAnimations();
         setImageToWrapCropBounds(false);
 
-        final ImageState imageState = new ImageState(
-                mCropRect, RectUtils.trapToRect(mCurrentImageCorners),
-                getCurrentScale(), getCurrentAngle());
+        final ImageState imageState = getImageState();
 
         final CropParameters cropParameters = new CropParameters(
                 mMaxResultImageSizeX, mMaxResultImageSizeY,
@@ -83,6 +81,13 @@ public class CropImageView extends TransformImageView {
                 getImageInputPath(), getImageOutputPath(), getExifInfo());
 
         new BitmapCropTask(getViewBitmap(), imageState, cropParameters, cropCallback).execute();
+    }
+
+    /***
+     * @return  Return the current state of image include scale, angle, crop rect, and image rect.
+     */
+    public ImageState getImageState() {
+        return new ImageState(mCropRect, RectUtils.trapToRect(mCurrentImageCorners), getCurrentScale(), getCurrentAngle());
     }
 
     /**
@@ -104,20 +109,6 @@ public class CropImageView extends TransformImageView {
      */
     public float getTargetAspectRatio() {
         return mTargetAspectRatio;
-    }
-
-    /**
-     * Updates current crop rectangle with given. Also recalculates image properties and position
-     * to fit new crop rectangle.
-     *
-     * @param cropRect - new crop rectangle
-     */
-    public void setCropRect(RectF cropRect) {
-        mTargetAspectRatio = cropRect.width() / cropRect.height();
-        mCropRect.set(cropRect.left - getPaddingLeft(), cropRect.top - getPaddingTop(),
-                cropRect.right - getPaddingRight(), cropRect.bottom - getPaddingBottom());
-        calculateImageScaleBounds();
-        setImageToWrapCropBounds();
     }
 
     /**
@@ -143,6 +134,20 @@ public class CropImageView extends TransformImageView {
         if (mCropBoundsChangeListener != null) {
             mCropBoundsChangeListener.onCropAspectRatioChanged(mTargetAspectRatio);
         }
+    }
+
+    /**
+     * Updates current crop rectangle with given. Also recalculates image properties and position
+     * to fit new crop rectangle.
+     *
+     * @param cropRect - new crop rectangle
+     */
+    public void setCropRect(RectF cropRect) {
+        mTargetAspectRatio = cropRect.width() / cropRect.height();
+        mCropRect.set(cropRect.left - getPaddingLeft(), cropRect.top - getPaddingTop(),
+                      cropRect.right - getPaddingRight(), cropRect.bottom - getPaddingBottom());
+        calculateImageScaleBounds();
+        setImageToWrapCropBounds();
     }
 
     @Nullable
@@ -303,7 +308,7 @@ public class CropImageView extends TransformImageView {
                 final float[] currentImageSides = RectUtils.getRectSidesFromCorners(mCurrentImageCorners);
 
                 deltaScale = Math.max(tempCropRect.width() / currentImageSides[0],
-                        tempCropRect.height() / currentImageSides[1]);
+                                      tempCropRect.height() / currentImageSides[1]);
                 deltaScale = deltaScale * currentScale - currentScale;
             }
 
@@ -443,7 +448,7 @@ public class CropImageView extends TransformImageView {
         final float deltaScale = scale - oldScale;
 
         post(mZoomImageToPositionRunnable = new ZoomImageToPosition(CropImageView.this,
-                durationMs, oldScale, deltaScale, centerX, centerY));
+                                                                    durationMs, oldScale, deltaScale, centerX, centerY));
     }
 
     private void calculateImageScaleBounds() {
