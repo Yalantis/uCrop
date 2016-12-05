@@ -118,12 +118,15 @@ public class HorizontalProgressWheelView extends View {
     }
 
     private void onScrollEvent(MotionEvent event, float distance) {
+        mLastTouchedPosition = event.getX();
+
+        if (mScrollingListener != null) {
+            boolean result = mScrollingListener.onScroll(-distance, mTotalScrollDistance);
+            if (!result) return;
+        }
+
         mTotalScrollDistance -= distance;
         postInvalidate();
-        mLastTouchedPosition = event.getX();
-        if (mScrollingListener != null) {
-            mScrollingListener.onScroll(-distance, mTotalScrollDistance);
-        }
     }
 
     private void init() {
@@ -143,7 +146,7 @@ public class HorizontalProgressWheelView extends View {
 
         void onScrollStart();
 
-        void onScroll(float delta, float totalDistance);
+        boolean onScroll(float delta, float totalDistance);
 
         void onScrollEnd();
     }

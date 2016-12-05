@@ -197,8 +197,10 @@ public class CropImageView extends TransformImageView {
     /**
      * This method scales image down for given value related to image center.
      */
-    public void zoomOutImage(float deltaScale) {
+    public boolean zoomOutImage(float deltaScale) {
+        if (deltaScale < getMinScale()) return false;
         zoomOutImage(deltaScale, mCropRect.centerX(), mCropRect.centerY());
+        return true;
     }
 
     /**
@@ -213,8 +215,10 @@ public class CropImageView extends TransformImageView {
     /**
      * This method scales image up for given value related to image center.
      */
-    public void zoomInImage(float deltaScale) {
+    public boolean zoomInImage(float deltaScale) {
+        if (deltaScale > getMaxScale()) return false;
         zoomInImage(deltaScale, mCropRect.centerX(), mCropRect.centerY());
+        return true;
     }
 
     /**

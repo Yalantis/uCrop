@@ -460,8 +460,9 @@ public class UCropActivity extends AppCompatActivity {
         ((HorizontalProgressWheelView) findViewById(R.id.rotate_scroll_wheel))
                 .setScrollingListener(new HorizontalProgressWheelView.ScrollingListener() {
                     @Override
-                    public void onScroll(float delta, float totalDistance) {
+                    public boolean onScroll(float delta, float totalDistance) {
                         mGestureCropImageView.postRotate(delta / ROTATE_WIDGET_SENSITIVITY_COEFFICIENT);
+                        return true;
                     }
 
                     @Override
@@ -497,12 +498,12 @@ public class UCropActivity extends AppCompatActivity {
         ((HorizontalProgressWheelView) findViewById(R.id.scale_scroll_wheel))
                 .setScrollingListener(new HorizontalProgressWheelView.ScrollingListener() {
                     @Override
-                    public void onScroll(float delta, float totalDistance) {
+                    public boolean onScroll(float delta, float totalDistance) {
                         if (delta > 0) {
-                            mGestureCropImageView.zoomInImage(mGestureCropImageView.getCurrentScale()
+                            return mGestureCropImageView.zoomInImage(mGestureCropImageView.getCurrentScale()
                                     + delta * ((mGestureCropImageView.getMaxScale() - mGestureCropImageView.getMinScale()) / SCALE_WIDGET_SENSITIVITY_COEFFICIENT));
                         } else {
-                            mGestureCropImageView.zoomOutImage(mGestureCropImageView.getCurrentScale()
+                            return mGestureCropImageView.zoomOutImage(mGestureCropImageView.getCurrentScale()
                                     + delta * ((mGestureCropImageView.getMaxScale() - mGestureCropImageView.getMinScale()) / SCALE_WIDGET_SENSITIVITY_COEFFICIENT));
                         }
                     }
