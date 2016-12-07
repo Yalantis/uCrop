@@ -110,7 +110,11 @@ public class UCrop {
         return this;
     }
 
-
+    /**
+     * Attach a tag to {@link UCropActivity} so that it's received back in onActivityResult().
+     *
+     * @param tag Tag to attach
+     */
     public UCrop withTag(@NonNull Bundle tag) {
         mCropOptionsBundle.putBundle(EXTRA_IO_TAG, tag);
         return this;
