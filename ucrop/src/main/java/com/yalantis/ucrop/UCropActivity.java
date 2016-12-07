@@ -92,6 +92,8 @@ public class UCropActivity extends AppCompatActivity {
     private boolean mShowBottomControls;
     private boolean mShowLoader = true;
 
+    private Bundle tag;
+
     private UCropView mUCropView;
     private GestureCropImageView mGestureCropImageView;
     private OverlayView mOverlayView;
@@ -112,6 +114,7 @@ public class UCropActivity extends AppCompatActivity {
 
         final Intent intent = getIntent();
 
+        setupTag(intent);
         setupViews(intent);
         setImageData(intent);
         setInitialState();
@@ -171,6 +174,14 @@ public class UCropActivity extends AppCompatActivity {
         if (mGestureCropImageView != null) {
             mGestureCropImageView.cancelAllAnimations();
         }
+    }
+
+    /**
+     * This method extracts an optional {@link Bundle tag} that should be sent back along with
+     * the result.
+     */
+    private void setupTag(@NonNull Intent intent) {
+        tag = intent.getBundleExtra(UCrop.EXTRA_IO_TAG);
     }
 
     /**
@@ -629,6 +640,7 @@ public class UCropActivity extends AppCompatActivity {
     protected void setResultUri(Uri uri, float resultAspectRatio, int imageWidth, int imageHeight) {
         setResult(RESULT_OK, new Intent()
                 .putExtra(UCrop.EXTRA_OUTPUT_URI, uri)
+                .putExtra(UCrop.EXTRA_IO_TAG, tag)
                 .putExtra(UCrop.EXTRA_OUTPUT_CROP_ASPECT_RATIO, resultAspectRatio)
                 .putExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, imageWidth)
                 .putExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, imageHeight)
