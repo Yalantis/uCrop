@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    compileSdkVersion 25
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId "com.yalantis.ucrop.sample"
         minSdkVersion 14
-        targetSdkVersion 24
+        targetSdkVersion 25
         versionCode 10
         versionName "1.2.2"
     }
@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:24.2.0'
+    compile 'com.android.support:appcompat-v7:25.0.0'
 
     compile project (':ucrop')
 }
