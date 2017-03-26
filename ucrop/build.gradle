@@ -1,13 +1,13 @@
-apply plugin: 'com.android.library'
-apply from: '../mavenpush.gradle'
+apply plugin: "com.android.library"
+apply from: "../mavenpush.gradle"
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '24.0.2'
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 24
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 22
         versionName "2.2.0-native"
 
@@ -16,7 +16,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
     compileOptions {
@@ -27,7 +27,7 @@ android {
         abortOnError false
     }
 
-    resourcePrefix 'ucrop_'
+    resourcePrefix "ucrop_"
 
     sourceSets.main {
         jni.srcDirs = [];
@@ -36,6 +36,6 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:24.2.0'
-    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+    compile "com.squareup.okhttp3:okhttp:3.4.1"
 }
