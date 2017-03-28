@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
@@ -14,6 +15,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -28,6 +30,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
+import java.util.List;
+
+import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
+import static android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -145,7 +151,21 @@ public class ResultActivity extends BaseActivity {
     private void showNotification(@NonNull File file) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setDataAndType(Uri.fromFile(file), "image/*");
+        Uri fileUri = FileProvider.getUriForFile(
+                this,
+                getString(R.string.file_provider_authorities),
+                file);
+
+        intent.setDataAndType(fileUri, "image/*");
+
+        List<ResolveInfo> resInfoList = getPackageManager().queryIntentActivities(
+                intent,
+                PackageManager.MATCH_DEFAULT_ONLY);
+        for(ResolveInfo info: resInfoList) {
+            grantUriPermission(
+                    info.activityInfo.packageName,
+                    fileUri, FLAG_GRANT_WRITE_URI_PERMISSION | FLAG_GRANT_READ_URI_PERMISSION);
+        }
 
         NotificationCompat.Builder mNotification = new NotificationCompat.Builder(this);
 

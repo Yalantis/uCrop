@@ -41,4 +41,5 @@
     <string name="toast_cannot_retrieve_cropped_image">Cannot retrieve cropped image</string>
     <string name="toast_unexpected_error">Unexpected error</string>
 
+    <string name="file_provider_authorities">com.yalantis.ucrop.provider</string>
 </resources>
