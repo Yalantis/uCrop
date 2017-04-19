@@ -15,6 +15,15 @@
 
 1. Include the library as local library project.
 
+```
+allprojects {
+   repositories {
+      jcenter()
+      maven { url "https://jitpack.io" }
+   }
+}
+```
+
     ``` compile 'com.github.yalantis:ucrop:2.2.1' ``` - lightweight general solution 
     
     ``` compile 'com.github.yalantis:ucrop:2.2.1-native' ``` - get power of the native code to preserve image quality (+ about 1.5 MB to an apk size)
