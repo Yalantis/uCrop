@@ -53,6 +53,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     private final BitmapCropCallback mCropCallback;
 
     private int mCroppedImageWidth, mCroppedImageHeight;
+    private int cropOffsetX, cropOffsetY;
 
     public BitmapCropTask(@NonNull Context context, @Nullable Bitmap viewBitmap, @NonNull ImageState imageState, @NonNull CropParameters cropParameters,
                           @Nullable BitmapCropCallback cropCallback) {
@@ -138,8 +139,8 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
             mViewBitmap = rotatedBitmap;
         }
 
-        int top = Math.round((mCropRect.top - mCurrentImageRect.top) / mCurrentScale);
-        int left = Math.round((mCropRect.left - mCurrentImageRect.left) / mCurrentScale);
+        cropOffsetX = Math.round((mCropRect.left - mCurrentImageRect.left) / mCurrentScale);
+        cropOffsetY = Math.round((mCropRect.top - mCurrentImageRect.top) / mCurrentScale);
         mCroppedImageWidth = Math.round(mCropRect.width() / mCurrentScale);
         mCroppedImageHeight = Math.round(mCropRect.height() / mCurrentScale);
 
@@ -148,7 +149,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
         if (shouldCrop) {
             ExifInterface originalExif = new ExifInterface(mImageInputPath);
-            saveImage(Bitmap.createBitmap(mViewBitmap, left, top, mCroppedImageWidth, mCroppedImageHeight));
+            saveImage(Bitmap.createBitmap(mViewBitmap, cropOffsetX, cropOffsetY, mCroppedImageWidth, mCroppedImageHeight));
             if (mCompressFormat.equals(Bitmap.CompressFormat.JPEG)) {
                 ImageHeaderParser.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputPath);
             }
@@ -197,7 +198,8 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     protected void onPostExecute(@Nullable Throwable t) {
         if (mCropCallback != null) {
             if (t == null) {
-                mCropCallback.onBitmapCropped(Uri.fromFile(new File(mImageOutputPath)), mCroppedImageWidth, mCroppedImageHeight);
+                Uri uri = Uri.fromFile(new File(mImageOutputPath));
+                mCropCallback.onBitmapCropped(uri, cropOffsetX, cropOffsetY, mCroppedImageWidth, mCroppedImageHeight);
             } else {
                 mCropCallback.onCropFailure(t);
             }
