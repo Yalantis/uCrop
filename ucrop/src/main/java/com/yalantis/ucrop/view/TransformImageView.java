@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
@@ -18,6 +19,8 @@ import com.yalantis.ucrop.model.ExifInfo;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.util.FastBitmapDrawable;
 import com.yalantis.ucrop.util.RectUtils;
+
+import javax.microedition.khronos.opengles.GL10;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -114,6 +117,11 @@ public class TransformImageView extends ImageView {
 
     @Override
     public void setImageBitmap(final Bitmap bitmap) {
+        // Check the bitmap extend and switch to software layer if necessary
+        final int maxSize = GL10.GL_MAX_TEXTURE_SIZE;
+        if (bitmap.getWidth() > maxSize || bitmap.getHeight() > maxSize) {
+            setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
         setImageDrawable(new FastBitmapDrawable(bitmap));
     }
 
