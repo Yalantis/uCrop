@@ -2,7 +2,10 @@ package com.yalantis.ucrop.task;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -114,9 +117,18 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
                 float scaleY = mMaxResultImageSizeY / cropHeight;
                 float resizeScale = Math.min(scaleX, scaleY);
 
-                Bitmap resizedBitmap = Bitmap.createScaledBitmap(mViewBitmap,
-                        Math.round(mViewBitmap.getWidth() * resizeScale),
-                        Math.round(mViewBitmap.getHeight() * resizeScale), false);
+                int srcWidth = mViewBitmap.getWidth();
+                int srcHeight = mViewBitmap.getHeight();
+                int dstWidth = Math.round(mViewBitmap.getWidth() * resizeScale);
+                int dstHeight = Math.round(mViewBitmap.getHeight() * resizeScale);
+
+                Rect srcRect = new Rect(0, 0, srcWidth, srcHeight);
+                Rect dstRect = new Rect(0, 0, dstWidth, dstHeight);
+
+                Bitmap resizedBitmap = Bitmap.createBitmap(dstWidth, dstHeight, Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(resizedBitmap);
+                canvas.drawBitmap(mViewBitmap, srcRect, dstRect, new Paint(Paint.FILTER_BITMAP_FLAG));
+
                 if (mViewBitmap != resizedBitmap) {
                     mViewBitmap.recycle();
                 }
