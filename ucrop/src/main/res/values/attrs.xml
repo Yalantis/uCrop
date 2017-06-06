@@ -21,6 +21,13 @@
         <attr name="ucrop_frame_color" format="color"/>
         <attr name="ucrop_show_frame" format="boolean"/>
 
+        <attr name="ucrop_inner_line_stroke_width" format="dimension"/>
+        <attr name="ucrop_inner_line_stroke_color" format="color"/>
+        <attr name="ucrop_inner_line_dash_enable" format="boolean"/>
+        <attr name="ucrop_inner_line_dash_interval" format="dimension"/>
+        <attr name="ucrop_inner_line_dash_phase" format="dimension"/>
+
+        <attr name="ucrop_circular_path_padding" format="dimension"/>
     </declare-styleable>
 
     <declare-styleable name="ucrop_AspectRatioTextView">

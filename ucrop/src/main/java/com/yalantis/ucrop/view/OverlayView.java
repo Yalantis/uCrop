@@ -3,6 +3,8 @@ package com.yalantis.ucrop.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -35,12 +37,19 @@ public class OverlayView extends View {
     public static final int FREESTYLE_CROP_MODE_ENABLE = 1;
     public static final int FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH = 2;
 
-    public static final boolean DEFAULT_SHOW_CROP_FRAME = true;
-    public static final boolean DEFAULT_SHOW_CROP_GRID = true;
-    public static final boolean DEFAULT_CIRCLE_DIMMED_LAYER = false;
+    public static final boolean DEFAULT_SHOW_CROP_FRAME = false;
+    public static final boolean DEFAULT_SHOW_CROP_GRID = false;
+    public static final boolean DEFAULT_CIRCLE_DIMMED_LAYER = true;
     public static final int DEFAULT_FREESTYLE_CROP_MODE = FREESTYLE_CROP_MODE_DISABLE;
     public static final int DEFAULT_CROP_GRID_ROW_COUNT = 2;
     public static final int DEFAULT_CROP_GRID_COLUMN_COUNT = 2;
+
+    public static final int DEFAULT_INNER_STROKE_DASH_INTERVAL = 20;
+    public static final int DEFAULT_INNER_STROKE_DASH_PHASE = 20;
+    public static final int DEFAULT_INNER_STROKE_WIDTH = 5;
+    public static final int DEFAULT_INNER_STROKE_COLOR = Color.parseColor("#fbd400");
+
+    public static final int DEFAULT_CIRCULAR_PATH_PADDING = 30;
 
     private final RectF mCropViewRect = new RectF();
     private final RectF mTempRect = new RectF();
@@ -48,18 +57,25 @@ public class OverlayView extends View {
     protected int mThisWidth, mThisHeight;
     protected float[] mCropGridCorners;
     protected float[] mCropGridCenter;
-    
+
     private int mCropGridRowCount, mCropGridColumnCount;
     private float mTargetAspectRatio;
     private float[] mGridPoints = null;
     private boolean mShowCropFrame, mShowCropGrid;
     private boolean mCircleDimmedLayer;
     private int mDimmedColor;
+    private int mInnerStrokeDashInterval;
+    private int mInnerStrokeDashPhase;
+    private int mInnerStokeWidth;
+    private int mInnerStrokeColor;
+    private int mCircularPathPadding;
+    private boolean mInnerLineDashEnable;
     private Path mCircularPath = new Path();
     private Paint mDimmedStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropFrameCornersPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint mInnerStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     @FreestyleMode
     private int mFreestyleCropMode = DEFAULT_FREESTYLE_CROP_MODE;
     private float mPreviousTouchX = -1, mPreviousTouchY = -1;
@@ -185,6 +201,58 @@ public class OverlayView extends View {
     }
 
     /**
+     * Setter for {@link #mInnerStrokeColor} variable
+     *
+     * @param innerLineStrokeColor
+     */
+    public void setInnerLineStrokeColor(@ColorInt int innerLineStrokeColor) {
+        mInnerStrokeColor = innerLineStrokeColor;
+        mInnerStrokePaint.setColor(innerLineStrokeColor);
+    }
+
+    /**
+     * Setter for inner line stroke width
+     */
+    public void setInnerLineStrokeWidth(@IntRange(from = 0) int width) {
+        mInnerStokeWidth = width;
+        mInnerStrokePaint.setStrokeWidth(width);
+    }
+
+    /**
+     * Setter for inner line dash enable
+     */
+    public void setInnerLineDashEnable(boolean dashEnable) {
+        mInnerLineDashEnable = dashEnable;
+        mInnerStrokePaint.setPathEffect(
+                new DashPathEffect(new float[]{mInnerStrokeDashInterval, mInnerStrokeDashInterval,
+                        mInnerStrokeDashInterval, mInnerStrokeDashInterval}, mInnerStrokeDashPhase));
+    }
+
+    /**
+     * Setter for inner line dash interval
+     */
+    public void setInnerLineDashInterval(@IntRange(from = 0) int interval) {
+        mInnerStrokeDashInterval = interval;
+        mInnerStrokePaint.setPathEffect(
+                new DashPathEffect(new float[]{interval, interval,
+                        interval, interval}, mInnerStrokeDashPhase));
+    }
+
+    /**
+     * Setter for inner line dash phase
+     */
+    public void setInnerLineDashPhase(@IntRange(from = 0) int phase) {
+        mInnerStrokeDashPhase = phase;
+        mInnerStrokePaint.setPathEffect(
+                new DashPathEffect(new float[]{mInnerStrokeDashInterval, mInnerStrokeDashInterval,
+                        mInnerStrokeDashInterval, mInnerStrokeDashInterval}, phase));
+    }
+
+    public void setCircularPathPadding(@IntRange(from = 0) int circularPathPadding) {
+        mCircularPathPadding = circularPathPadding;
+    }
+
+    /**
      * Setter for crop frame stroke width
      */
     public void setCropFrameStrokeWidth(@IntRange(from = 0) int width) {
@@ -258,7 +326,8 @@ public class OverlayView extends View {
         mGridPoints = null;
         mCircularPath.reset();
         mCircularPath.addCircle(mCropViewRect.centerX(), mCropViewRect.centerY(),
-                Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f, Path.Direction.CW);
+                Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f - mCircularPathPadding
+                , Path.Direction.CW);
     }
 
     protected void init() {
@@ -298,7 +367,9 @@ public class OverlayView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mCropViewRect.isEmpty() || mFreestyleCropMode == FREESTYLE_CROP_MODE_DISABLE) { return false; }
+        if (mCropViewRect.isEmpty() || mFreestyleCropMode == FREESTYLE_CROP_MODE_DISABLE) {
+            return false;
+        }
 
         float x = event.getX();
         float y = event.getY();
@@ -454,9 +525,10 @@ public class OverlayView extends View {
         canvas.drawColor(mDimmedColor);
         canvas.restore();
 
-        if (mCircleDimmedLayer) { // Draw 1px stroke to fix antialias
+        if (mCircleDimmedLayer) { // Draw inner stroke
             canvas.drawCircle(mCropViewRect.centerX(), mCropViewRect.centerY(),
-                    Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f, mDimmedStrokePaint);
+                    Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f
+                            - mCircularPathPadding, mInnerStrokePaint);
         }
     }
 
@@ -526,6 +598,22 @@ public class OverlayView extends View {
         mDimmedStrokePaint.setColor(mDimmedColor);
         mDimmedStrokePaint.setStyle(Paint.Style.STROKE);
         mDimmedStrokePaint.setStrokeWidth(1);
+
+        mInnerStrokeColor = a.getColor(R.styleable.ucrop_UCropView_ucrop_inner_line_stroke_color, DEFAULT_INNER_STROKE_COLOR);
+        mInnerStokeWidth = a.getDimensionPixelSize(R.styleable.ucrop_UCropView_ucrop_inner_line_stroke_width, DEFAULT_INNER_STROKE_WIDTH);
+        mInnerLineDashEnable = a.getBoolean(R.styleable.ucrop_UCropView_ucrop_inner_line_dash_enable, true);
+        mInnerStrokeDashInterval = a.getDimensionPixelOffset(R.styleable.ucrop_UCropView_ucrop_inner_line_dash_interval, DEFAULT_INNER_STROKE_DASH_INTERVAL);
+        mInnerStrokeDashInterval = a.getDimensionPixelOffset(R.styleable.ucrop_UCropView_ucrop_inner_line_dash_phase, DEFAULT_INNER_STROKE_DASH_PHASE);
+        mInnerStrokePaint.setColor(mInnerStrokeColor);
+        mInnerStrokePaint.setStyle(Paint.Style.STROKE);
+        mInnerStrokePaint.setStrokeWidth(mInnerStokeWidth);
+        if (mInnerLineDashEnable) {
+            mInnerStrokePaint.setPathEffect(
+                    new DashPathEffect(new float[]{mInnerStrokeDashInterval, mInnerStrokeDashInterval,
+                            mInnerStrokeDashInterval, mInnerStrokeDashInterval}, mInnerStrokeDashPhase));
+        }
+
+        mCircularPathPadding = a.getDimensionPixelOffset(R.styleable.ucrop_UCropView_ucrop_circular_path_padding, DEFAULT_CIRCULAR_PATH_PADDING);
 
         initCropFrameStyle(a);
         mShowCropFrame = a.getBoolean(R.styleable.ucrop_UCropView_ucrop_show_frame, DEFAULT_SHOW_CROP_FRAME);

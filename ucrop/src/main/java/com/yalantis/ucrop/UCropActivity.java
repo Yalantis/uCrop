@@ -84,9 +84,12 @@ public class UCropActivity extends AppCompatActivity {
     private int mStatusBarColor;
     private int mActiveWidgetColor;
     private int mToolbarWidgetColor;
-    @ColorInt private int mRootViewBackgroundColor;
-    @DrawableRes private int mToolbarCancelDrawable;
-    @DrawableRes private int mToolbarCropDrawable;
+    @ColorInt
+    private int mRootViewBackgroundColor;
+    @DrawableRes
+    private int mToolbarCancelDrawable;
+    @DrawableRes
+    private int mToolbarCropDrawable;
     private int mLogoColor;
 
     private boolean mShowBottomControls;
@@ -236,6 +239,15 @@ public class UCropActivity extends AppCompatActivity {
         mOverlayView.setCropGridColumnCount(intent.getIntExtra(UCrop.Options.EXTRA_CROP_GRID_COLUMN_COUNT, OverlayView.DEFAULT_CROP_GRID_COLUMN_COUNT));
         mOverlayView.setCropGridColor(intent.getIntExtra(UCrop.Options.EXTRA_CROP_GRID_COLOR, getResources().getColor(R.color.ucrop_color_default_crop_grid)));
         mOverlayView.setCropGridStrokeWidth(intent.getIntExtra(UCrop.Options.EXTRA_CROP_GRID_STROKE_WIDTH, getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_grid_stoke_width)));
+
+        mOverlayView.setInnerLineStrokeColor(intent.getIntExtra(UCrop.Options.EXTRA_CROP_INNER_LINE_STROKE_COLOR, OverlayView.DEFAULT_INNER_STROKE_COLOR));
+        mOverlayView.setInnerLineStrokeWidth(intent.getIntExtra(UCrop.Options.EXTRA_CROP_INNER_LINE_STROKE_WIDTH, OverlayView.DEFAULT_INNER_STROKE_WIDTH));
+        mOverlayView.setInnerLineDashEnable(intent.getBooleanExtra(UCrop.Options.EXTRA_CROP_INNER_DASH_ENABLE, true));
+        mOverlayView.setInnerLineDashInterval(intent.getIntExtra(UCrop.Options.EXTRA_CROP_INNER_DASH_INTERVAL, OverlayView.DEFAULT_INNER_STROKE_DASH_INTERVAL));
+        mOverlayView.setInnerLineDashPhase(intent.getIntExtra(UCrop.Options.EXTRA_CROP_INNER_DASH_PHASE, OverlayView.DEFAULT_INNER_STROKE_DASH_PHASE));
+
+
+        mOverlayView.setCircularPathPadding(intent.getIntExtra(UCrop.Options.EXTRA_CROP_CIRCULAR_PATH_PADDING, OverlayView.DEFAULT_CIRCULAR_PATH_PADDING));
 
         // Aspect ratio options
         float aspectRatioX = intent.getFloatExtra(UCrop.EXTRA_ASPECT_RATIO_X, 0);
