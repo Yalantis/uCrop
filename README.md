@@ -47,7 +47,7 @@
         .start(context);
 	
     //For Fragment	
-        UCrop.of(sourceUri, destinationUri)
+    UCrop.of(sourceUri, destinationUri)
         .withAspectRatio(16, 9)
         .withMaxResultSize(maxWidth, maxHeight)
         .start(getContext(), this, UCrop.REQUEST_CROP);
