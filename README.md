@@ -1,9 +1,9 @@
 # uCrop - Image Cropping Library for Android
 
-#### This project aims to provide an ultimate and flexible image cropping experience. Made in [Yalantis] (https://yalantis.com/?utm_source=github)
+#### This project aims to provide an ultimate and flexible image cropping experience. Made in [Yalantis](https://yalantis.com/?utm_source=github)
 
-#### [How We Created uCrop] (https://yalantis.com/blog/how-we-created-ucrop-our-own-image-cropping-library-for-android/)
-#### Check this [project on Dribbble] (https://dribbble.com/shots/2484752-uCrop-Image-Cropping-Library)
+#### [How We Created uCrop](https://yalantis.com/blog/how-we-created-ucrop-our-own-image-cropping-library-for-android/)
+#### Check this [project on Dribbble](https://dribbble.com/shots/2484752-uCrop-Image-Cropping-Library)
 
 <img src="preview.gif" width="800" height="600">
 
@@ -159,8 +159,8 @@ We’d be really happy if you sent us links to your projects where you use our c
 
 - [Thirty](https://play.google.com/store/apps/details?id=com.twominds.thirty).
 - [Light Smart HD](https://play.google.com/store/apps/details?id=com.SmartCamera.simple).
-- [BCReader] (https://play.google.com/store/apps/details?id=com.iac.bcreader).
-- [Xprezia: Share Your Passion] (https://play.google.com/store/apps/details?id=com.xprezzia.cnj).
+- [BCReader](https://play.google.com/store/apps/details?id=com.iac.bcreader).
+- [Xprezia: Share Your Passion](https://play.google.com/store/apps/details?id=com.xprezzia.cnj).
 
 ## License
 
