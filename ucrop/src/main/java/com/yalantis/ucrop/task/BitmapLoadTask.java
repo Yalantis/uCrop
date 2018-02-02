@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.UUID;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -201,7 +202,8 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         Log.d(TAG, "copyFile");
 
         if (outputUri == null) {
-            throw new NullPointerException("Output Uri is null - cannot copy image");
+//            throw new NullPointerException("Output Uri is null - cannot copy image");
+            outputUri = Uri.fromFile(new File(mContext.getCacheDir(), UUID.randomUUID().toString()));
         }
 
         InputStream inputStream = null;
@@ -224,7 +226,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
 
             // swap uris, because input image was copied to the output destination
             // (cropped image will override it later)
-            mInputUri = mOutputUri;
+            mInputUri = outputUri;
         }
     }
 
@@ -232,7 +234,8 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         Log.d(TAG, "downloadFile");
 
         if (outputUri == null) {
-            throw new NullPointerException("Output Uri is null - cannot download image");
+//            throw new NullPointerException("Output Uri is null - cannot download image");
+            outputUri = Uri.fromFile(new File(mContext.getCacheDir(), UUID.randomUUID().toString()));
         }
 
         OkHttpClient client = new OkHttpClient();
@@ -264,7 +267,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
 
             // swap uris, because input image was downloaded to the output destination
             // (cropped image will override it later)
-            mInputUri = mOutputUri;
+            mInputUri = outputUri;
         }
     }
 

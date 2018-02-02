@@ -52,6 +52,8 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     private int mCroppedImageWidth, mCroppedImageHeight;
     private int cropOffsetX, cropOffsetY;
 
+    private int originWidth, originHeight;
+
     public BitmapCropTask(@Nullable Bitmap viewBitmap, @NonNull ImageState imageState, @NonNull CropParameters cropParameters,
                           @Nullable BitmapCropCallback cropCallback) {
 
@@ -103,8 +105,10 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         BitmapFactory.decodeFile(mImageInputPath, options);
 
         boolean swapSides = mExifInfo.getExifDegrees() == 90 || mExifInfo.getExifDegrees() == 270;
-        float scaleX = (swapSides ? options.outHeight : options.outWidth) / (float) mViewBitmap.getWidth();
-        float scaleY = (swapSides ? options.outWidth : options.outHeight) / (float) mViewBitmap.getHeight();
+        originWidth = swapSides ? options.outHeight : options.outWidth;
+        originHeight = swapSides ? options.outWidth : options.outHeight;
+        float scaleX = originWidth / (float) mViewBitmap.getWidth();
+        float scaleY = originHeight / (float) mViewBitmap.getHeight();
 
         float resizeScale = Math.min(scaleX, scaleY);
 
@@ -137,20 +141,22 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
         boolean shouldCrop = shouldCrop(mCroppedImageWidth, mCroppedImageHeight);
         Log.i(TAG, "Should crop: " + shouldCrop);
-
-        if (shouldCrop) {
-            boolean cropped = cropCImg(mImageInputPath, mImageOutputPath,
-                    cropOffsetX, cropOffsetY, mCroppedImageWidth, mCroppedImageHeight,
-                    mCurrentAngle, resizeScale, mCompressFormat.ordinal(), mCompressQuality,
-                    mExifInfo.getExifDegrees(), mExifInfo.getExifTranslation());
-            if (cropped && mCompressFormat.equals(Bitmap.CompressFormat.JPEG)) {
-                ImageHeaderParser.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputPath);
+        if (mImageOutputPath != null) {
+            if (shouldCrop) {
+                boolean cropped = cropCImg(mImageInputPath, mImageOutputPath,
+                        cropOffsetX, cropOffsetY, mCroppedImageWidth, mCroppedImageHeight,
+                        mCurrentAngle, resizeScale, mCompressFormat.ordinal(), mCompressQuality,
+                        mExifInfo.getExifDegrees(), mExifInfo.getExifTranslation());
+                if (cropped && mCompressFormat.equals(Bitmap.CompressFormat.JPEG)) {
+                    ImageHeaderParser.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputPath);
+                }
+                return cropped;
+            } else {
+                FileUtils.copyFile(mImageInputPath, mImageOutputPath);
+                return false;
             }
-            return cropped;
-        } else {
-            FileUtils.copyFile(mImageInputPath, mImageOutputPath);
-            return false;
         }
+        return false;
     }
 
     /**
@@ -184,8 +190,8 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     protected void onPostExecute(@Nullable Throwable t) {
         if (mCropCallback != null) {
             if (t == null) {
-                Uri uri = Uri.fromFile(new File(mImageOutputPath));
-                mCropCallback.onBitmapCropped(uri, cropOffsetX, cropOffsetY, mCroppedImageWidth, mCroppedImageHeight);
+                Uri uri = mImageOutputPath == null ? null : Uri.fromFile(new File(mImageOutputPath));
+                mCropCallback.onBitmapCropped(uri, cropOffsetX, cropOffsetY, mCroppedImageWidth, mCroppedImageHeight, originWidth, originHeight, Uri.fromFile(new File(mImageInputPath)));
             } else {
                 mCropCallback.onCropFailure(t);
             }

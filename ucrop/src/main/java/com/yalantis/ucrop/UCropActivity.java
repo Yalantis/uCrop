@@ -14,6 +14,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -181,7 +182,7 @@ public class UCropActivity extends AppCompatActivity {
         Uri outputUri = intent.getParcelableExtra(UCrop.EXTRA_OUTPUT_URI);
         processOptions(intent);
 
-        if (inputUri != null && outputUri != null) {
+        if (inputUri != null) {
             try {
                 mGestureCropImageView.setImageUri(inputUri, outputUri);
             } catch (Exception e) {
@@ -612,8 +613,8 @@ public class UCropActivity extends AppCompatActivity {
         mGestureCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, new BitmapCropCallback() {
 
             @Override
-            public void onBitmapCropped(@NonNull Uri resultUri, int offsetX, int offsetY, int imageWidth, int imageHeight) {
-                setResultUri(resultUri, mGestureCropImageView.getTargetAspectRatio(), offsetX, offsetY, imageWidth, imageHeight);
+            public void onBitmapCropped(@Nullable Uri resultUri, int offsetX, int offsetY, int imageWidth, int imageHeight, int originWidth, int originHeight, Uri originUri) {
+                setResultUri(resultUri, mGestureCropImageView.getTargetAspectRatio(), offsetX, offsetY, imageWidth, imageHeight, originWidth, originHeight, originUri);
                 finish();
             }
 
@@ -625,7 +626,7 @@ public class UCropActivity extends AppCompatActivity {
         });
     }
 
-    protected void setResultUri(Uri uri, float resultAspectRatio, int offsetX, int offsetY, int imageWidth, int imageHeight) {
+    protected void setResultUri(Uri uri, float resultAspectRatio, int offsetX, int offsetY, int imageWidth, int imageHeight, int originWidth, int originHeight, Uri originUri) {
         setResult(RESULT_OK, new Intent()
                 .putExtra(UCrop.EXTRA_OUTPUT_URI, uri)
                 .putExtra(UCrop.EXTRA_OUTPUT_CROP_ASPECT_RATIO, resultAspectRatio)
@@ -633,6 +634,9 @@ public class UCropActivity extends AppCompatActivity {
                 .putExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, imageHeight)
                 .putExtra(UCrop.EXTRA_OUTPUT_OFFSET_X, offsetX)
                 .putExtra(UCrop.EXTRA_OUTPUT_OFFSET_Y, offsetY)
+                .putExtra(UCrop.EXTRA_OUTPUT_ORIGIN_WIDTH, originWidth)
+                .putExtra(UCrop.EXTRA_OUTPUT_ORIGIN_HEIGHT, originHeight)
+                .putExtra(UCrop.EXTRA_OUTPUT_ORIGIN_URI, originUri)
         );
     }
 

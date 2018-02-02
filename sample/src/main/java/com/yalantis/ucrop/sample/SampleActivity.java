@@ -9,7 +9,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -24,8 +26,10 @@ import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
+import java.util.TreeSet;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -45,6 +49,7 @@ public class SampleActivity extends BaseActivity {
     private TextView mTextViewQuality;
     private CheckBox mCheckBoxHideBottomControls;
     private CheckBox mCheckBoxFreeStyleCrop;
+    private CheckBox mCheckBoxCropBoundaries;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +125,7 @@ public class SampleActivity extends BaseActivity {
         mTextViewQuality = ((TextView) findViewById(R.id.text_view_quality));
         mCheckBoxHideBottomControls = ((CheckBox) findViewById(R.id.checkbox_hide_bottom_controls));
         mCheckBoxFreeStyleCrop = ((CheckBox) findViewById(R.id.checkbox_freestyle_crop));
+        mCheckBoxCropBoundaries = ((CheckBox) findViewById(R.id.checkbox_crop_boundaries));
 
         mRadioGroupAspectRatio.check(R.id.radio_dynamic);
         mEditTextRatioX.addTextChangedListener(mAspectRatioTextWatcher);
@@ -194,8 +200,8 @@ public class SampleActivity extends BaseActivity {
                 destinationFileName += ".jpg";
                 break;
         }
-
-        UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), destinationFileName)));
+        boolean boundaries = mCheckBoxCropBoundaries.isChecked();
+        UCrop uCrop = UCrop.of(uri, boundaries ? null : Uri.fromFile(new File(getCacheDir(), destinationFileName)));
 
         uCrop = basisConfig(uCrop);
         uCrop = advancedConfig(uCrop);
@@ -326,7 +332,20 @@ public class SampleActivity extends BaseActivity {
         if (resultUri != null) {
             ResultActivity.startWithUri(SampleActivity.this, resultUri);
         } else {
-            Toast.makeText(SampleActivity.this, R.string.toast_cannot_retrieve_cropped_image, Toast.LENGTH_SHORT).show();
+            ArrayList<String> output = new ArrayList<>();
+            Bundle extras = result.getExtras();
+            if (extras != null) {
+                for (String key : new TreeSet<>(extras.keySet())) {
+                    output.add(String.format("%s: %s", key, extras.get(key)));
+                }
+            }
+            if (output.size() > 0)
+                new AlertDialog.Builder(SampleActivity.this)
+                        .setMessage(TextUtils.join("\n", output))
+                        .setPositiveButton(android.R.string.ok, null)
+                        .create().show();
+            else
+                Toast.makeText(SampleActivity.this, R.string.toast_cannot_retrieve_cropped_image, Toast.LENGTH_SHORT).show();
         }
     }
 

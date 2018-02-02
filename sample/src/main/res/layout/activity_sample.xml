@@ -257,6 +257,12 @@
                 android:text="@string/label_hide_bottom_ui_controls"
                 android:textAppearance="?android:textAppearanceMedium"/>
 
+            <CheckBox
+                android:id="@+id/checkbox_crop_boundaries"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_crop_boundaries"
+                android:textAppearance="?android:textAppearanceMedium"/>
         </LinearLayout>
 
     </FrameLayout>

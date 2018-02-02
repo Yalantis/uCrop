@@ -50,6 +50,10 @@ public class UCrop {
     public static final String EXTRA_MAX_SIZE_X = EXTRA_PREFIX + ".MaxSizeX";
     public static final String EXTRA_MAX_SIZE_Y = EXTRA_PREFIX + ".MaxSizeY";
 
+    public static final String EXTRA_OUTPUT_ORIGIN_WIDTH = EXTRA_PREFIX + ".OriginWidth";
+    public static final String EXTRA_OUTPUT_ORIGIN_HEIGHT = EXTRA_PREFIX + ".OriginHeight";
+    public static final String EXTRA_OUTPUT_ORIGIN_URI = EXTRA_PREFIX + ".OriginUri";
+
     private Intent mCropIntent;
     private Bundle mCropOptionsBundle;
 
@@ -59,11 +63,13 @@ public class UCrop {
      * @param source      Uri for image to crop
      * @param destination Uri for saving the cropped image
      */
-    public static UCrop of(@NonNull Uri source, @NonNull Uri destination) {
+    public static UCrop of(@NonNull Uri source, @Nullable Uri destination) {
         return new UCrop(source, destination);
     }
-
-    private UCrop(@NonNull Uri source, @NonNull Uri destination) {
+    public static UCrop of(@NonNull Uri source) {
+        return new UCrop(source, null);
+    }
+    private UCrop(@NonNull Uri source, @Nullable Uri destination) {
         mCropIntent = new Intent();
         mCropOptionsBundle = new Bundle();
         mCropOptionsBundle.putParcelable(EXTRA_INPUT_URI, source);
