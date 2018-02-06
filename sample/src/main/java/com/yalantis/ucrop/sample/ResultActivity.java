@@ -1,8 +1,6 @@
 package com.yalantis.ucrop.sample;
 
 import android.Manifest;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,7 +13,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -76,12 +73,13 @@ public class ResultActivity extends BaseActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(getString(R.string.format_crop_result_d_d, options.outWidth, options.outHeight));
         }
-        toUseInSampleSize(options);
+//        toUseInSampleSize(options);
     }
 
     /**
-     *       Use InSampleSize
-     *    缩略图展示 会产生模糊
+     * Use InSampleSize
+     * 缩略图展示 会产生模糊
+     *
      * @param options
      */
     private void toUseInSampleSize(BitmapFactory.Options options) {
@@ -90,8 +88,7 @@ public class ResultActivity extends BaseActivity {
         System.out.println("真实图片高度：" + realHeight + "宽度:" + realWidth);
         // 计算缩放比&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
         int scale = (int) ((realHeight > realWidth ? realHeight : realWidth) / 100);
-        if (scale <= 0)
-        {
+        if (scale <= 0) {
             scale = 1;
         }
         options.inSampleSize = scale;
@@ -161,7 +158,7 @@ public class ResultActivity extends BaseActivity {
     private void copyFileToDownloads(Uri croppedFileUri) throws Exception {
         String downloadsDirectoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
         String filename = String.format("%d_%s", Calendar.getInstance().getTimeInMillis(), croppedFileUri.getLastPathSegment());
-
+        // filename== 1517901578806_SampleCropImage.jpg
         File saveFile = new File(downloadsDirectoryPath, filename);
 
         FileInputStream inStream = new FileInputStream(new File(croppedFileUri.getPath()));
@@ -188,23 +185,26 @@ public class ResultActivity extends BaseActivity {
         List<ResolveInfo> resInfoList = getPackageManager().queryIntentActivities(
                 intent,
                 PackageManager.MATCH_DEFAULT_ONLY);
-        for(ResolveInfo info: resInfoList) {
+        for (ResolveInfo info : resInfoList) {
             grantUriPermission(
                     info.activityInfo.packageName,
                     fileUri, FLAG_GRANT_WRITE_URI_PERMISSION | FLAG_GRANT_READ_URI_PERMISSION);
         }
+        //Add a class that NotificationUtils support  Build.VERSION_CODES.O
+        NotificationUtils notificationUtils = new NotificationUtils(this);
+        notificationUtils.sendNotification(getString(R.string.app_name), getString(R.string.notification_image_saved_click_to_preview), intent);
 
-        NotificationCompat.Builder mNotification = new NotificationCompat.Builder(this);
-
-        mNotification
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText(getString(R.string.notification_image_saved_click_to_preview))
-                .setTicker(getString(R.string.notification_image_saved))
-                .setSmallIcon(R.drawable.ic_done)
-                .setOngoing(false)
-                .setContentIntent(PendingIntent.getActivity(this, 0, intent, 0))
-                .setAutoCancel(true);
-        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(DOWNLOAD_NOTIFICATION_ID_DONE, mNotification.build());
+//        NotificationCompat.Builder mNotification = new NotificationCompat.Builder(this);
+//
+//        mNotification
+//                .setContentTitle(getString(R.string.app_name))
+//                .setContentText(getString(R.string.notification_image_saved_click_to_preview))
+//                .setTicker(getString(R.string.notification_image_saved))
+//                .setSmallIcon(R.drawable.ic_done)
+//                .setOngoing(false)
+//                .setContentIntent(PendingIntent.getActivity(this, 0, intent, 0))
+//                .setAutoCancel(true);
+//        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(DOWNLOAD_NOTIFICATION_ID_DONE, mNotification.build());
     }
 
 }

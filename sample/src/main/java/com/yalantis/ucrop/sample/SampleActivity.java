@@ -65,6 +65,7 @@ public class SampleActivity extends BaseActivity {
                     Toast.makeText(SampleActivity.this, R.string.toast_cannot_retrieve_selected_image, Toast.LENGTH_SHORT).show();
                 }
             } else if (requestCode == UCrop.REQUEST_CROP) {
+                //   file:///data/user/0/com.yalantis.ucrop.sample/cache/SampleCropImage.jpg
                 handleCropResult(data);
             }
         }
