@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
@@ -75,6 +76,32 @@ public class ResultActivity extends BaseActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(getString(R.string.format_crop_result_d_d, options.outWidth, options.outHeight));
         }
+        toUseInSampleSize(options);
+    }
+
+    /**
+     *       Use InSampleSize
+     *    缩略图展示 会产生模糊
+     * @param options
+     */
+    private void toUseInSampleSize(BitmapFactory.Options options) {
+        float realWidth = options.outWidth;
+        float realHeight = options.outHeight;
+        System.out.println("真实图片高度：" + realHeight + "宽度:" + realWidth);
+        // 计算缩放比&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+        int scale = (int) ((realHeight > realWidth ? realHeight : realWidth) / 100);
+        if (scale <= 0)
+        {
+            scale = 1;
+        }
+        options.inSampleSize = scale;
+        options.inJustDecodeBounds = false;
+        // 注意这次要把options.inJustDecodeBounds 设为 false,这次图片是要读取出来的。&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+        Bitmap bitmap = BitmapFactory.decodeFile(new File(getIntent().getData().getPath()).getAbsolutePath(), options);
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+//        uCropView.getCropImageView().setImageBitmap(bitmap);//
+        System.out.println("缩略图高度：" + h + "宽度:" + w);
     }
 
     @Override
