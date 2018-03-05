@@ -190,6 +190,16 @@ public class UCrop {
     }
 
     /**
+     * Retrieve input image Uri from the result Intent
+     *
+     * @param intent crop result intent
+     */
+    @Nullable
+    public static Uri getInput(@NonNull Intent intent) {
+        return intent.getParcelableExtra(EXTRA_INPUT_URI);
+    }
+
+    /**
      * Retrieve the width of the cropped image
      *
      * @param intent crop result intent
