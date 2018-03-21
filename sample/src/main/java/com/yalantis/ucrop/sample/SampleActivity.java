@@ -35,6 +35,7 @@ public class SampleActivity extends BaseActivity {
     private static final String TAG = "SampleActivity";
 
     private static final int REQUEST_SELECT_PICTURE = 0x01;
+    private static final int REQUEST_SELECT_PICTURE_FOR_FRAGMENT = 0x02;
     private static final String SAMPLE_CROPPED_IMAGE_NAME = "SampleCropImage";
 
     private RadioGroup mRadioGroupAspectRatio, mRadioGroupCompressionSettings;
@@ -45,6 +46,7 @@ public class SampleActivity extends BaseActivity {
     private TextView mTextViewQuality;
     private CheckBox mCheckBoxHideBottomControls;
     private CheckBox mCheckBoxFreeStyleCrop;
+    private int requestMode = REQUEST_SELECT_PICTURE_FOR_FRAGMENT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,13 @@ public class SampleActivity extends BaseActivity {
                 }
             } else if (requestCode == UCrop.REQUEST_CROP) {
                 handleCropResult(data);
+            } else if (requestCode == REQUEST_SELECT_PICTURE_FOR_FRAGMENT) {
+                final Uri selectedUri = data.getData();
+                if (selectedUri != null) {
+                    startActivityWithFragment(data.getData());
+                } else {
+                    Toast.makeText(SampleActivity.this, R.string.toast_cannot_retrieve_selected_image, Toast.LENGTH_SHORT).show();
+                }
             }
         }
         if (resultCode == UCrop.RESULT_ERROR) {
@@ -81,7 +90,7 @@ public class SampleActivity extends BaseActivity {
         switch (requestCode) {
             case REQUEST_STORAGE_READ_ACCESS_PERMISSION:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    pickFromGallery();
+                    pickFromGallery(requestMode);
                 }
                 break;
             default:
@@ -94,7 +103,7 @@ public class SampleActivity extends BaseActivity {
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pickFromGallery();
+                pickFromGallery(requestMode);
             }
         });
         findViewById(R.id.button_random_image).setOnClickListener(new View.OnClickListener() {
@@ -103,23 +112,28 @@ public class SampleActivity extends BaseActivity {
                 Random random = new Random();
                 int minSizePixels = 800;
                 int maxSizePixels = 2400;
-                startCropActivity(Uri.parse(String.format(Locale.getDefault(), "https://unsplash.it/%d/%d/?random",
+                Uri uri = Uri.parse(String.format(Locale.getDefault(), "https://unsplash.it/%d/%d/?random",
                         minSizePixels + random.nextInt(maxSizePixels - minSizePixels),
-                        minSizePixels + random.nextInt(maxSizePixels - minSizePixels))));
+                        minSizePixels + random.nextInt(maxSizePixels - minSizePixels)));
+
+                if (requestMode == REQUEST_SELECT_PICTURE)
+                    startCropActivity(uri);
+                else
+                    startActivityWithFragment(uri);
             }
         });
 
-        mRadioGroupAspectRatio = ((RadioGroup) findViewById(R.id.radio_group_aspect_ratio));
-        mRadioGroupCompressionSettings = ((RadioGroup) findViewById(R.id.radio_group_compression_settings));
-        mCheckBoxMaxSize = ((CheckBox) findViewById(R.id.checkbox_max_size));
-        mEditTextRatioX = ((EditText) findViewById(R.id.edit_text_ratio_x));
-        mEditTextRatioY = ((EditText) findViewById(R.id.edit_text_ratio_y));
-        mEditTextMaxWidth = ((EditText) findViewById(R.id.edit_text_max_width));
-        mEditTextMaxHeight = ((EditText) findViewById(R.id.edit_text_max_height));
-        mSeekBarQuality = ((SeekBar) findViewById(R.id.seekbar_quality));
-        mTextViewQuality = ((TextView) findViewById(R.id.text_view_quality));
-        mCheckBoxHideBottomControls = ((CheckBox) findViewById(R.id.checkbox_hide_bottom_controls));
-        mCheckBoxFreeStyleCrop = ((CheckBox) findViewById(R.id.checkbox_freestyle_crop));
+        mRadioGroupAspectRatio = findViewById(R.id.radio_group_aspect_ratio);
+        mRadioGroupCompressionSettings = findViewById(R.id.radio_group_compression_settings);
+        mCheckBoxMaxSize = findViewById(R.id.checkbox_max_size);
+        mEditTextRatioX = findViewById(R.id.edit_text_ratio_x);
+        mEditTextRatioY = findViewById(R.id.edit_text_ratio_y);
+        mEditTextMaxWidth = findViewById(R.id.edit_text_max_width);
+        mEditTextMaxHeight = findViewById(R.id.edit_text_max_height);
+        mSeekBarQuality = findViewById(R.id.seekbar_quality);
+        mTextViewQuality = findViewById(R.id.text_view_quality);
+        mCheckBoxHideBottomControls = findViewById(R.id.checkbox_hide_bottom_controls);
+        mCheckBoxFreeStyleCrop = findViewById(R.id.checkbox_freestyle_crop);
 
         mRadioGroupAspectRatio.check(R.id.radio_dynamic);
         mEditTextRatioX.addTextChangedListener(mAspectRatioTextWatcher);
@@ -168,7 +182,7 @@ public class SampleActivity extends BaseActivity {
         }
     };
 
-    private void pickFromGallery() {
+    private void pickFromGallery(int requestCode) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -180,7 +194,7 @@ public class SampleActivity extends BaseActivity {
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
-            startActivityForResult(Intent.createChooser(intent, getString(R.string.label_select_picture)), REQUEST_SELECT_PICTURE);
+            startActivityForResult(Intent.createChooser(intent, getString(R.string.label_select_picture)), requestCode);
         }
     }
 
@@ -201,6 +215,26 @@ public class SampleActivity extends BaseActivity {
         uCrop = advancedConfig(uCrop);
 
         uCrop.start(SampleActivity.this);
+    }
+
+    private void startActivityWithFragment(@NonNull Uri uri) {
+        String destinationFileName = SAMPLE_CROPPED_IMAGE_NAME;
+        switch (mRadioGroupCompressionSettings.getCheckedRadioButtonId()) {
+            case R.id.radio_png:
+                destinationFileName += ".png";
+                break;
+            case R.id.radio_jpeg:
+                destinationFileName += ".jpg";
+                break;
+        }
+
+        UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), destinationFileName)));
+
+        uCrop = basisConfig(uCrop);
+        uCrop = advancedConfig(uCrop);
+        Intent intent = uCrop.getIntent(this);
+        intent.setClass(getBaseContext(), ActivityWithFragment.class);
+        startActivity(intent);
     }
 
     /**

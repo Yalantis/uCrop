@@ -21,14 +21,14 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
-	lintOptions {
+    lintOptions {
         abortOnError false
     }
-	
 }
 
 dependencies {
     compile 'com.android.support:appcompat-v7:27.1.0'
 
-    compile project (':ucrop')
+    compile project(':ucrop')
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
 }
