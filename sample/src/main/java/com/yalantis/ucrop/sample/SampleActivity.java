@@ -46,13 +46,12 @@ public class SampleActivity extends BaseActivity {
     private TextView mTextViewQuality;
     private CheckBox mCheckBoxHideBottomControls;
     private CheckBox mCheckBoxFreeStyleCrop;
-    private int requestMode;
+    private int requestMode = BuildConfig.RequestMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);
-        requestMode = getResources().getInteger(R.integer.request_code);
         setupUI();
     }
 
