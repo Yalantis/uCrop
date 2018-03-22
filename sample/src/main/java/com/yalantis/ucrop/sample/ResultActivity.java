@@ -55,7 +55,7 @@ public class ResultActivity extends BaseActivity {
         setContentView(R.layout.activity_result);
 
         try {
-            UCropView uCropView = (UCropView) findViewById(R.id.ucrop);
+            UCropView uCropView = findViewById(R.id.ucrop);
             uCropView.getCropImageView().setImageUri(getIntent().getData(), null);
             uCropView.getOverlayView().setShowCropFrame(false);
             uCropView.getOverlayView().setShowCropGrid(false);
@@ -161,7 +161,7 @@ public class ResultActivity extends BaseActivity {
         List<ResolveInfo> resInfoList = getPackageManager().queryIntentActivities(
                 intent,
                 PackageManager.MATCH_DEFAULT_ONLY);
-        for(ResolveInfo info: resInfoList) {
+        for (ResolveInfo info : resInfoList) {
             grantUriPermission(
                     info.activityInfo.packageName,
                     fileUri, FLAG_GRANT_WRITE_URI_PERMISSION | FLAG_GRANT_READ_URI_PERMISSION);

@@ -54,7 +54,7 @@ public class ActivityWithFragment extends AppCompatActivity implements UCropFrag
                 UCrop uCrop = UCrop.of(inputUri, outputUri);
                 setupViews(bundles);
 
-                fragment = uCrop.getFragment(bundles, this);
+                fragment = uCrop.getFragment(bundles, this);   //set params from previous activity and get ucrop fragment
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.fragment_container, fragment, UCropFragment.TAG)
                         .commit();
@@ -180,6 +180,7 @@ public class ActivityWithFragment extends AppCompatActivity implements UCropFrag
                 break;
 
         }
+        finish();
     }
 
     private void handleCropResult(@NonNull Intent result) {
