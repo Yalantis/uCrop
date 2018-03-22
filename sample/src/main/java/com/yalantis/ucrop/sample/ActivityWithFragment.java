@@ -94,9 +94,11 @@ public class ActivityWithFragment extends AppCompatActivity implements UCropFrag
 
         // Color buttons inside the Toolbar
         Drawable stateButtonDrawable = ContextCompat.getDrawable(getBaseContext(), mToolbarCancelDrawable);
-        stateButtonDrawable.mutate();
-        stateButtonDrawable.setColorFilter(mToolbarWidgetColor, PorterDuff.Mode.SRC_ATOP);
-        toolbar.setNavigationIcon(stateButtonDrawable);
+        if (stateButtonDrawable != null) {
+            stateButtonDrawable.mutate();
+            stateButtonDrawable.setColorFilter(mToolbarWidgetColor, PorterDuff.Mode.SRC_ATOP);
+            toolbar.setNavigationIcon(stateButtonDrawable);
+        }
 
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();

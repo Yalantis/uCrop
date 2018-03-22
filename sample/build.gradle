@@ -3,7 +3,6 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
-
     defaultConfig {
         applicationId "com.yalantis.ucrop.sample"
         minSdkVersion 14
@@ -11,6 +10,7 @@ android {
         versionCode 10
         versionName "1.2.2"
     }
+    flavorDimensions "default"
     buildTypes {
         release {
             minifyEnabled false
@@ -24,11 +24,16 @@ android {
     lintOptions {
         abortOnError false
     }
+    productFlavors {
+        activity {
+        }
+        fragment {
+        }
+    }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:27.1.0'
-
+    implementation 'com.android.support:appcompat-v7:27.1.0'
     compile project(':ucrop')
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
 }

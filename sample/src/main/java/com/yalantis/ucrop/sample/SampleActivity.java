@@ -46,20 +46,20 @@ public class SampleActivity extends BaseActivity {
     private TextView mTextViewQuality;
     private CheckBox mCheckBoxHideBottomControls;
     private CheckBox mCheckBoxFreeStyleCrop;
-    private int requestMode = REQUEST_SELECT_PICTURE_FOR_FRAGMENT;
+    private int requestMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);
-
+        requestMode = getResources().getInteger(R.integer.request_code);
         setupUI();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_SELECT_PICTURE) {
+            if (requestCode == requestMode) {
                 final Uri selectedUri = data.getData();
                 if (selectedUri != null) {
                     startCropActivity(data.getData());
@@ -68,13 +68,6 @@ public class SampleActivity extends BaseActivity {
                 }
             } else if (requestCode == UCrop.REQUEST_CROP) {
                 handleCropResult(data);
-            } else if (requestCode == REQUEST_SELECT_PICTURE_FOR_FRAGMENT) {
-                final Uri selectedUri = data.getData();
-                if (selectedUri != null) {
-                    startActivityWithFragment(data.getData());
-                } else {
-                    Toast.makeText(SampleActivity.this, R.string.toast_cannot_retrieve_selected_image, Toast.LENGTH_SHORT).show();
-                }
             }
         }
         if (resultCode == UCrop.RESULT_ERROR) {
@@ -90,7 +83,7 @@ public class SampleActivity extends BaseActivity {
         switch (requestCode) {
             case REQUEST_STORAGE_READ_ACCESS_PERMISSION:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    pickFromGallery(requestMode);
+                    pickFromGallery();
                 }
                 break;
             default:
@@ -103,7 +96,7 @@ public class SampleActivity extends BaseActivity {
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pickFromGallery(requestMode);
+                pickFromGallery();
             }
         });
         findViewById(R.id.button_random_image).setOnClickListener(new View.OnClickListener() {
@@ -116,10 +109,7 @@ public class SampleActivity extends BaseActivity {
                         minSizePixels + random.nextInt(maxSizePixels - minSizePixels),
                         minSizePixels + random.nextInt(maxSizePixels - minSizePixels)));
 
-                if (requestMode == REQUEST_SELECT_PICTURE)
-                    startCropActivity(uri);
-                else
-                    startActivityWithFragment(uri);
+                startCropActivity(uri);
             }
         });
 
@@ -182,7 +172,7 @@ public class SampleActivity extends BaseActivity {
         }
     };
 
-    private void pickFromGallery(int requestCode) {
+    private void pickFromGallery() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -194,7 +184,7 @@ public class SampleActivity extends BaseActivity {
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
-            startActivityForResult(Intent.createChooser(intent, getString(R.string.label_select_picture)), requestCode);
+            startActivityForResult(Intent.createChooser(intent, getString(R.string.label_select_picture)), requestMode);
         }
     }
 
@@ -214,27 +204,14 @@ public class SampleActivity extends BaseActivity {
         uCrop = basisConfig(uCrop);
         uCrop = advancedConfig(uCrop);
 
-        uCrop.start(SampleActivity.this);
-    }
-
-    private void startActivityWithFragment(@NonNull Uri uri) {
-        String destinationFileName = SAMPLE_CROPPED_IMAGE_NAME;
-        switch (mRadioGroupCompressionSettings.getCheckedRadioButtonId()) {
-            case R.id.radio_png:
-                destinationFileName += ".png";
-                break;
-            case R.id.radio_jpeg:
-                destinationFileName += ".jpg";
-                break;
+        if (requestMode == REQUEST_SELECT_PICTURE_FOR_FRAGMENT) {       //if build variant = fragment, start new activity (ActivityWithFragment) where will be placed ucrop fragment
+            Intent intent = uCrop.getIntent(this);
+            intent.setClass(getBaseContext(), ActivityWithFragment.class);
+            startActivity(intent);
+        } else {                                                        // else start uCrop Activity
+            uCrop.start(SampleActivity.this);
         }
 
-        UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), destinationFileName)));
-
-        uCrop = basisConfig(uCrop);
-        uCrop = advancedConfig(uCrop);
-        Intent intent = uCrop.getIntent(this);
-        intent.setClass(getBaseContext(), ActivityWithFragment.class);
-        startActivity(intent);
     }
 
     /**

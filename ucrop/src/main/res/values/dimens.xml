@@ -16,6 +16,7 @@
     <dimen name="ucrop_progress_size">30dp</dimen>
 
     <!--Crop View-->
+    <dimen name="ucrop_default_crop_logo_size">200dp</dimen>
     <dimen name="ucrop_default_crop_grid_stoke_width">1dp</dimen>
     <dimen name="ucrop_default_crop_frame_stoke_width">1dp</dimen>
     <dimen name="ucrop_default_crop_rect_corner_touch_threshold">30dp</dimen>
