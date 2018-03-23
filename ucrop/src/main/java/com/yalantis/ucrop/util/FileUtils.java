@@ -46,7 +46,7 @@ public class FileUtils {
     /**
      * TAG for log messages.
      */
-    static final String TAG = "FileUtils";
+    private static final String TAG = "FileUtils";
 
     private FileUtils() {
     }
