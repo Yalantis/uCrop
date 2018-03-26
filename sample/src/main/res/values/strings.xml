@@ -42,4 +42,6 @@
     <string name="toast_unexpected_error">Unexpected error</string>
 
     <string name="file_provider_authorities">com.yalantis.ucrop.provider</string>
+    <string name="channel_name">ucrop_chanel</string>
+    <string name="channel_description">ucrop result image</string>
 </resources>
