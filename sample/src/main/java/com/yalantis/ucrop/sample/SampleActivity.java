@@ -210,10 +210,15 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
                     getString(R.string.permission_read_storage_rationale),
                     REQUEST_STORAGE_READ_ACCESS_PERMISSION);
         } else {
-            Intent intent = new Intent();
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
+                    .setType("image/*")
+                    .addCategory(Intent.CATEGORY_OPENABLE);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                String[] mimeTypes = {"image/jpeg", "image/png"};
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+            }
+
             startActivityForResult(Intent.createChooser(intent, getString(R.string.label_select_picture)), requestMode);
         }
     }
