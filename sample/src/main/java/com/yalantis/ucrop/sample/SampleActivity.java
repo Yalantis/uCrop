@@ -183,7 +183,11 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
 
             }
         });
+
+        mEditTextMaxHeight.addTextChangedListener(mMaxSizeTextWatcher);
+        mEditTextMaxWidth.addTextChangedListener(mMaxSizeTextWatcher);
     }
+
 
     private TextWatcher mAspectRatioTextWatcher = new TextWatcher() {
         @Override
@@ -199,6 +203,26 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         @Override
         public void afterTextChanged(Editable s) {
 
+        }
+    };
+
+    private TextWatcher mMaxSizeTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s != null && !s.toString().trim().isEmpty()) {
+                if (Integer.valueOf(s.toString()) < UCrop.MIN_SIZE) {
+                    Toast.makeText(SampleActivity.this, String.format(getString(R.string.format_max_cropped_image_size), UCrop.MIN_SIZE), Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     };
 
@@ -281,7 +305,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
             try {
                 int maxWidth = Integer.valueOf(mEditTextMaxWidth.getText().toString().trim());
                 int maxHeight = Integer.valueOf(mEditTextMaxHeight.getText().toString().trim());
-                if (maxWidth > 0 && maxHeight > 0) {
+                if (maxWidth > UCrop.MIN_SIZE && maxHeight > UCrop.MIN_SIZE) {
                     uCrop = uCrop.withMaxResultSize(maxWidth, maxHeight);
                 }
             } catch (NumberFormatException e) {

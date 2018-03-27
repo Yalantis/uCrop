@@ -32,6 +32,7 @@ public class UCrop {
 
     public static final int REQUEST_CROP = 69;
     public static final int RESULT_ERROR = 96;
+    public static final int MIN_SIZE = 10;
 
     private static final String EXTRA_PREFIX = BuildConfig.APPLICATION_ID;
 
@@ -94,12 +95,20 @@ public class UCrop {
     }
 
     /**
-     * Set maximum size for result cropped image.
+     * Set maximum size for result cropped image. Maximum size cannot be less then {@value MIN_SIZE}
      *
      * @param width  max cropped image width
      * @param height max cropped image height
      */
     public UCrop withMaxResultSize(@IntRange(from = 100) int width, @IntRange(from = 100) int height) {
+        if (width < MIN_SIZE) {
+            width = MIN_SIZE;
+        }
+
+        if (height < MIN_SIZE) {
+            height = MIN_SIZE;
+        }
+
         mCropOptionsBundle.putInt(EXTRA_MAX_SIZE_X, width);
         mCropOptionsBundle.putInt(EXTRA_MAX_SIZE_Y, height);
         return this;
