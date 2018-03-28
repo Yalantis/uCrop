@@ -126,18 +126,17 @@ public class BitmapLoadUtils {
     @SuppressWarnings({"SuspiciousNameCombination", "deprecation"})
     public static int calculateMaxBitmapSize(@NonNull Context context) {
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
-
-        Point size = new Point();
+        Display display;
         int width, height;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+        Point size = new Point();
+
+        if (wm != null) {
+            display = wm.getDefaultDisplay();
             display.getSize(size);
-            width = size.x;
-            height = size.y;
-        } else {
-            width = display.getWidth();
-            height = display.getHeight();
         }
+
+        width = size.x;
+        height = size.y;
 
         // Twice the device screen diagonal as default
         int maxBitmapSize = (int) Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
