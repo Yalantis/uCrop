@@ -100,7 +100,7 @@ public class UCrop {
      * @param width  max cropped image width
      * @param height max cropped image height
      */
-    public UCrop withMaxResultSize(@IntRange(from = 100) int width, @IntRange(from = 100) int height) {
+    public UCrop withMaxResultSize(@IntRange(from = MIN_SIZE) int width, @IntRange(from = MIN_SIZE) int height) {
         if (width < MIN_SIZE) {
             width = MIN_SIZE;
         }
@@ -348,7 +348,7 @@ public class UCrop {
          *
          * @param durationMillis - duration in milliseconds
          */
-        public void setImageToCropBoundsAnimDuration(@IntRange(from = 100) int durationMillis) {
+        public void setImageToCropBoundsAnimDuration(@IntRange(from = MIN_SIZE) int durationMillis) {
             mOptionBundle.putInt(EXTRA_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION, durationMillis);
         }
 
@@ -357,7 +357,7 @@ public class UCrop {
          *
          * @param maxBitmapSize - size in pixels
          */
-        public void setMaxBitmapSize(@IntRange(from = 100) int maxBitmapSize) {
+        public void setMaxBitmapSize(@IntRange(from = MIN_SIZE) int maxBitmapSize) {
             mOptionBundle.putInt(EXTRA_MAX_BITMAP_SIZE, maxBitmapSize);
         }
 
@@ -551,7 +551,7 @@ public class UCrop {
          * @param width  max cropped image width
          * @param height max cropped image height
          */
-        public void withMaxResultSize(@IntRange(from = 100) int width, @IntRange(from = 100) int height) {
+        public void withMaxResultSize(@IntRange(from = MIN_SIZE) int width, @IntRange(from = MIN_SIZE) int height) {
             mOptionBundle.putInt(EXTRA_MAX_SIZE_X, width);
             mOptionBundle.putInt(EXTRA_MAX_SIZE_Y, height);
         }
