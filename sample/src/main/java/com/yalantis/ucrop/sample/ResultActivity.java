@@ -1,6 +1,7 @@
 package com.yalantis.ucrop.sample;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -60,7 +61,7 @@ public class ResultActivity extends BaseActivity {
         if (uri != null) {
             try {
                 UCropView uCropView = findViewById(R.id.ucrop);
-                uCropView.getCropImageView().setImageUri(getIntent().getData(), null);
+                uCropView.getCropImageView().setImageUri(uri, null);
                 uCropView.getOverlayView().setShowCropFrame(false);
                 uCropView.getOverlayView().setShowCropGrid(false);
                 uCropView.getOverlayView().setDimmedColor(Color.TRANSPARENT);
@@ -177,13 +178,8 @@ public class ResultActivity extends BaseActivity {
         NotificationManager notificationManager = (NotificationManager) this
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            int importance = NotificationManager.IMPORTANCE_LOW;
-            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, getString(R.string.channel_name), importance);
-            mChannel.setDescription(getString(R.string.channel_description));
-            mChannel.enableLights(true);
-            mChannel.setLightColor(Color.YELLOW);
             if (notificationManager != null) {
-                notificationManager.createNotificationChannel(mChannel);
+                notificationManager.createNotificationChannel(createChannel());
             }
             notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID);
         } else {
@@ -201,6 +197,16 @@ public class ResultActivity extends BaseActivity {
         if (notificationManager != null) {
             notificationManager.notify(DOWNLOAD_NOTIFICATION_ID_DONE, notificationBuilder.build());
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    public NotificationChannel createChannel() {
+        int importance = NotificationManager.IMPORTANCE_LOW;
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, getString(R.string.channel_name), importance);
+        channel.setDescription(getString(R.string.channel_description));
+        channel.enableLights(true);
+        channel.setLightColor(Color.YELLOW);
+        return channel;
     }
 
 }
