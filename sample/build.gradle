@@ -7,8 +7,8 @@ android {
         applicationId "com.yalantis.ucrop.sample"
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 10
-        versionName "1.2.2"
+        versionCode 11
+        versionName "1.2.3"
     }
     flavorDimensions "default"
     buildTypes {
@@ -38,5 +38,5 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$support"
     implementation "com.android.support:support-compat:$support"
     implementation "com.android.support.constraint:constraint-layout:$constraints"
-    compile project(':ucrop')
+    implementation project(':ucrop')
 }

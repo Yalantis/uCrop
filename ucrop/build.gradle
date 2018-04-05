@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 22
-        versionName "2.2.0-native"
+        versionCode 23
+        versionName "2.2.2-non-native"
 
         vectorDrawables.useSupportLibrary = true
     }
@@ -32,6 +32,6 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:27.1.0'
-    compile 'com.squareup.okhttp3:okhttp:3.8.1'
+    implementation 'com.android.support:appcompat-v7:27.1.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.8.1'
 }
