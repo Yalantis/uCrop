@@ -99,7 +99,7 @@ public class UCropFragment extends Fragment {
             callback = (UCropFragmentCallback) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
-                    + " must implement OnHeadlineSelectedListener");
+                    + " must implement UCropFragmentCallback");
         }
     }
 
