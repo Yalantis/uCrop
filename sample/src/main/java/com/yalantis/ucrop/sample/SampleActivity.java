@@ -437,7 +437,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
     }
 
     public void setupFragment(UCrop uCrop) {
-        fragment = uCrop.getFragment(this);
+        fragment = uCrop.getFragment(uCrop.getIntent(this).getExtras());
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, fragment, UCropFragment.TAG)
                 .commitAllowingStateLoss();

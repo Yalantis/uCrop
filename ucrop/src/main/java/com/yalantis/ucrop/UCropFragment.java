@@ -1,5 +1,6 @@
 package com.yalantis.ucrop;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
@@ -85,11 +86,21 @@ public class UCropFragment extends Fragment {
     private int mCompressQuality = DEFAULT_COMPRESS_QUALITY;
     private int[] mAllowedGestures = new int[]{SCALE, ROTATE, ALL};
 
-    public static UCropFragment newInstance(Bundle uCrop, UCropFragmentCallback callback) {
+    public static UCropFragment newInstance(Bundle uCrop) {
         UCropFragment fragment = new UCropFragment();
         fragment.setArguments(uCrop);
-        fragment.setCallback(callback);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            callback = (UCropFragmentCallback) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement UCropFragmentCallback");
+        }
     }
 
     public void setCallback(UCropFragmentCallback callback) {
