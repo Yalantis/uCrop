@@ -1,16 +1,16 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
-
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "com.yalantis.ucrop.sample"
         minSdkVersion 14
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 10
         versionName "1.2.2"
     }
+    flavorDimensions "default"
     buildTypes {
         release {
             minifyEnabled false
@@ -21,14 +21,22 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
     }
-	lintOptions {
+    lintOptions {
         abortOnError false
     }
-	
+    productFlavors {
+        activity {
+            buildConfigField("int","RequestMode", "1")
+        }
+        fragment {
+            buildConfigField("int","RequestMode", "2")
+        }
+    }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.3.1'
-
-    compile project (':ucrop')
+    implementation "com.android.support:appcompat-v7:$support"
+    implementation "com.android.support:support-compat:$support"
+    implementation "com.android.support.constraint:constraint-layout:$constraints"
+    compile project(':ucrop')
 }

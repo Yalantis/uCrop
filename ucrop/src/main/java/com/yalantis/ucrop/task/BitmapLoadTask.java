@@ -1,6 +1,8 @@
 package com.yalantis.ucrop.task;
 
+import android.Manifest.permission;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -10,6 +12,7 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -168,7 +171,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
                 throw e;
             }
         } else if ("content".equals(inputUriScheme)) {
-            String path = FileUtils.getPath(mContext, mInputUri);
+            String path = getFilePath();
             if (!TextUtils.isEmpty(path) && new File(path).exists()) {
                 mInputUri = Uri.fromFile(new File(path));
             } else {
@@ -182,6 +185,15 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         } else if (!"file".equals(inputUriScheme)) {
             Log.e(TAG, "Invalid Uri scheme " + inputUriScheme);
             throw new IllegalArgumentException("Invalid Uri scheme" + inputUriScheme);
+        }
+    }
+
+    private String getFilePath() {
+        if (ContextCompat.checkSelfPermission(mContext, permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+            return FileUtils.getPath(mContext, mInputUri);
+        } else {
+            return null;
         }
     }
 

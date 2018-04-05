@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
@@ -31,6 +32,7 @@ public class UCrop {
 
     public static final int REQUEST_CROP = 69;
     public static final int RESULT_ERROR = 96;
+    public static final int MIN_SIZE = 10;
 
     private static final String EXTRA_PREFIX = BuildConfig.APPLICATION_ID;
 
@@ -93,12 +95,20 @@ public class UCrop {
     }
 
     /**
-     * Set maximum size for result cropped image.
+     * Set maximum size for result cropped image. Maximum size cannot be less then {@value MIN_SIZE}
      *
      * @param width  max cropped image width
      * @param height max cropped image height
      */
-    public UCrop withMaxResultSize(@IntRange(from = 100) int width, @IntRange(from = 100) int height) {
+    public UCrop withMaxResultSize(@IntRange(from = MIN_SIZE) int width, @IntRange(from = MIN_SIZE) int height) {
+        if (width < MIN_SIZE) {
+            width = MIN_SIZE;
+        }
+
+        if (height < MIN_SIZE) {
+            height = MIN_SIZE;
+        }
+
         mCropOptionsBundle.putInt(EXTRA_MAX_SIZE_X, width);
         mCropOptionsBundle.putInt(EXTRA_MAX_SIZE_Y, height);
         return this;
@@ -179,6 +189,20 @@ public class UCrop {
     }
 
     /**
+     * Get Fragment {@link UCropFragment}
+     *
+     * @return Fragment of {@link UCropFragment}
+     */
+    public UCropFragment getFragment() {
+        return UCropFragment.newInstance(mCropOptionsBundle);
+    }
+
+    public UCropFragment getFragment(Bundle bundle) {
+        mCropOptionsBundle = bundle;
+        return getFragment();
+    }
+
+    /**
      * Retrieve cropped image Uri from the result Intent
      *
      * @param intent crop result intent
@@ -186,6 +210,24 @@ public class UCrop {
     @Nullable
     public static Uri getOutput(@NonNull Intent intent) {
         return intent.getParcelableExtra(EXTRA_OUTPUT_URI);
+    }
+
+    /**
+     * Retrieve the width of the cropped image
+     *
+     * @param intent crop result intent
+     */
+    public static int getOutputImageWidth(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_OUTPUT_IMAGE_WIDTH, -1);
+    }
+
+    /**
+     * Retrieve the height of the cropped image
+     *
+     * @param intent crop result intent
+     */
+    public static int getOutputImageHeight(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_OUTPUT_IMAGE_HEIGHT, -1);
     }
 
     /**
@@ -244,6 +286,8 @@ public class UCrop {
 
         public static final String EXTRA_UCROP_WIDGET_COLOR_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarWidgetColor";
         public static final String EXTRA_UCROP_TITLE_TEXT_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarTitleText";
+        public static final String EXTRA_UCROP_WIDGET_CANCEL_DRAWABLE = EXTRA_PREFIX + ".UcropToolbarCancelDrawable";
+        public static final String EXTRA_UCROP_WIDGET_CROP_DRAWABLE = EXTRA_PREFIX + ".UcropToolbarCropDrawable";
 
         public static final String EXTRA_UCROP_LOGO_COLOR = EXTRA_PREFIX + ".UcropLogoColor";
 
@@ -252,6 +296,8 @@ public class UCrop {
 
         public static final String EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT = EXTRA_PREFIX + ".AspectRatioSelectedByDefault";
         public static final String EXTRA_ASPECT_RATIO_OPTIONS = EXTRA_PREFIX + ".AspectRatioOptions";
+
+        public static final String EXTRA_UCROP_ROOT_VIEW_BACKGROUND_COLOR = EXTRA_PREFIX + ".UcropRootViewBackgroundColor";
 
 
         private final Bundle mOptionBundle;
@@ -302,7 +348,7 @@ public class UCrop {
          *
          * @param durationMillis - duration in milliseconds
          */
-        public void setImageToCropBoundsAnimDuration(@IntRange(from = 100) int durationMillis) {
+        public void setImageToCropBoundsAnimDuration(@IntRange(from = MIN_SIZE) int durationMillis) {
             mOptionBundle.putInt(EXTRA_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION, durationMillis);
         }
 
@@ -311,7 +357,7 @@ public class UCrop {
          *
          * @param maxBitmapSize - size in pixels
          */
-        public void setMaxBitmapSize(@IntRange(from = 100) int maxBitmapSize) {
+        public void setMaxBitmapSize(@IntRange(from = MIN_SIZE) int maxBitmapSize) {
             mOptionBundle.putInt(EXTRA_MAX_BITMAP_SIZE, maxBitmapSize);
         }
 
@@ -421,6 +467,20 @@ public class UCrop {
         }
 
         /**
+         * @param drawable - desired drawable for the Toolbar left cancel icon
+         */
+        public void setToolbarCancelDrawable(@DrawableRes int drawable) {
+            mOptionBundle.putInt(EXTRA_UCROP_WIDGET_CANCEL_DRAWABLE, drawable);
+        }
+
+        /**
+         * @param drawable - desired drawable for the Toolbar right crop icon
+         */
+        public void setToolbarCropDrawable(@DrawableRes int drawable) {
+            mOptionBundle.putInt(EXTRA_UCROP_WIDGET_CROP_DRAWABLE, drawable);
+        }
+
+        /**
          * @param color - desired resolved color of logo fill (default is darker grey)
          */
         public void setLogoColor(@ColorInt int color) {
@@ -458,6 +518,13 @@ public class UCrop {
         }
 
         /**
+         * @param color - desired background color that should be applied to the root view
+         */
+        public void setRootViewBackgroundColor(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_UCROP_ROOT_VIEW_BACKGROUND_COLOR, color);
+        }
+
+        /**
          * Set an aspect ratio for crop bounds.
          * User won't see the menu with other ratios options.
          *
@@ -484,7 +551,7 @@ public class UCrop {
          * @param width  max cropped image width
          * @param height max cropped image height
          */
-        public void withMaxResultSize(@IntRange(from = 100) int width, @IntRange(from = 100) int height) {
+        public void withMaxResultSize(@IntRange(from = MIN_SIZE) int width, @IntRange(from = MIN_SIZE) int height) {
             mOptionBundle.putInt(EXTRA_MAX_SIZE_X, width);
             mOptionBundle.putInt(EXTRA_MAX_SIZE_Y, height);
         }
