@@ -193,13 +193,13 @@ public class UCrop {
      *
      * @return Fragment of {@link UCropFragment}
      */
-    public UCropFragment getFragment(UCropFragmentCallback callback) {
-        return UCropFragment.newInstance(mCropOptionsBundle, callback);
+    public UCropFragment getFragment() {
+        return UCropFragment.newInstance(mCropOptionsBundle);
     }
 
-    public UCropFragment getFragment(Bundle bundle, UCropFragmentCallback callback) {
+    public UCropFragment getFragment(Bundle bundle) {
         mCropOptionsBundle = bundle;
-        return getFragment(callback);
+        return getFragment();
     }
 
     /**
