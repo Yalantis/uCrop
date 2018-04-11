@@ -40,10 +40,17 @@
 3. The uCrop configuration is created using the builder pattern.
 
 	```java
+    //For Activity
     UCrop.of(sourceUri, destinationUri)
         .withAspectRatio(16, 9)
         .withMaxResultSize(maxWidth, maxHeight)
         .start(context);
+	
+    //For Fragment	
+    UCrop.of(sourceUri, destinationUri)
+        .withAspectRatio(16, 9)
+        .withMaxResultSize(maxWidth, maxHeight)
+        .start(getContext(), this, UCrop.REQUEST_CROP);
     ```
 
 
