@@ -392,7 +392,7 @@ public class ImageHeaderParser {
                 ExifInterface.TAG_GPS_LONGITUDE_REF,
                 ExifInterface.TAG_GPS_PROCESSING_METHOD,
                 ExifInterface.TAG_GPS_TIMESTAMP,
-                ExifInterface.TAG_ISO_SPEED_RATINGS,
+                ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY,
                 ExifInterface.TAG_MAKE,
                 ExifInterface.TAG_MODEL,
                 ExifInterface.TAG_SUBSEC_TIME,
