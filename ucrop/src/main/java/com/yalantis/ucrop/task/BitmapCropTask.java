@@ -52,8 +52,14 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     private int mCroppedImageWidth, mCroppedImageHeight;
     private int cropOffsetX, cropOffsetY;
 
-    public BitmapCropTask(@Nullable Bitmap viewBitmap, @NonNull ImageState imageState, @NonNull CropParameters cropParameters,
-                          @Nullable BitmapCropCallback cropCallback) {
+    private float[] imageMatrixValues;
+
+    public BitmapCropTask(
+            @Nullable Bitmap viewBitmap,
+            @NonNull ImageState imageState,
+            @NonNull CropParameters cropParameters,
+            @Nullable BitmapCropCallback cropCallback
+    ) {
 
         mViewBitmap = viewBitmap;
         mCropRect = imageState.getCropRect();
@@ -70,6 +76,10 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         mImageInputPath = cropParameters.getImageInputPath();
         mImageOutputPath = cropParameters.getImageOutputPath();
         mExifInfo = cropParameters.getExifInfo();
+
+        // azri92 - Get image matrix & crop rect values to be included in result
+        imageMatrixValues = new float[9];
+        imageState.getCurrentImageMatrix().getValues(imageMatrixValues);
 
         mCropCallback = cropCallback;
     }
@@ -185,7 +195,14 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         if (mCropCallback != null) {
             if (t == null) {
                 Uri uri = Uri.fromFile(new File(mImageOutputPath));
-                mCropCallback.onBitmapCropped(uri, cropOffsetX, cropOffsetY, mCroppedImageWidth, mCroppedImageHeight);
+                mCropCallback.onBitmapCropped(
+                        uri,
+                        cropOffsetX,
+                        cropOffsetY,
+                        mCroppedImageWidth,
+                        mCroppedImageHeight,
+                        imageMatrixValues,
+                        mCropRect);
             } else {
                 mCropCallback.onCropFailure(t);
             }

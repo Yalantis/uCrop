@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
@@ -158,6 +159,8 @@ public class UCropFragment extends Fragment {
         Uri inputUri = bundle.getParcelable(UCrop.EXTRA_INPUT_URI);
         Uri outputUri = bundle.getParcelable(UCrop.EXTRA_OUTPUT_URI);
         processOptions(bundle);
+
+        // TODO: Add resume edit feature into Fragment
 
         if (inputUri != null && outputUri != null) {
             try {
@@ -500,8 +503,25 @@ public class UCropFragment extends Fragment {
         mGestureCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, new BitmapCropCallback() {
 
             @Override
-            public void onBitmapCropped(@NonNull Uri resultUri, int offsetX, int offsetY, int imageWidth, int imageHeight) {
-                callback.onCropFinish(getResult(resultUri, mGestureCropImageView.getTargetAspectRatio(), offsetX, offsetY, imageWidth, imageHeight));
+            public void onBitmapCropped(
+                    @NonNull Uri resultUri,
+                    int offsetX,
+                    int offsetY,
+                    int imageWidth,
+                    int imageHeight,
+                    float[] imageMatrixValues,
+                    RectF cropRect
+            ) {
+                callback.onCropFinish(
+                        getResult(resultUri,
+                                mGestureCropImageView.getTargetAspectRatio(),
+                                offsetX,
+                                offsetY,
+                                imageWidth,
+                                imageHeight,
+                                imageMatrixValues,
+                                cropRect)
+                );
                 callback.loadingProgress(false);
             }
 
@@ -512,7 +532,16 @@ public class UCropFragment extends Fragment {
         });
     }
 
-    protected UCropResult getResult(Uri uri, float resultAspectRatio, int offsetX, int offsetY, int imageWidth, int imageHeight) {
+    protected UCropResult getResult(
+            Uri uri,
+            float resultAspectRatio,
+            int offsetX,
+            int offsetY,
+            int imageWidth,
+            int imageHeight,
+            float[] imageMatrixValues,
+            RectF cropRect
+    ) {
         return new UCropResult(RESULT_OK, new Intent()
                 .putExtra(UCrop.EXTRA_OUTPUT_URI, uri)
                 .putExtra(UCrop.EXTRA_OUTPUT_CROP_ASPECT_RATIO, resultAspectRatio)
@@ -520,6 +549,8 @@ public class UCropFragment extends Fragment {
                 .putExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, imageHeight)
                 .putExtra(UCrop.EXTRA_OUTPUT_OFFSET_X, offsetX)
                 .putExtra(UCrop.EXTRA_OUTPUT_OFFSET_Y, offsetY)
+                .putExtra(UCrop.EXTRA_IMAGE_MATRIX_VALUES, imageMatrixValues)
+                .putExtra(UCrop.EXTRA_CROP_RECT, cropRect)
         );
     }
 

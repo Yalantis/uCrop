@@ -23,13 +23,14 @@
     <string name="notification_image_saved_click_to_preview">Image saved. Click to preview.</string>
 
     <string name="menu_download">Download</string>
+    <string name="menu_edit">Edit</string>
 
     <string name="button_pick_amp_crop"><![CDATA[Pick & Crop]]></string>
     <string name="button_crop_random_image">Crop random image</string>
 
     <string name="description_cropped_image">Cropped image</string>
 
-    <string name="format_crop_result_d_d">Crop Result (%1$dx%2$d)</string>
+    <string name="format_crop_result_d_d">Result (%1$dx%2$d)</string>
     <string name="format_quality_d">Quality: %d</string>
     <string name="format_d_d_px">%1$dx%2$d px</string>
     <string name="format_max_cropped_image_size">Max cropped image size cannot be less then %d</string>
