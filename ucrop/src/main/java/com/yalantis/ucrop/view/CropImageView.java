@@ -51,6 +51,7 @@ public class CropImageView extends TransformImageView {
     private float mMaxScale, mMinScale;
     private int mMaxResultImageSizeX = 0, mMaxResultImageSizeY = 0;
     private long mImageToWrapCropBoundsAnimDuration = DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION;
+    private boolean shouldAnimate = true;
 
     public CropImageView(Context context) {
         this(context, null);
@@ -312,7 +313,7 @@ public class CropImageView extends TransformImageView {
                 deltaScale = deltaScale * currentScale - currentScale;
             }
 
-            if (animate) {
+            if (animate && shouldAnimate) {
                 post(mWrapCropBoundsRunnable = new WrapCropBoundsRunnable(
                         CropImageView.this, mImageToWrapCropBoundsAnimDuration, currentX, currentY, deltaX, deltaY,
                         currentScale, deltaScale, willImageWrapCropBoundsAfterTranslate));
@@ -382,14 +383,6 @@ public class CropImageView extends TransformImageView {
             mCropRect.set(getSavedCropRect());
             mTargetAspectRatio = mCropRect.width() / mCropRect.height();
 
-            if (mCropBoundsChangeListener != null) {
-                mCropBoundsChangeListener.onCropAspectRatioChanged(mTargetAspectRatio);
-            }
-            if (mTransformImageListener != null) {
-                mTransformImageListener.onScale(getCurrentScale());
-                mTransformImageListener.onRotate(getCurrentAngle());
-            }
-
         } else {
 
             float drawableWidth = drawable.getIntrinsicWidth();
@@ -411,15 +404,14 @@ public class CropImageView extends TransformImageView {
 
             calculateImageScaleBounds(drawableWidth, drawableHeight);
             setupInitialImagePosition(drawableWidth, drawableHeight);
+        }
 
-            if (mCropBoundsChangeListener != null) {
-                mCropBoundsChangeListener.onCropAspectRatioChanged(mTargetAspectRatio);
-            }
-            if (mTransformImageListener != null) {
-                mTransformImageListener.onScale(getCurrentScale());
-                mTransformImageListener.onRotate(getCurrentAngle());
-            }
-
+        if (mCropBoundsChangeListener != null) {
+            mCropBoundsChangeListener.onCropAspectRatioChanged(mTargetAspectRatio);
+        }
+        if (mTransformImageListener != null) {
+            mTransformImageListener.onScale(getCurrentScale());
+            mTransformImageListener.onRotate(getCurrentAngle());
         }
     }
 
@@ -656,6 +648,22 @@ public class CropImageView extends TransformImageView {
             }
         }
 
+    }
+
+    /**
+     * @author azri92
+     * Reset the image & crop rect position.
+     * Disable the animation while resetting to prevent delay.
+     *
+     * @param defaultAspectRatio typically set based on UCrop settings
+     */
+    public void resetCropView(float defaultAspectRatio) {
+        shouldAnimate = false;
+        setTargetAspectRatio(defaultAspectRatio);
+        float drawableWidth = getDrawable().getIntrinsicWidth();
+        float drawableHeight = getDrawable().getIntrinsicHeight();
+        setupInitialImagePosition(drawableWidth, drawableHeight);
+        shouldAnimate = true;
     }
 
 }

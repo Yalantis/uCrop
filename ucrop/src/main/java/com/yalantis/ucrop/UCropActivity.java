@@ -107,6 +107,7 @@ public class UCropActivity extends AppCompatActivity {
 
     private Bitmap.CompressFormat mCompressFormat = DEFAULT_COMPRESS_FORMAT;
     private int mCompressQuality = DEFAULT_COMPRESS_QUALITY;
+    private float defaultAspectRatio;
     private int[] mAllowedGestures = new int[]{SCALE, ROTATE, ALL};
 
     @Override
@@ -253,20 +254,22 @@ public class UCropActivity extends AppCompatActivity {
         float aspectRatioX = intent.getFloatExtra(UCrop.EXTRA_ASPECT_RATIO_X, 0);
         float aspectRatioY = intent.getFloatExtra(UCrop.EXTRA_ASPECT_RATIO_Y, 0);
 
-        int aspectRationSelectedByDefault = intent.getIntExtra(UCrop.Options.EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT, 0);
+        int aspectRatioSelectedByDefault = intent.getIntExtra(UCrop.Options.EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT, 0);
         ArrayList<AspectRatio> aspectRatioList = intent.getParcelableArrayListExtra(UCrop.Options.EXTRA_ASPECT_RATIO_OPTIONS);
 
         if (aspectRatioX > 0 && aspectRatioY > 0) {
             if (mWrapperStateAspectRatio != null) {
                 mWrapperStateAspectRatio.setVisibility(View.GONE);
             }
-            mGestureCropImageView.setTargetAspectRatio(aspectRatioX / aspectRatioY);
-        } else if (aspectRatioList != null && aspectRationSelectedByDefault < aspectRatioList.size()) {
-            mGestureCropImageView.setTargetAspectRatio(aspectRatioList.get(aspectRationSelectedByDefault).getAspectRatioX() /
-                    aspectRatioList.get(aspectRationSelectedByDefault).getAspectRatioY());
+            defaultAspectRatio = aspectRatioX / aspectRatioY;
+        } else if (aspectRatioList != null && aspectRatioSelectedByDefault < aspectRatioList.size()) {
+            defaultAspectRatio =
+                    aspectRatioList.get(aspectRatioSelectedByDefault).getAspectRatioX() /
+                    aspectRatioList.get(aspectRatioSelectedByDefault).getAspectRatioY();
         } else {
-            mGestureCropImageView.setTargetAspectRatio(CropImageView.SOURCE_IMAGE_ASPECT_RATIO);
+            defaultAspectRatio = CropImageView.SOURCE_IMAGE_ASPECT_RATIO;
         }
+        mGestureCropImageView.setTargetAspectRatio(defaultAspectRatio);
 
         // Result bitmap max size options
         int maxSizeX = intent.getIntExtra(UCrop.EXTRA_MAX_SIZE_X, 0);
@@ -304,6 +307,14 @@ public class UCropActivity extends AppCompatActivity {
             mWrapperStateRotate.setOnClickListener(mStateClickListener);
             mWrapperStateScale = findViewById(R.id.state_scale);
             mWrapperStateScale.setOnClickListener(mStateClickListener);
+
+            // azri92 - reset function
+            findViewById(R.id.button_reset).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mGestureCropImageView.resetCropView(defaultAspectRatio);
+                }
+            });
 
             mLayoutAspectRatio = findViewById(R.id.layout_aspect_ratio);
             mLayoutRotate = findViewById(R.id.layout_rotate_wheel);
@@ -678,5 +689,4 @@ public class UCropActivity extends AppCompatActivity {
     protected void setResultError(Throwable throwable) {
         setResult(UCrop.RESULT_ERROR, new Intent().putExtra(UCrop.EXTRA_ERROR, throwable));
     }
-
 }

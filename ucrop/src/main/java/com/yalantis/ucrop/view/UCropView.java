@@ -80,10 +80,10 @@ public class UCropView extends FrameLayout {
      * Be careful: this method recreate UCropImageView instance and reattach it to layout.
      */
     public void resetCropImageView() {
+        //TODO: This actually causes a null pointer exception
         removeView(mGestureCropImageView);
         mGestureCropImageView = new GestureCropImageView(getContext());
         setListenersToViews();
-        mGestureCropImageView.setCropRect(getOverlayView().getCropViewRect());
         addView(mGestureCropImageView, 0);
     }
 }
