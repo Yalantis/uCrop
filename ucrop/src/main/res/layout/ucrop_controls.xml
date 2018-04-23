@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <FrameLayout
         android:id="@+id/wrapper_controls"
@@ -71,6 +72,17 @@
                 android:id="@+id/image_view_state_rotate"
                 style="@style/ucrop_ImageViewWidgetIcon"
                 android:src="@drawable/ucrop_ic_rotate"/>
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/button_reset"
+            style="@style/ucrop_WrapperIconState">
+
+            <ImageView
+                android:id="@+id/image_view_button_reset"
+                style="@style/ucrop_ImageViewWidgetIcon"
+                app:srcCompat="@drawable/ucrop_vector_ic_reset"/>
 
         </FrameLayout>
 
