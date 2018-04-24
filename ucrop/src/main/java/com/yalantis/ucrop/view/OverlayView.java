@@ -60,6 +60,7 @@ public class OverlayView extends View {
     private Paint mCropGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropFrameCornersPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private RectF mSavedCropRect;
     @FreestyleMode
     private int mFreestyleCropMode = DEFAULT_FREESTYLE_CROP_MODE;
     private float mPreviousTouchX = -1, mPreviousTouchY = -1;
@@ -97,6 +98,16 @@ public class OverlayView extends View {
 
     public void setOverlayViewChangeListener(OverlayViewChangeListener callback) {
         mCallback = callback;
+    }
+
+    /**
+     * @author azri92
+     * For resuming previous state.
+     *
+     * @param savedCropRect of previous edit
+     */
+    public void setSavedCropRect(RectF savedCropRect) {
+        mSavedCropRect = savedCropRect;
     }
 
     @NonNull
@@ -233,7 +244,13 @@ public class OverlayView extends View {
      */
     public void setupCropBounds() {
         int height = (int) (mThisWidth / mTargetAspectRatio);
-        if (height > mThisHeight) {
+        if (mSavedCropRect != null && mCropViewRect.isEmpty()) {
+            mCropViewRect.set(
+                    getPaddingLeft() + mSavedCropRect.left,
+                    getPaddingTop() + mSavedCropRect.top,
+                    getPaddingLeft() + mSavedCropRect.right,
+                    getPaddingTop() + mSavedCropRect.bottom);
+        } else if (height > mThisHeight) {
             int width = (int) (mThisHeight * mTargetAspectRatio);
             int halfDiff = (mThisWidth - width) / 2;
             mCropViewRect.set(getPaddingLeft() + halfDiff, getPaddingTop(),
@@ -418,9 +435,11 @@ public class OverlayView extends View {
             }
         }
 
-        if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE && closestPointIndex < 0 && mCropViewRect.contains(touchX, touchY)) {
-            return 4;
-        }
+        // azri92 - commented out to allow gestures on the image through the crop rect
+        //          which disables drag functionality of the crop rect
+//        if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE && closestPointIndex < 0 && mCropViewRect.contains(touchX, touchY)) {
+//            return 4;
+//        }
 
 //        for (int i = 0; i <= 8; i += 2) {
 //

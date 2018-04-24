@@ -51,6 +51,7 @@ public class CropImageView extends TransformImageView {
     private float mMaxScale, mMinScale;
     private int mMaxResultImageSizeX = 0, mMaxResultImageSizeY = 0;
     private long mImageToWrapCropBoundsAnimDuration = DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION;
+    private boolean shouldAnimate = true;
 
     public CropImageView(Context context) {
         this(context, null);
@@ -73,9 +74,13 @@ public class CropImageView extends TransformImageView {
         cancelAllAnimations();
         setImageToWrapCropBounds(false);
 
+        // azri92 - Add image matrix to save state
         final ImageState imageState = new ImageState(
-                mCropRect, RectUtils.trapToRect(mCurrentImageCorners),
-                getCurrentScale(), getCurrentAngle());
+                mCropRect,
+                RectUtils.trapToRect(mCurrentImageCorners),
+                mCurrentImageMatrix,
+                getCurrentScale(),
+                getCurrentAngle());
 
         final CropParameters cropParameters = new CropParameters(
                 mMaxResultImageSizeX, mMaxResultImageSizeY,
@@ -109,6 +114,7 @@ public class CropImageView extends TransformImageView {
     /**
      * Updates current crop rectangle with given. Also recalculates image properties and position
      * to fit new crop rectangle.
+     * Removes padding set in {@link OverlayView#setupCropBounds()}
      *
      * @param cropRect - new crop rectangle
      */
@@ -307,7 +313,7 @@ public class CropImageView extends TransformImageView {
                 deltaScale = deltaScale * currentScale - currentScale;
             }
 
-            if (animate) {
+            if (animate && shouldAnimate) {
                 post(mWrapCropBoundsRunnable = new WrapCropBoundsRunnable(
                         CropImageView.this, mImageToWrapCropBoundsAnimDuration, currentX, currentY, deltaX, deltaY,
                         currentScale, deltaScale, willImageWrapCropBoundsAfterTranslate));
@@ -370,25 +376,35 @@ public class CropImageView extends TransformImageView {
             return;
         }
 
-        float drawableWidth = drawable.getIntrinsicWidth();
-        float drawableHeight = drawable.getIntrinsicHeight();
+        // azri92 - Reload from saved state
+        if (savedImageStateExists()) {
 
-        if (mTargetAspectRatio == SOURCE_IMAGE_ASPECT_RATIO) {
-            mTargetAspectRatio = drawableWidth / drawableHeight;
-        }
+            setupInitialImagePositionFromSavedState();
+            mCropRect.set(getSavedCropRect());
+            mTargetAspectRatio = mCropRect.width() / mCropRect.height();
 
-        int height = (int) (mThisWidth / mTargetAspectRatio);
-        if (height > mThisHeight) {
-            int width = (int) (mThisHeight * mTargetAspectRatio);
-            int halfDiff = (mThisWidth - width) / 2;
-            mCropRect.set(halfDiff, 0, width + halfDiff, mThisHeight);
         } else {
-            int halfDiff = (mThisHeight - height) / 2;
-            mCropRect.set(0, halfDiff, mThisWidth, height + halfDiff);
-        }
 
-        calculateImageScaleBounds(drawableWidth, drawableHeight);
-        setupInitialImagePosition(drawableWidth, drawableHeight);
+            float drawableWidth = drawable.getIntrinsicWidth();
+            float drawableHeight = drawable.getIntrinsicHeight();
+
+            if (mTargetAspectRatio == SOURCE_IMAGE_ASPECT_RATIO) {
+                mTargetAspectRatio = drawableWidth / drawableHeight;
+            }
+
+            int height = (int) (mThisWidth / mTargetAspectRatio);
+            if (height > mThisHeight) {
+                int width = (int) (mThisHeight * mTargetAspectRatio);
+                int halfDiff = (mThisWidth - width) / 2;
+                mCropRect.set(halfDiff, 0, width + halfDiff, mThisHeight);
+            } else {
+                int halfDiff = (mThisHeight - height) / 2;
+                mCropRect.set(0, halfDiff, mThisWidth, height + halfDiff);
+            }
+
+            calculateImageScaleBounds(drawableWidth, drawableHeight);
+            setupInitialImagePosition(drawableWidth, drawableHeight);
+        }
 
         if (mCropBoundsChangeListener != null) {
             mCropBoundsChangeListener.onCropAspectRatioChanged(mTargetAspectRatio);
@@ -490,6 +506,16 @@ public class CropImageView extends TransformImageView {
         mCurrentImageMatrix.reset();
         mCurrentImageMatrix.postScale(initialMinScale, initialMinScale);
         mCurrentImageMatrix.postTranslate(tw, th);
+        setImageMatrix(mCurrentImageMatrix);
+    }
+
+    /**
+     * @author azri92
+     * Set current image matrix based on values from previous edit.
+     */
+    private void setupInitialImagePositionFromSavedState() {
+        mCurrentImageMatrix.reset();
+        mCurrentImageMatrix.setValues(getSavedImageMatrixValues());
         setImageMatrix(mCurrentImageMatrix);
     }
 
@@ -622,6 +648,22 @@ public class CropImageView extends TransformImageView {
             }
         }
 
+    }
+
+    /**
+     * @author azri92
+     * Reset the image & crop rect position.
+     * Disable the animation while resetting to prevent delay.
+     *
+     * @param defaultAspectRatio typically set based on UCrop settings
+     */
+    public void resetCropView(float defaultAspectRatio) {
+        shouldAnimate = false;
+        setTargetAspectRatio(defaultAspectRatio);
+        float drawableWidth = getDrawable().getIntrinsicWidth();
+        float drawableHeight = getDrawable().getIntrinsicHeight();
+        setupInitialImagePosition(drawableWidth, drawableHeight);
+        shouldAnimate = true;
     }
 
 }
