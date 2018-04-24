@@ -435,9 +435,11 @@ public class OverlayView extends View {
             }
         }
 
-        if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE && closestPointIndex < 0 && mCropViewRect.contains(touchX, touchY)) {
-            return 4;
-        }
+        // azri92 - commented out to allow gestures on the image through the crop rect
+        //          which disables drag functionality of the crop rect
+//        if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE && closestPointIndex < 0 && mCropViewRect.contains(touchX, touchY)) {
+//            return 4;
+//        }
 
 //        for (int i = 0; i <= 8; i += 2) {
 //
