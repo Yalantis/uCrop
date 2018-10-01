@@ -1,9 +1,9 @@
 # uCrop - Image Cropping Library for Android
 
-#### This project aims to provide an ultimate and flexible image cropping experience. Made in [Yalantis] (https://yalantis.com/?utm_source=github)
+#### This project aims to provide an ultimate and flexible image cropping experience. Made in [Yalantis](https://yalantis.com/?utm_source=github)
 
-#### [How We Created uCrop] (https://yalantis.com/blog/how-we-created-ucrop-our-own-image-cropping-library-for-android/)
-#### Check this [project on Dribbble] (https://dribbble.com/shots/2484752-uCrop-Image-Cropping-Library)
+#### [How We Created uCrop](https://yalantis.com/blog/how-we-created-ucrop-our-own-image-cropping-library-for-android/)
+#### Check this [project on Dribbble](https://dribbble.com/shots/2484752-uCrop-Image-Cropping-Library)
 
 <img src="preview.gif" width="800" height="600">
 
@@ -15,9 +15,18 @@
 
 1. Include the library as local library project.
 
-    ``` compile 'com.yalantis:ucrop:2.2.0' ``` - lightweight general solution 
+	```
+	allprojects {
+	   repositories {
+	      jcenter()
+	      maven { url "https://jitpack.io" }
+	   }
+	}
+	```
+
+    ``` compile 'com.github.yalantis:ucrop:2.2.2' ``` - lightweight general solution 
     
-    ``` compile 'com.yalantis:ucrop:2.2.0-native' ``` - get power of the native code to preserve image quality (+ about 1.5 MB to an apk size)
+    ``` compile 'com.github.yalantis:ucrop:2.2.2-native' ``` - get power of the native code to preserve image quality (+ about 1.5 MB to an apk size)
     
 2. Add UCropActivity into your AndroidManifest.xml
 
@@ -83,6 +92,14 @@ Currently you can change:
   * CPU - armeabi armeabi-v7a x86 x86_64 arm64-v8a (for versions >= 2.1.2)
   
 # Changelog
+### Version: 2.2.2
+
+* uCrop fragment added
+* bugfix
+
+### Version: 2.2.1
+
+  * Fix including [#285](https://github.com/Yalantis/uCrop/issues/285)
 
 ### Version: 2.2
 
@@ -146,8 +163,8 @@ We’d be really happy if you sent us links to your projects where you use our c
 
 - [Thirty](https://play.google.com/store/apps/details?id=com.twominds.thirty).
 - [Light Smart HD](https://play.google.com/store/apps/details?id=com.SmartCamera.simple).
-- [BCReader] (https://play.google.com/store/apps/details?id=com.iac.bcreader).
-- [Xprezia: Share Your Passion] (https://play.google.com/store/apps/details?id=com.xprezzia.cnj).
+- [BCReader](https://play.google.com/store/apps/details?id=com.iac.bcreader).
+- [Xprezia: Share Your Passion](https://play.google.com/store/apps/details?id=com.xprezzia.cnj).
 
 ## License
 

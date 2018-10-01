@@ -26,6 +26,7 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -45,7 +46,7 @@ public class FileUtils {
     /**
      * TAG for log messages.
      */
-    static final String TAG = "FileUtils";
+    private static final String TAG = "FileUtils";
 
     private FileUtils() {
     }
@@ -155,10 +156,17 @@ public class FileUtils {
             else if (isDownloadsDocument(uri)) {
 
                 final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                if (!TextUtils.isEmpty(id)) {
+                    try {
+                        final Uri contentUri = ContentUris.withAppendedId(
+                                Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                        return getDataColumn(context, contentUri, null, null);
+                    } catch (NumberFormatException e) {
+                        Log.i(TAG, e.getMessage());
+                        return null;
+                    }
+                }
 
-                return getDataColumn(context, contentUri, null, null);
             }
             // MediaProvider
             else if (isMediaDocument(uri)) {

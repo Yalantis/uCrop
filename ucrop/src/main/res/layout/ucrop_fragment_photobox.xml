@@ -5,30 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/ucrop_color_toolbar"
-        android:minHeight="?attr/actionBarSize">
-
-        <TextView
-            android:id="@+id/toolbar_title"
-            style="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/ucrop_label_edit_photo"
-            android:textColor="@color/ucrop_color_toolbar_widget" />
-
-    </android.support.v7.widget.Toolbar>
-
     <FrameLayout
         android:id="@+id/ucrop_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/wrapper_controls"
-        android:layout_below="@+id/toolbar"
         android:background="@color/ucrop_color_crop_background">
 
         <ImageView

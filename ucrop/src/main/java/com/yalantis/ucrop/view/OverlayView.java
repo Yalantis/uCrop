@@ -48,7 +48,7 @@ public class OverlayView extends View {
     protected int mThisWidth, mThisHeight;
     protected float[] mCropGridCorners;
     protected float[] mCropGridCenter;
-    
+
     private int mCropGridRowCount, mCropGridColumnCount;
     private float mTargetAspectRatio;
     private float[] mGridPoints = null;
@@ -262,8 +262,7 @@ public class OverlayView extends View {
     }
 
     protected void init() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2 &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
             setLayerType(LAYER_TYPE_SOFTWARE, null);
         }
     }
@@ -298,7 +297,9 @@ public class OverlayView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mCropViewRect.isEmpty() || mFreestyleCropMode == FREESTYLE_CROP_MODE_DISABLE) { return false; }
+        if (mCropViewRect.isEmpty() || mFreestyleCropMode == FREESTYLE_CROP_MODE_DISABLE) {
+            return false;
+        }
 
         float x = event.getX();
         float y = event.getY();
