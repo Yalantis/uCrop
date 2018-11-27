@@ -54,6 +54,8 @@
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
             final Uri resultUri = UCrop.getOutput(data);
+        } else if (resultCode == RESULT_CANCELED && requestCode == UCrop.REQUEST_CROP) {
+            // Do something if the activity is closed.
         } else if (resultCode == UCrop.RESULT_ERROR) {
             final Throwable cropError = UCrop.getError(data);
         }
