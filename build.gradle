@@ -29,10 +29,7 @@ allprojects {
     group = GROUP
 
     repositories {
-        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
-        maven { url "http://maven.aliyun.com/nexus/content/repositories/jcenter/" }
-        maven { url "http://maven.aliyun.com/nexus/content/repositories/google/" }
-//        jcenter()
+        jcenter()
         maven {
             url 'https://maven.google.com/'
             name 'Google'
