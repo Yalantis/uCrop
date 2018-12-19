@@ -45,4 +45,8 @@
     <string name="file_provider_authorities">com.yalantis.ucrop.provider</string>
     <string name="channel_name">ucrop_chanel</string>
     <string name="channel_description">ucrop result image</string>
+    <string name="custom_crop_ui_crop_hint">Crop Hint</string>
+    <string name="custom_crop_ui_cancel">cancel</string>
+    <string name="custom_crop_ui_confirm">confirm</string>
+    <string name="button_custom_crop_ui">CUSTOM CROP UI</string>
 </resources>

@@ -78,6 +78,10 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
     private int mToolbarColor;
     private int mStatusBarColor;
     private int mToolbarWidgetColor;
+    /**
+     * flag for turn to CustomCropActivity
+     */
+    private boolean mCustomUI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +144,13 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
                         minSizePixels + random.nextInt(maxSizePixels - minSizePixels)));
 
                 startCrop(uri);
+            }
+        });
+        findViewById(R.id.button_custom_crop_ui).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCustomUI = true;
+                pickFromGallery();
             }
         });
         settingsView = findViewById(R.id.settings);
@@ -262,6 +273,10 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
 
         uCrop = basisConfig(uCrop);
         uCrop = advancedConfig(uCrop);
+
+        if (mCustomUI){
+            uCrop.withTargetCropActivityClazz(CustomCropActivity.class);
+        }
 
         if (requestMode == REQUEST_SELECT_PICTURE_FOR_FRAGMENT) {       //if build variant = fragment
             setupFragment(uCrop);
