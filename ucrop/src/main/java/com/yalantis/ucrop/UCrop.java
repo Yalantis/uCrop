@@ -55,6 +55,11 @@ public class UCrop {
     private Bundle mCropOptionsBundle;
 
     /**
+     * This is targetCropActivityClazz for completely custom crop ui.
+     */
+    private Class<?> mTargetCropActivityClazz;
+
+    /**
      * This method creates new Intent builder and sets both source and destination image URIs.
      *
      * @param source      Uri for image to crop
@@ -178,14 +183,28 @@ public class UCrop {
     }
 
     /**
-     * Get Intent to start {@link UCropActivity}
+     * Get Intent to start Activity with crop, default {@link UCropActivity}
+     * You can set custom target Activity with crop user the method {@link UCrop#withTargetCropActivityClazz}
      *
-     * @return Intent for {@link UCropActivity}
+     * @return Intent for Activity with crop, default {@link UCropActivity}
      */
     public Intent getIntent(@NonNull Context context) {
-        mCropIntent.setClass(context, UCropActivity.class);
+        if (mTargetCropActivityClazz != null) {
+            mCropIntent.setClass(context, mTargetCropActivityClazz);
+        } else {
+            mCropIntent.setClass(context, UCropActivity.class);
+        }
         mCropIntent.putExtras(mCropOptionsBundle);
         return mCropIntent;
+    }
+
+    /**
+     * Set targetCropActivityClazz for completely custom crop ui.
+     * @param targetCropActivityClazz targetCropActivityClazz for completely custom crop ui
+     */
+    public UCrop withTargetCropActivityClazz(Class<?> targetCropActivityClazz) {
+        this.mTargetCropActivityClazz = targetCropActivityClazz;
+        return this;
     }
 
     /**
