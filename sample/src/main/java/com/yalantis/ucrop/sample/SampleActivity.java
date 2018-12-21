@@ -130,7 +130,6 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCustomUI = false;
                 pickFromGallery();
             }
         });
@@ -277,6 +276,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
 
         if (mCustomUI){
             uCrop.withTargetCropActivityClazz(CustomCropActivity.class);
+            mCustomUI = false;
         }
 
         if (requestMode == REQUEST_SELECT_PICTURE_FOR_FRAGMENT) {       //if build variant = fragment
