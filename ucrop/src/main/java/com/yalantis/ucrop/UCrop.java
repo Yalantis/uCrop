@@ -119,7 +119,7 @@ public class UCrop {
 
     /**
      * Set maximum size for result cropped image. Maximum size cannot be less then {@value MIN_SIZE}
-     * The priority of this method is higher than the {@link #withMinResultSize(int, int) withMinResultSize} method
+     * The priority of this method is higher than the {@link #withMinResultSize(int, int) withMinResultSize} method.
      *
      * @param width  max cropped image width
      * @param height max cropped image height
