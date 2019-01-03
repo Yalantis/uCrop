@@ -232,9 +232,18 @@ public class UCropFragment extends Fragment {
             mGestureCropImageView.setTargetAspectRatio(CropImageView.SOURCE_IMAGE_ASPECT_RATIO);
         }
 
+        // Result bitmap min size options
+        int minSizeX = bundle.getInt(UCrop.EXTRA_MIN_SIZE_X, 0);
+        int minSizeY = bundle.getInt(UCrop.EXTRA_MIN_SIZE_Y, 0);
+
         // Result bitmap max size options
         int maxSizeX = bundle.getInt(UCrop.EXTRA_MAX_SIZE_X, 0);
         int maxSizeY = bundle.getInt(UCrop.EXTRA_MAX_SIZE_Y, 0);
+
+        if (minSizeX > 0 && minSizeY > 0) {
+            mGestureCropImageView.setMinResultImageSizeX(minSizeX);
+            mGestureCropImageView.setMinResultImageSizeY(minSizeY);
+        }
 
         if (maxSizeX > 0 && maxSizeY > 0) {
             mGestureCropImageView.setMaxResultImageSizeX(maxSizeX);
