@@ -55,9 +55,9 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
     private static final String SAMPLE_CROPPED_IMAGE_NAME = "SampleCropImage";
 
     private RadioGroup mRadioGroupAspectRatio, mRadioGroupCompressionSettings;
-    private EditText mEditTextMaxWidth, mEditTextMaxHeight;
+    private EditText mEditTextMinWidth, mEditTextMinHeight, mEditTextMaxWidth, mEditTextMaxHeight;
     private EditText mEditTextRatioX, mEditTextRatioY;
-    private CheckBox mCheckBoxMaxSize;
+    private CheckBox mCheckBoxMinSize, mCheckBoxMaxSize;
     private SeekBar mSeekBarQuality;
     private TextView mTextViewQuality;
     private CheckBox mCheckBoxHideBottomControls;
@@ -145,9 +145,12 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         settingsView = findViewById(R.id.settings);
         mRadioGroupAspectRatio = findViewById(R.id.radio_group_aspect_ratio);
         mRadioGroupCompressionSettings = findViewById(R.id.radio_group_compression_settings);
+        mCheckBoxMinSize = findViewById(R.id.checkbox_min_size);
         mCheckBoxMaxSize = findViewById(R.id.checkbox_max_size);
         mEditTextRatioX = findViewById(R.id.edit_text_ratio_x);
         mEditTextRatioY = findViewById(R.id.edit_text_ratio_y);
+        mEditTextMinWidth = findViewById(R.id.edit_text_min_width);
+        mEditTextMinHeight = findViewById(R.id.edit_text_min_height);
         mEditTextMaxWidth = findViewById(R.id.edit_text_max_width);
         mEditTextMaxHeight = findViewById(R.id.edit_text_max_height);
         mSeekBarQuality = findViewById(R.id.seekbar_quality);
@@ -184,6 +187,8 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
             }
         });
 
+        mEditTextMinHeight.addTextChangedListener(mMinSizeTextWatcher);
+        mEditTextMinWidth.addTextChangedListener(mMinSizeTextWatcher);
         mEditTextMaxHeight.addTextChangedListener(mMaxSizeTextWatcher);
         mEditTextMaxWidth.addTextChangedListener(mMaxSizeTextWatcher);
     }
@@ -203,6 +208,26 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         @Override
         public void afterTextChanged(Editable s) {
 
+        }
+    };
+
+    private TextWatcher mMinSizeTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s != null && !s.toString().trim().isEmpty()) {
+                if (Integer.valueOf(s.toString()) < UCrop.MIN_SIZE) {
+                    Toast.makeText(SampleActivity.this, String.format(getString(R.string.format_min_cropped_image_size), UCrop.MIN_SIZE), Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     };
 
@@ -301,10 +326,24 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
                 break;
         }
 
+        if (mCheckBoxMinSize.isChecked()) {
+            try {
+                int minWidth = Integer.valueOf(mEditTextMinWidth.getText().toString().trim());
+                int minHeight = Integer.valueOf(mEditTextMinHeight.getText().toString().trim());
+
+                if (minWidth > UCrop.MIN_SIZE && minHeight > UCrop.MIN_SIZE) {
+                    uCrop = uCrop.withMinResultSize(minWidth, minHeight);
+                }
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "Number please", e);
+            }
+        }
+
         if (mCheckBoxMaxSize.isChecked()) {
             try {
                 int maxWidth = Integer.valueOf(mEditTextMaxWidth.getText().toString().trim());
                 int maxHeight = Integer.valueOf(mEditTextMaxHeight.getText().toString().trim());
+
                 if (maxWidth > UCrop.MIN_SIZE && maxHeight > UCrop.MIN_SIZE) {
                     uCrop = uCrop.withMaxResultSize(maxWidth, maxHeight);
                 }

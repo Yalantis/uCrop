@@ -49,7 +49,7 @@ public class CropImageView extends TransformImageView {
     private Runnable mWrapCropBoundsRunnable, mZoomImageToPositionRunnable = null;
 
     private float mMaxScale, mMinScale;
-    private int mMaxResultImageSizeX = 0, mMaxResultImageSizeY = 0;
+    private int mMinResultImageSizeX = 0, mMinResultImageSizeY = 0, mMaxResultImageSizeX = 0, mMaxResultImageSizeY = 0;
     private long mImageToWrapCropBoundsAnimDuration = DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION;
 
     public CropImageView(Context context) {
@@ -78,6 +78,7 @@ public class CropImageView extends TransformImageView {
                 getCurrentScale(), getCurrentAngle());
 
         final CropParameters cropParameters = new CropParameters(
+                mMinResultImageSizeX, mMinResultImageSizeY,
                 mMaxResultImageSizeX, mMaxResultImageSizeY,
                 compressFormat, compressQuality,
                 getImageInputPath(), getImageOutputPath(), getExifInfo());
@@ -155,7 +156,28 @@ public class CropImageView extends TransformImageView {
     }
 
     /**
+     * This method sets minimum width for resulting cropped image
+     * The priority of this method is less than the {@link #setMaxResultImageSizeX(int) setMaxResultImageSizeX} method.
+     *
+     * @param minResultImageSizeX - size in pixels
+     */
+    public void setMinResultImageSizeX(@IntRange(from = 10) int minResultImageSizeX) {
+        mMinResultImageSizeX = minResultImageSizeX;
+    }
+
+    /**
+     * This method sets minimum width for resulting cropped image
+     * The priority of this method is less than the {@link #setMaxResultImageSizeY(int) setMaxResultImageSizeY} method.
+     *
+     * @param minResultImageSizeY - size in pixels
+     */
+    public void setMinResultImageSizeY(@IntRange(from = 10) int minResultImageSizeY) {
+        mMinResultImageSizeY = minResultImageSizeY;
+    }
+
+    /**
      * This method sets maximum width for resulting cropped image
+     * The priority of this method is higher than the {@link #setMinResultImageSizeX(int) setMinResultImageSizeX} method.
      *
      * @param maxResultImageSizeX - size in pixels
      */
@@ -165,6 +187,7 @@ public class CropImageView extends TransformImageView {
 
     /**
      * This method sets maximum width for resulting cropped image
+     * The priority of this method is higher than the {@link #setMinResultImageSizeY(int) setMinResultImageSizeY} method.
      *
      * @param maxResultImageSizeY - size in pixels
      */

@@ -40,8 +40,8 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     private final RectF mCropRect;
     private final RectF mCurrentImageRect;
 
-    private float mCurrentScale, mCurrentAngle;
-    private final int mMaxResultImageSizeX, mMaxResultImageSizeY;
+    private float mCurrentScale, mCurrentScaleX, mCurrentScaleY, mCurrentAngle;
+    private final int mMinResultImageSizeX, mMinResultImageSizeY, mMaxResultImageSizeX, mMaxResultImageSizeY;
 
     private final Bitmap.CompressFormat mCompressFormat;
     private final int mCompressQuality;
@@ -61,6 +61,9 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
         mCurrentScale = imageState.getCurrentScale();
         mCurrentAngle = imageState.getCurrentAngle();
+
+        mMinResultImageSizeX = cropParameters.getMinResultImageSizeX();
+        mMinResultImageSizeY = cropParameters.getMinResultImageSizeY();
         mMaxResultImageSizeX = cropParameters.getMaxResultImageSizeX();
         mMaxResultImageSizeY = cropParameters.getMaxResultImageSizeY();
 
@@ -106,34 +109,55 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         float scaleX = (swapSides ? options.outHeight : options.outWidth) / (float) mViewBitmap.getWidth();
         float scaleY = (swapSides ? options.outWidth : options.outHeight) / (float) mViewBitmap.getHeight();
 
-        float resizeScale = Math.min(scaleX, scaleY);
+//        float resizeScale = Math.min(scaleX, scaleY);
+        float resizeScale = 1;
 
-        mCurrentScale /= resizeScale;
+//        mCurrentScale /= resizeScale;
+        mCurrentScaleX = mCurrentScale / scaleX;
+        mCurrentScaleY = mCurrentScale / scaleY;
 
-        resizeScale = 1;
-        if (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0) {
-            float cropWidth = mCropRect.width() / mCurrentScale;
-            float cropHeight = mCropRect.height() / mCurrentScale;
+//        resizeScale = 1;
 
-            if (cropWidth > mMaxResultImageSizeX || cropHeight > mMaxResultImageSizeY) {
+        boolean hasMin = mMinResultImageSizeX > 0 && mMinResultImageSizeY > 0;
+        boolean hasMax = mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0;
 
+        if (hasMin || hasMax) {
+            float cropWidth = mCropRect.width() / mCurrentScaleX;
+            float cropHeight = mCropRect.height() / mCurrentScaleY;
+
+            boolean scaleChanged = false;
+
+            if (hasMin && (cropWidth < mMinResultImageSizeX || cropHeight < mMinResultImageSizeY)) {
+                scaleX = mMinResultImageSizeX / cropWidth;
+                scaleY = mMinResultImageSizeY / cropHeight;
+                scaleChanged = true;
+            }
+
+            if (hasMax && (cropWidth > mMaxResultImageSizeX || cropHeight > mMaxResultImageSizeY)) {
                 scaleX = mMaxResultImageSizeX / cropWidth;
                 scaleY = mMaxResultImageSizeY / cropHeight;
-                resizeScale = Math.min(scaleX, scaleY);
+                scaleChanged = true;
+            }
 
-                mCurrentScale /= resizeScale;
+            if (scaleChanged) {
+                resizeScale = Math.max(scaleX, scaleY);
+
+//                mCurrentScale /= resizeScale;
+                mCurrentScaleX /= scaleX;
+                mCurrentScaleY /= scaleY;
             }
         }
+
         return resizeScale;
     }
 
     private boolean crop(float resizeScale) throws IOException {
         ExifInterface originalExif = new ExifInterface(mImageInputPath);
 
-        cropOffsetX = Math.round((mCropRect.left - mCurrentImageRect.left) / mCurrentScale);
-        cropOffsetY = Math.round((mCropRect.top - mCurrentImageRect.top) / mCurrentScale);
-        mCroppedImageWidth = Math.round(mCropRect.width() / mCurrentScale);
-        mCroppedImageHeight = Math.round(mCropRect.height() / mCurrentScale);
+        cropOffsetX = Math.round((mCropRect.left - mCurrentImageRect.left) / mCurrentScaleX);
+        cropOffsetY = Math.round((mCropRect.top - mCurrentImageRect.top) / mCurrentScaleY);
+        mCroppedImageWidth = Math.round(mCropRect.width() / mCurrentScaleX);
+        mCroppedImageHeight = Math.round(mCropRect.height() / mCurrentScaleY);
 
         boolean shouldCrop = shouldCrop(mCroppedImageWidth, mCroppedImageHeight);
         Log.i(TAG, "Should crop: " + shouldCrop);
