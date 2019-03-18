@@ -6,12 +6,8 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.widget.ImageView;
 
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
 import com.yalantis.ucrop.model.ExifInfo;
@@ -19,13 +15,18 @@ import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.util.FastBitmapDrawable;
 import com.yalantis.ucrop.util.RectUtils;
 
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
+
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
  * <p/>
  * This class provides base logic to setup the image, transform it with matrix (move, scale, rotate),
  * and methods to get current matrix state.
  */
-public class TransformImageView extends ImageView {
+public class TransformImageView extends AppCompatImageView {
 
     private static final String TAG = "TransformImageView";
 
