@@ -92,6 +92,10 @@ Currently you can change:
   * CPU - armeabi armeabi-v7a x86 x86_64 arm64-v8a (for versions >= 2.1.2)
   
 # Changelog
+### Version: 2.2.2
+
+* uCrop fragment added
+* bugfix
 
 ### Version: 2.2.2
 

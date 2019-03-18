@@ -162,8 +162,10 @@ public class UCropActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_crop) {
             cropAndSaveImage();
+            return true;
         } else if (item.getItemId() == android.R.id.home) {
             onBackPressed();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
