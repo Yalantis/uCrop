@@ -191,7 +191,8 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
                 || Math.abs(mCropRect.left - mCurrentImageRect.left) > pixelError
                 || Math.abs(mCropRect.top - mCurrentImageRect.top) > pixelError
                 || Math.abs(mCropRect.bottom - mCurrentImageRect.bottom) > pixelError
-                || Math.abs(mCropRect.right - mCurrentImageRect.right) > pixelError;
+                || Math.abs(mCropRect.right - mCurrentImageRect.right) > pixelError
+                || mCurrentAngle != 0;
     }
 
     @Override
