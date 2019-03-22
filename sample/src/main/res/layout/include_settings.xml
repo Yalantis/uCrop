@@ -145,6 +145,57 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:text="@string/label_min_cropped_image_size"
+                android:textAppearance="?android:textAppearanceSmall" />
+
+            <CheckBox
+                android:id="@+id/checkbox_min_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_resize_image_to_min_size"
+                android:textAppearance="?android:textAppearanceMedium" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/edit_text_min_width"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:hint="@string/label_width"
+                    android:inputType="number" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="x"
+                    tools:ignore="HardcodedText" />
+
+                <EditText
+                    android:id="@+id/edit_text_min_height"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:hint="@string/label_height"
+                    android:inputType="number" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_margin="5dp"
+                android:background="@color/colorAccent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:text="@string/label_max_cropped_image_size"
                 android:textAppearance="?android:textAppearanceSmall" />
 
