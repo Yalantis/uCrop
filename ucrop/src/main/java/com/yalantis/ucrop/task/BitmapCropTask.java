@@ -90,7 +90,6 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
             return new NullPointerException("CurrentImageRect is empty");
         }
 
-
         try {
             crop();
             mViewBitmap = null;
@@ -100,7 +99,6 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
         return null;
     }
-
 
     private boolean crop() throws IOException {
         // Downsize if needed
