@@ -251,7 +251,6 @@ public class UCrop {
         return (Throwable) result.getSerializableExtra(EXTRA_ERROR);
     }
 
-
     /**
      * Class that helps to setup advanced configs that are not commonly used.
      * Use it with method {@link #withOptions(Options)}
