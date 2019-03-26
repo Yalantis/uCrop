@@ -95,12 +95,13 @@ public class UCropFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        try {
+        if (getParentFragment() instanceof UCropFragmentCallback)
+            callback = (UCropFragmentCallback) getParentFragment();
+        else if (context instanceof UCropFragmentCallback)
             callback = (UCropFragmentCallback) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
+        else
+            throw new IllegalArgumentException(context.toString()
                     + " must implement UCropFragmentCallback");
-        }
     }
 
     public void setCallback(UCropFragmentCallback callback) {
