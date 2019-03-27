@@ -1,15 +1,13 @@
 apply plugin: 'com.android.library'
-apply from: '../mavenpush.gradle'
+
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
-
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 27
-        versionCode 23
-        versionName "2.2.2-native"
+        targetSdkVersion 26
+
 
         vectorDrawables.useSupportLibrary = true
     }
@@ -36,6 +34,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:appcompat-v7:27.1.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0-alpha03'
+
     implementation 'com.squareup.okhttp3:okhttp:3.8.1'
 }
