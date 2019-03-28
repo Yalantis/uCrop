@@ -21,8 +21,7 @@
         android:layout_toStartOf="@+id/wrapper_rotate_by_angle"
         android:layout_toLeftOf="@+id/wrapper_rotate_by_angle"
         android:layout_toEndOf="@+id/wrapper_reset_rotate"
-        android:layout_toRightOf="@+id/wrapper_reset_rotate"
-        android:background="@drawable/ucrop_wrapper_controls_selector" />
+        android:layout_toRightOf="@+id/wrapper_reset_rotate" />
 
     <FrameLayout
         android:id="@+id/wrapper_reset_rotate"

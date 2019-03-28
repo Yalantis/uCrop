@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <FrameLayout
         android:id="@+id/wrapper_controls"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/ucrop_height_wrapper_controls"
-        android:layout_above="@+id/wrapper_states">
+        android:layout_height="@dimen/ucrop_height_wrapper_controls">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/ucrop_wrapper_controls_shape" />
 
         <LinearLayout
             android:id="@+id/layout_aspect_ratio"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:background="@drawable/ucrop_wrapper_controls_selector"
-            android:orientation="horizontal"/>
+            android:orientation="horizontal" />
 
         <include
             android:id="@+id/layout_rotate_wheel"
@@ -29,14 +35,12 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="@dimen/ucrop_height_divider_shadow"
-        android:layout_above="@+id/wrapper_states"
         android:background="@drawable/ucrop_shadow_upside" />
 
     <LinearLayout
         android:id="@+id/wrapper_states"
         android:layout_width="match_parent"
         android:layout_height="@dimen/ucrop_height_wrapper_states"
-        android:layout_alignParentBottom="true"
         android:background="@color/ucrop_color_widget_background"
         android:baselineAligned="false"
         android:gravity="center"
@@ -94,4 +98,4 @@
         </LinearLayout>
 
     </LinearLayout>
-</merge>
+</LinearLayout>
