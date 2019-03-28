@@ -2,15 +2,15 @@
 <resources>
 
     <!--uCrop Activity-->
-    <color name="ucrop_color_toolbar">#FF6E40</color>
-    <color name="ucrop_color_statusbar">#CC5833</color>
-    <color name="ucrop_color_toolbar_widget">#fff</color>
+    <color name="ucrop_color_toolbar">#fff</color>
+    <color name="ucrop_color_statusbar">#f5f5f5</color>
+    <color name="ucrop_color_toolbar_widget">#000000</color>
     <color name="ucrop_color_widget">#000</color>
     <color name="ucrop_color_widget_active">#FFFFFF</color>
     <color name="ucrop_color_widget_rotate_mid_line">#512DA8</color>
     <color name="ucrop_color_widget_background">#673AB7</color>
     <color name="ucrop_color_widget_text">#000</color>
-    <color name="ucrop_color_progress_wheel_line">#5e2fbc</color>
+    <color name="ucrop_color_progress_wheel_line">#000000</color>
     <color name="ucrop_color_crop_background">#000</color>
 
     <!--Crop View-->

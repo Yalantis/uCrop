@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
@@ -73,7 +74,7 @@ public class UCropActivity extends AppCompatActivity {
     }
 
     private static final String TAG = "UCropActivity";
-    private static final long CONTROLS_ANIMATION_DURATION = 100;
+    private static final long CONTROLS_ANIMATION_DURATION = 50;
     private static final int TABS_COUNT = 3;
     private static final int SCALE_WIDGET_SENSITIVITY_COEFFICIENT = 15000;
     private static final int ROTATE_WIDGET_SENSITIVITY_COEFFICIENT = 42;
@@ -294,8 +295,8 @@ public class UCropActivity extends AppCompatActivity {
         initiateRootViews();
 
         if (mShowBottomControls) {
-            ViewGroup photoBox = findViewById(R.id.ucrop_photobox);
-            View.inflate(this, R.layout.ucrop_controls, photoBox);
+            ViewStub v = findViewById(R.id.stub);
+            v.inflate();
 
             mControlsTransition = new AutoTransition();
             mControlsTransition.setDuration(CONTROLS_ANIMATION_DURATION);
@@ -587,11 +588,7 @@ public class UCropActivity extends AppCompatActivity {
         mLayoutRotate.setVisibility(stateViewId == R.id.state_rotate ? View.VISIBLE : View.GONE);
         mLayoutScale.setVisibility(stateViewId == R.id.state_scale ? View.VISIBLE : View.GONE);
 
-        TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.ucrop_photobox), mControlsTransition);
-
-        mWrapperStateScale.findViewById(R.id.text_view_scale).setVisibility(stateViewId == R.id.state_scale ? View.VISIBLE : View.GONE);
-        mWrapperStateAspectRatio.findViewById(R.id.text_view_crop).setVisibility(stateViewId == R.id.state_aspect_ratio ? View.VISIBLE : View.GONE);
-        mWrapperStateRotate.findViewById(R.id.text_view_rotate).setVisibility(stateViewId == R.id.state_rotate ? View.VISIBLE : View.GONE);
+        changeSelectedTab(stateViewId);
 
         if (stateViewId == R.id.state_scale) {
             setAllowedGestures(0);
@@ -600,6 +597,15 @@ public class UCropActivity extends AppCompatActivity {
         } else {
             setAllowedGestures(2);
         }
+    }
+
+    private void changeSelectedTab(int stateViewId) {
+        TransitionManager.beginDelayedTransition((ViewGroup) findViewById(R.id.ucrop_photobox), mControlsTransition);
+
+        mWrapperStateScale.findViewById(R.id.text_view_scale).setVisibility(stateViewId == R.id.state_scale ? View.VISIBLE : View.GONE);
+        mWrapperStateAspectRatio.findViewById(R.id.text_view_crop).setVisibility(stateViewId == R.id.state_aspect_ratio ? View.VISIBLE : View.GONE);
+        mWrapperStateRotate.findViewById(R.id.text_view_rotate).setVisibility(stateViewId == R.id.state_rotate ? View.VISIBLE : View.GONE);
+
     }
 
     private void setAllowedGestures(int tab) {

@@ -38,8 +38,9 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/ucrop_color_widget_background</item>
         <item name="android:layout_marginTop">@dimen/ucrop_margit_top_widget_text</item>
-        <item name="android:textColor">@color/ucrop_color_widget_text</item>
         <item name="android:textSize">@dimen/ucrop_text_size_widget_text</item>
     </style>
 

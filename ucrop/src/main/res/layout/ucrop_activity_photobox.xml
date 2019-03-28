@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/ucrop_photobox"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:animateLayoutChanges="true">
+    android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -27,10 +26,9 @@
     <FrameLayout
         android:id="@+id/ucrop_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/wrapper_controls"
-        android:layout_below="@+id/toolbar"
-        android:background="@color/ucrop_color_crop_background">
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/tt"
+        android:layout_below="@+id/toolbar">
 
         <ImageView
             android:id="@+id/image_view_logo"
@@ -44,9 +42,29 @@
         <com.yalantis.ucrop.view.UCropView
             android:id="@+id/ucrop"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:alpha="0" />
 
     </FrameLayout>
+
+    <View
+        android:id="@+id/tt"
+        android:layout_width="match_parent"
+        android:layout_height="127dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true" />
+
+    <ViewStub
+        android:id="@+id/stub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout="@layout/ucrop_controls"
+        android:visibility="gone" />
 
 </RelativeLayout>
