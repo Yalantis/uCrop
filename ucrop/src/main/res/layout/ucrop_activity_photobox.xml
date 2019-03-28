@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/ucrop_photobox"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"

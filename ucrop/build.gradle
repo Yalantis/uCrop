@@ -37,6 +37,7 @@ android {
 
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.0'
+    implementation 'com.android.support:design:27.1.0'
     implementation 'com.android.support:exifinterface:27.1.0'
     implementation 'com.squareup.okhttp3:okhttp:3.8.1'
 }
