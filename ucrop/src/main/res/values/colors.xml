@@ -7,6 +7,7 @@
     <color name="ucrop_color_toolbar_widget">#000000</color>
     <color name="ucrop_color_widget">#000</color>
     <color name="ucrop_color_widget_active">#FFFFFF</color>
+    <color name="ucrop_color_active_controls_color">#FFFFFF</color>
     <color name="ucrop_color_widget_rotate_mid_line">#512DA8</color>
     <color name="ucrop_color_widget_background">#673AB7</color>
     <color name="ucrop_color_widget_text">#000</color>

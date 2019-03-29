@@ -54,6 +54,7 @@ public class UCropFragment extends Fragment {
     public static final int SCALE = 1;
     public static final int ROTATE = 2;
     public static final int ALL = 3;
+    private int mActiveControlsWidgetColor;
 
     @IntDef({NONE, SCALE, ROTATE, ALL})
     @Retention(RetentionPolicy.SOURCE)
@@ -126,7 +127,8 @@ public class UCropFragment extends Fragment {
 
 
     public void setupViews(View view, Bundle args) {
-        mActiveWidgetColor = args.getInt(UCrop.Options.EXTRA_UCROP_COLOR_WIDGET_ACTIVE, ContextCompat.getColor(getContext(), R.color.ucrop_color_widget_active));
+        mActiveWidgetColor = args.getInt(UCrop.Options.EXTRA_UCROP_COLOR_WIDGET_ACTIVE, ContextCompat.getColor(getContext(), R.color.ucrop_color_widget_background));
+        mActiveControlsWidgetColor = args.getInt(UCrop.Options.EXTRA_UCROP_COLOR_WIDGET_ACTIVE, ContextCompat.getColor(getContext(), R.color.ucrop_color_widget_active));
         mLogoColor = args.getInt(UCrop.Options.EXTRA_UCROP_LOGO_COLOR, ContextCompat.getColor(getContext(), R.color.ucrop_color_default_logo));
         mShowBottomControls = !args.getBoolean(UCrop.Options.EXTRA_HIDE_BOTTOM_CONTROLS, false);
         mRootViewBackgroundColor = args.getInt(UCrop.Options.EXTRA_UCROP_ROOT_VIEW_BACKGROUND_COLOR, ContextCompat.getColor(getContext(), R.color.ucrop_color_crop_background));
@@ -135,8 +137,11 @@ public class UCropFragment extends Fragment {
         callback.loadingProgress(true);
 
         if (mShowBottomControls) {
-            ViewGroup photoBox = view.findViewById(R.id.ucrop_photobox);
-            View.inflate(getContext(), R.layout.ucrop_controls, photoBox);
+
+            ViewGroup wrapper = view.findViewById(R.id.controls_wrapper);
+            wrapper.setVisibility(View.VISIBLE);
+            wrapper.setBackgroundColor(mRootViewBackgroundColor);
+            LayoutInflater.from(getContext()).inflate(R.layout.ucrop_controls, wrapper, true);
 
             mWrapperStateAspectRatio = view.findViewById(R.id.state_aspect_ratio);
             mWrapperStateAspectRatio.setOnClickListener(mStateClickListener);
@@ -289,9 +294,9 @@ public class UCropFragment extends Fragment {
         ImageView stateRotateImageView = view.findViewById(R.id.image_view_state_rotate);
         ImageView stateAspectRatioImageView = view.findViewById(R.id.image_view_state_aspect_ratio);
 
-        stateScaleImageView.setImageDrawable(new SelectedStateListDrawable(stateScaleImageView.getDrawable(), mActiveWidgetColor));
-        stateRotateImageView.setImageDrawable(new SelectedStateListDrawable(stateRotateImageView.getDrawable(), mActiveWidgetColor));
-        stateAspectRatioImageView.setImageDrawable(new SelectedStateListDrawable(stateAspectRatioImageView.getDrawable(), mActiveWidgetColor));
+        stateScaleImageView.setImageDrawable(new SelectedStateListDrawable(stateScaleImageView.getDrawable(), mActiveControlsWidgetColor));
+        stateRotateImageView.setImageDrawable(new SelectedStateListDrawable(stateRotateImageView.getDrawable(), mActiveControlsWidgetColor));
+        stateAspectRatioImageView.setImageDrawable(new SelectedStateListDrawable(stateAspectRatioImageView.getDrawable(), mActiveControlsWidgetColor));
     }
 
     private void setupAspectRatioWidget(@NonNull Bundle bundle, View view) {
