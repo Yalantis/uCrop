@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -8,7 +8,9 @@
     <FrameLayout
         android:id="@+id/wrapper_controls"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/ucrop_height_wrapper_controls">
+        android:layout_height="@dimen/ucrop_height_wrapper_controls"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="0dp">
 
         <ImageView
             android:layout_width="match_parent"
@@ -33,14 +35,17 @@
     </FrameLayout>
 
     <ImageView
+        android:id="@+id/controls_shadow"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/ucrop_height_divider_shadow"
-        android:background="@drawable/ucrop_shadow_upside" />
+        android:layout_height="8dp"
+        android:layout_alignBottom="@+id/wrapper_controls"
+        android:src="@drawable/ucrop_shadow_upside" />
 
     <LinearLayout
         android:id="@+id/wrapper_states"
         android:layout_width="match_parent"
         android:layout_height="@dimen/ucrop_height_wrapper_states"
+        android:layout_below="@+id/controls_shadow"
         android:background="@color/ucrop_color_widget_background"
         android:baselineAligned="false"
         android:gravity="center"
@@ -98,4 +103,4 @@
         </LinearLayout>
 
     </LinearLayout>
-</LinearLayout>
+</RelativeLayout>

@@ -23,11 +23,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
@@ -295,8 +295,12 @@ public class UCropActivity extends AppCompatActivity {
         initiateRootViews();
 
         if (mShowBottomControls) {
-            ViewStub v = findViewById(R.id.stub);
-            v.inflate();
+
+            ViewGroup viewGroup = findViewById(R.id.ucrop_photobox);
+            ViewGroup wrapper = viewGroup.findViewById(R.id.controls_wrapper);
+            wrapper.setVisibility(View.VISIBLE);
+            wrapper.setBackgroundColor(mRootViewBackgroundColor);
+            LayoutInflater.from(this).inflate(R.layout.ucrop_controls, wrapper, true);
 
             mControlsTransition = new AutoTransition();
             mControlsTransition.setDuration(CONTROLS_ANIMATION_DURATION);
