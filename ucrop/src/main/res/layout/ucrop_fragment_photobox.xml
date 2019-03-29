@@ -9,7 +9,7 @@
         android:id="@+id/ucrop_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/wrapper_controls"
+        android:layout_above="@+id/controls_wrapper"
         android:background="@color/ucrop_color_crop_background">
 
         <ImageView
@@ -28,5 +28,13 @@
             android:alpha="0" />
 
     </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/controls_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/black"
+        android:visibility="gone" />
 
 </RelativeLayout>
