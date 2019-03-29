@@ -17,7 +17,7 @@
             style="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="start"
             android:text="@string/ucrop_label_edit_photo"
             android:textColor="@color/ucrop_color_toolbar_widget" />
 
@@ -27,7 +27,7 @@
         android:id="@+id/ucrop_frame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/tt"
+        android:layout_above="@+id/controls_wrapper"
         android:layout_below="@+id/toolbar">
 
         <ImageView
@@ -47,24 +47,12 @@
 
     </FrameLayout>
 
-    <View
-        android:id="@+id/tt"
-        android:layout_width="match_parent"
-        android:layout_height="127dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true" />
-
-    <ViewStub
-        android:id="@+id/stub"
+    <FrameLayout
+        android:id="@+id/controls_wrapper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout="@layout/ucrop_controls"
+        android:background="@android:color/black"
         android:visibility="gone" />
 
 </RelativeLayout>
