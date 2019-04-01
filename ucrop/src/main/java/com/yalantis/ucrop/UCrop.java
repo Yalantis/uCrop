@@ -447,10 +447,17 @@ public class UCrop {
         }
 
         /**
-         * @param color - desired resolved color of the active and selected widget (default is orange) and progress wheel middle line
+         * @param color - desired resolved color of the progress wheel middle line (default is violet)
          */
         public void setActiveWidgetColor(@ColorInt int color) {
             mOptionBundle.putInt(EXTRA_UCROP_COLOR_WIDGET_ACTIVE, color);
+        }
+
+        /**
+         * @param color - desired resolved color of the active and selected widget (default is white)
+         */
+        public void setActiveControlsWidgetColor(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_UCROP_COLOR_CONTROLS_WIDGET_ACTIVE, color);
         }
 
         /**
