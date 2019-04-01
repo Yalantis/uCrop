@@ -54,7 +54,6 @@ public class UCropFragment extends Fragment {
     public static final int SCALE = 1;
     public static final int ROTATE = 2;
     public static final int ALL = 3;
-    private int mActiveControlsWidgetColor;
 
     @IntDef({NONE, SCALE, ROTATE, ALL})
     @Retention(RetentionPolicy.SOURCE)
@@ -63,17 +62,21 @@ public class UCropFragment extends Fragment {
 
     public static final String TAG = "UCropFragment";
 
+    private static final long CONTROLS_ANIMATION_DURATION = 50;
     private static final int TABS_COUNT = 3;
     private static final int SCALE_WIDGET_SENSITIVITY_COEFFICIENT = 15000;
     private static final int ROTATE_WIDGET_SENSITIVITY_COEFFICIENT = 42;
     private UCropFragmentCallback callback;
 
+    private int mActiveControlsWidgetColor;
     private int mActiveWidgetColor;
     @ColorInt
     private int mRootViewBackgroundColor;
     private int mLogoColor;
 
     private boolean mShowBottomControls;
+
+    private Transition mControlsTransition;
 
     private UCropView mUCropView;
     private GestureCropImageView mGestureCropImageView;
@@ -142,6 +145,9 @@ public class UCropFragment extends Fragment {
             wrapper.setVisibility(View.VISIBLE);
             wrapper.setBackgroundColor(mRootViewBackgroundColor);
             LayoutInflater.from(getContext()).inflate(R.layout.ucrop_controls, wrapper, true);
+
+            mControlsTransition = new AutoTransition();
+            mControlsTransition.setDuration(CONTROLS_ANIMATION_DURATION);
 
             mWrapperStateAspectRatio = view.findViewById(R.id.state_aspect_ratio);
             mWrapperStateAspectRatio.setOnClickListener(mStateClickListener);
@@ -470,6 +476,8 @@ public class UCropFragment extends Fragment {
         mLayoutRotate.setVisibility(stateViewId == R.id.state_rotate ? View.VISIBLE : View.GONE);
         mLayoutScale.setVisibility(stateViewId == R.id.state_scale ? View.VISIBLE : View.GONE);
 
+        changeSelectedTab(stateViewId);
+
         if (stateViewId == R.id.state_scale) {
             setAllowedGestures(0);
         } else if (stateViewId == R.id.state_rotate) {
@@ -477,6 +485,15 @@ public class UCropFragment extends Fragment {
         } else {
             setAllowedGestures(2);
         }
+    }
+
+    private void changeSelectedTab(int stateViewId) {
+        if (getView() != null) {
+            TransitionManager.beginDelayedTransition((ViewGroup) getView().findViewById(R.id.ucrop_photobox), mControlsTransition);
+        }
+        mWrapperStateScale.findViewById(R.id.text_view_scale).setVisibility(stateViewId == R.id.state_scale ? View.VISIBLE : View.GONE);
+        mWrapperStateAspectRatio.findViewById(R.id.text_view_crop).setVisibility(stateViewId == R.id.state_aspect_ratio ? View.VISIBLE : View.GONE);
+        mWrapperStateRotate.findViewById(R.id.text_view_rotate).setVisibility(stateViewId == R.id.state_rotate ? View.VISIBLE : View.GONE);
     }
 
     private void setAllowedGestures(int tab) {
