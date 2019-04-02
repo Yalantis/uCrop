@@ -17,7 +17,7 @@
             style="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="start"
             android:text="@string/ucrop_label_edit_photo"
             android:textColor="@color/ucrop_color_toolbar_widget" />
 
@@ -26,10 +26,9 @@
     <FrameLayout
         android:id="@+id/ucrop_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/wrapper_controls"
-        android:layout_below="@+id/toolbar"
-        android:background="@color/ucrop_color_crop_background">
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/controls_wrapper"
+        android:layout_below="@+id/toolbar">
 
         <ImageView
             android:id="@+id/image_view_logo"
@@ -43,9 +42,17 @@
         <com.yalantis.ucrop.view.UCropView
             android:id="@+id/ucrop"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:alpha="0" />
 
     </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/controls_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/black"
+        android:visibility="gone" />
 
 </RelativeLayout>
