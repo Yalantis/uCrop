@@ -121,22 +121,6 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         }
     }
 
-    private TextWatcher mMaxWidthSizeTextWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            handleChangedText(true, s);
-        }
-    };
-
 
     private TextWatcher mAspectRatioTextWatcher = new TextWatcher() {
         @Override
@@ -154,7 +138,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
 
         }
     };
-    private TextWatcher mMaxHeightSizeTextWatcher = new TextWatcher() {
+    private TextWatcher mMaxSizeTextWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
@@ -166,7 +150,11 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
 
         @Override
         public void afterTextChanged(Editable s) {
-            handleChangedText(false, s);
+            if (s != null && !s.toString().trim().isEmpty()) {
+                if (Integer.valueOf(s.toString()) < UCrop.MIN_SIZE) {
+                    Toast.makeText(SampleActivity.this, String.format(getString(R.string.format_max_cropped_image_size), UCrop.MIN_SIZE), Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     };
 
@@ -233,25 +221,8 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
             }
         });
 
-        mEditTextMaxHeight.addTextChangedListener(mMaxHeightSizeTextWatcher);
-        mEditTextMaxWidth.addTextChangedListener(mMaxWidthSizeTextWatcher);
-    }
-
-    private void handleChangedText(Boolean isWidth, Editable s) {
-        if (s != null && !s.toString().trim().isEmpty()) {
-            try {
-                if (Integer.valueOf(s.toString()) < UCrop.MIN_SIZE) {
-                    Toast.makeText(SampleActivity.this, String.format(getString(R.string.format_max_cropped_image_size), UCrop.MIN_SIZE), Toast.LENGTH_SHORT).show();
-                }
-            } catch (Throwable t) {
-                if (isWidth) {
-                    mEditTextMaxWidth.setText(s.delete(s.length() - 1, s.length()));
-                } else {
-                    mEditTextMaxHeight.setText(s.delete(s.length() - 1, s.length()));
-                }
-                Toast.makeText(SampleActivity.this, getString(R.string.format_max_cropped_image_size_resolution), Toast.LENGTH_SHORT).show();
-            }
-        }
+        mEditTextMaxHeight.addTextChangedListener(mMaxSizeTextWatcher);
+        mEditTextMaxWidth.addTextChangedListener(mMaxSizeTextWatcher);
     }
 
     private void pickFromGallery() {
