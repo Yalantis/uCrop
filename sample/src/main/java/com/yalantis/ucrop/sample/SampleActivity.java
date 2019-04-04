@@ -524,7 +524,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         }
 
         MenuItem menuItemCrop = menu.findItem(R.id.menu_crop);
-        Drawable menuItemCropIcon = ContextCompat.getDrawable(this, mToolbarCropDrawable);
+        Drawable menuItemCropIcon = ContextCompat.getDrawable(this, mToolbarCropDrawable == 0 ? R.drawable.ucrop_ic_done : mToolbarCropDrawable);
         if (menuItemCropIcon != null) {
             menuItemCropIcon.mutate();
             menuItemCropIcon.setColorFilter(mToolbarWidgetColor, PorterDuff.Mode.SRC_ATOP);
@@ -544,7 +544,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_crop) {
-            if (fragment.isAdded())
+            if (fragment != null && fragment.isAdded())
                 fragment.cropAndSaveImage();
         } else if (item.getItemId() == android.R.id.home) {
             removeFragmentFromScreen();
