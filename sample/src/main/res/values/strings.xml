@@ -33,6 +33,7 @@
     <string name="format_quality_d">Quality: %d</string>
     <string name="format_d_d_px">%1$dx%2$d px</string>
     <string name="format_max_cropped_image_size">Max cropped image size cannot be less then %d</string>
+    <string name="format_max_cropped_image_size_resolution">Too big resolution</string>
 
     <string name="permission_title_rationale">Permission needed</string>
     <string name="permission_read_storage_rationale">Storage read permission is needed to pick files.</string>

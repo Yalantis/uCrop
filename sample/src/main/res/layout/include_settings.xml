@@ -165,6 +165,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:maxLength="9"
                     android:gravity="center"
                     android:hint="@string/label_width"
                     android:inputType="number" />
@@ -180,6 +181,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:maxLength="9"
                     android:gravity="center"
                     android:hint="@string/label_height"
                     android:inputType="number" />
