@@ -121,6 +121,55 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         }
     }
 
+    private TextWatcher mMaxWidthSizeTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            handleChangedText(true, s);
+        }
+    };
+
+
+    private TextWatcher mAspectRatioTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            mRadioGroupAspectRatio.clearCheck();
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    };
+    private TextWatcher mMaxHeightSizeTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            handleChangedText(false, s);
+        }
+    };
+
     @SuppressWarnings("ConstantConditions")
     private void setupUI() {
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
@@ -184,47 +233,26 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
             }
         });
 
-        mEditTextMaxHeight.addTextChangedListener(mMaxSizeTextWatcher);
-        mEditTextMaxWidth.addTextChangedListener(mMaxSizeTextWatcher);
+        mEditTextMaxHeight.addTextChangedListener(mMaxHeightSizeTextWatcher);
+        mEditTextMaxWidth.addTextChangedListener(mMaxWidthSizeTextWatcher);
     }
 
-
-    private TextWatcher mAspectRatioTextWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            mRadioGroupAspectRatio.clearCheck();
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-
-        }
-    };
-
-    private TextWatcher mMaxSizeTextWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (s != null && !s.toString().trim().isEmpty()) {
+    private void handleChangedText(Boolean isWidth, Editable s) {
+        if (s != null && !s.toString().trim().isEmpty()) {
+            try {
                 if (Integer.valueOf(s.toString()) < UCrop.MIN_SIZE) {
                     Toast.makeText(SampleActivity.this, String.format(getString(R.string.format_max_cropped_image_size), UCrop.MIN_SIZE), Toast.LENGTH_SHORT).show();
                 }
+            } catch (Throwable t) {
+                if (isWidth) {
+                    mEditTextMaxWidth.setText(s.delete(s.length() - 1, s.length()));
+                } else {
+                    mEditTextMaxHeight.setText(s.delete(s.length() - 1, s.length()));
+                }
+                Toast.makeText(SampleActivity.this, getString(R.string.format_max_cropped_image_size_resolution), Toast.LENGTH_SHORT).show();
             }
         }
-    };
+    }
 
     private void pickFromGallery() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
