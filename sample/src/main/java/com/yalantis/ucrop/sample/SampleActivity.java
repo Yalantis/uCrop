@@ -121,6 +121,43 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         }
     }
 
+
+    private TextWatcher mAspectRatioTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            mRadioGroupAspectRatio.clearCheck();
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    };
+    private TextWatcher mMaxSizeTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s != null && !s.toString().trim().isEmpty()) {
+                if (Integer.valueOf(s.toString()) < UCrop.MIN_SIZE) {
+                    Toast.makeText(SampleActivity.this, String.format(getString(R.string.format_max_cropped_image_size), UCrop.MIN_SIZE), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    };
+
     @SuppressWarnings("ConstantConditions")
     private void setupUI() {
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
@@ -187,44 +224,6 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         mEditTextMaxHeight.addTextChangedListener(mMaxSizeTextWatcher);
         mEditTextMaxWidth.addTextChangedListener(mMaxSizeTextWatcher);
     }
-
-
-    private TextWatcher mAspectRatioTextWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            mRadioGroupAspectRatio.clearCheck();
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-
-        }
-    };
-
-    private TextWatcher mMaxSizeTextWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (s != null && !s.toString().trim().isEmpty()) {
-                if (Integer.valueOf(s.toString()) < UCrop.MIN_SIZE) {
-                    Toast.makeText(SampleActivity.this, String.format(getString(R.string.format_max_cropped_image_size), UCrop.MIN_SIZE), Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    };
 
     private void pickFromGallery() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
@@ -525,7 +524,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         }
 
         MenuItem menuItemCrop = menu.findItem(R.id.menu_crop);
-        Drawable menuItemCropIcon = ContextCompat.getDrawable(this, mToolbarCropDrawable);
+        Drawable menuItemCropIcon = ContextCompat.getDrawable(this, mToolbarCropDrawable == 0 ? R.drawable.ucrop_ic_done : mToolbarCropDrawable);
         if (menuItemCropIcon != null) {
             menuItemCropIcon.mutate();
             menuItemCropIcon.setColorFilter(mToolbarWidgetColor, PorterDuff.Mode.SRC_ATOP);
@@ -545,7 +544,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_crop) {
-            if (fragment.isAdded())
+            if (fragment != null && fragment.isAdded())
                 fragment.cropAndSaveImage();
         } else if (item.getItemId() == android.R.id.home) {
             removeFragmentFromScreen();
