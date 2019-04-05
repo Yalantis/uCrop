@@ -11,6 +11,9 @@ import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.transition.AutoTransition;
+import android.support.transition.Transition;
+import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -61,17 +64,21 @@ public class UCropFragment extends Fragment {
 
     public static final String TAG = "UCropFragment";
 
+    private static final long CONTROLS_ANIMATION_DURATION = 50;
     private static final int TABS_COUNT = 3;
     private static final int SCALE_WIDGET_SENSITIVITY_COEFFICIENT = 15000;
     private static final int ROTATE_WIDGET_SENSITIVITY_COEFFICIENT = 42;
     private UCropFragmentCallback callback;
 
+    private int mActiveControlsWidgetColor;
     private int mActiveWidgetColor;
     @ColorInt
     private int mRootViewBackgroundColor;
     private int mLogoColor;
 
     private boolean mShowBottomControls;
+
+    private Transition mControlsTransition;
 
     private UCropView mUCropView;
     private GestureCropImageView mGestureCropImageView;
@@ -95,12 +102,13 @@ public class UCropFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        try {
+        if (getParentFragment() instanceof UCropFragmentCallback)
+            callback = (UCropFragmentCallback) getParentFragment();
+        else if (context instanceof UCropFragmentCallback)
             callback = (UCropFragmentCallback) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
+        else
+            throw new IllegalArgumentException(context.toString()
                     + " must implement UCropFragmentCallback");
-        }
     }
 
     public void setCallback(UCropFragmentCallback callback) {
@@ -124,7 +132,8 @@ public class UCropFragment extends Fragment {
 
 
     public void setupViews(View view, Bundle args) {
-        mActiveWidgetColor = args.getInt(UCrop.Options.EXTRA_UCROP_COLOR_WIDGET_ACTIVE, ContextCompat.getColor(getContext(), R.color.ucrop_color_widget_active));
+        mActiveWidgetColor = args.getInt(UCrop.Options.EXTRA_UCROP_COLOR_WIDGET_ACTIVE, ContextCompat.getColor(getContext(), R.color.ucrop_color_widget_background));
+        mActiveControlsWidgetColor = args.getInt(UCrop.Options.EXTRA_UCROP_COLOR_WIDGET_ACTIVE, ContextCompat.getColor(getContext(), R.color.ucrop_color_widget_active));
         mLogoColor = args.getInt(UCrop.Options.EXTRA_UCROP_LOGO_COLOR, ContextCompat.getColor(getContext(), R.color.ucrop_color_default_logo));
         mShowBottomControls = !args.getBoolean(UCrop.Options.EXTRA_HIDE_BOTTOM_CONTROLS, false);
         mRootViewBackgroundColor = args.getInt(UCrop.Options.EXTRA_UCROP_ROOT_VIEW_BACKGROUND_COLOR, ContextCompat.getColor(getContext(), R.color.ucrop_color_crop_background));
@@ -133,8 +142,14 @@ public class UCropFragment extends Fragment {
         callback.loadingProgress(true);
 
         if (mShowBottomControls) {
-            ViewGroup photoBox = view.findViewById(R.id.ucrop_photobox);
-            View.inflate(getContext(), R.layout.ucrop_controls, photoBox);
+
+            ViewGroup wrapper = view.findViewById(R.id.controls_wrapper);
+            wrapper.setVisibility(View.VISIBLE);
+            wrapper.setBackgroundColor(mRootViewBackgroundColor);
+            LayoutInflater.from(getContext()).inflate(R.layout.ucrop_controls, wrapper, true);
+
+            mControlsTransition = new AutoTransition();
+            mControlsTransition.setDuration(CONTROLS_ANIMATION_DURATION);
 
             mWrapperStateAspectRatio = view.findViewById(R.id.state_aspect_ratio);
             mWrapperStateAspectRatio.setOnClickListener(mStateClickListener);
@@ -287,9 +302,9 @@ public class UCropFragment extends Fragment {
         ImageView stateRotateImageView = view.findViewById(R.id.image_view_state_rotate);
         ImageView stateAspectRatioImageView = view.findViewById(R.id.image_view_state_aspect_ratio);
 
-        stateScaleImageView.setImageDrawable(new SelectedStateListDrawable(stateScaleImageView.getDrawable(), mActiveWidgetColor));
-        stateRotateImageView.setImageDrawable(new SelectedStateListDrawable(stateRotateImageView.getDrawable(), mActiveWidgetColor));
-        stateAspectRatioImageView.setImageDrawable(new SelectedStateListDrawable(stateAspectRatioImageView.getDrawable(), mActiveWidgetColor));
+        stateScaleImageView.setImageDrawable(new SelectedStateListDrawable(stateScaleImageView.getDrawable(), mActiveControlsWidgetColor));
+        stateRotateImageView.setImageDrawable(new SelectedStateListDrawable(stateRotateImageView.getDrawable(), mActiveControlsWidgetColor));
+        stateAspectRatioImageView.setImageDrawable(new SelectedStateListDrawable(stateAspectRatioImageView.getDrawable(), mActiveControlsWidgetColor));
     }
 
     private void setupAspectRatioWidget(@NonNull Bundle bundle, View view) {
@@ -463,6 +478,8 @@ public class UCropFragment extends Fragment {
         mLayoutRotate.setVisibility(stateViewId == R.id.state_rotate ? View.VISIBLE : View.GONE);
         mLayoutScale.setVisibility(stateViewId == R.id.state_scale ? View.VISIBLE : View.GONE);
 
+        changeSelectedTab(stateViewId);
+
         if (stateViewId == R.id.state_scale) {
             setAllowedGestures(0);
         } else if (stateViewId == R.id.state_rotate) {
@@ -470,6 +487,15 @@ public class UCropFragment extends Fragment {
         } else {
             setAllowedGestures(2);
         }
+    }
+
+    private void changeSelectedTab(int stateViewId) {
+        if (getView() != null) {
+            TransitionManager.beginDelayedTransition((ViewGroup) getView().findViewById(R.id.ucrop_photobox), mControlsTransition);
+        }
+        mWrapperStateScale.findViewById(R.id.text_view_scale).setVisibility(stateViewId == R.id.state_scale ? View.VISIBLE : View.GONE);
+        mWrapperStateAspectRatio.findViewById(R.id.text_view_crop).setVisibility(stateViewId == R.id.state_aspect_ratio ? View.VISIBLE : View.GONE);
+        mWrapperStateRotate.findViewById(R.id.text_view_rotate).setVisibility(stateViewId == R.id.state_rotate ? View.VISIBLE : View.GONE);
     }
 
     private void setAllowedGestures(int tab) {
