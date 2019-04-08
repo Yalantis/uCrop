@@ -38,6 +38,7 @@ import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 import com.yalantis.ucrop.UCropFragment;
 import com.yalantis.ucrop.UCropFragmentCallback;
+import com.yalantis.ucrop.view.OverlayView;
 
 import java.io.File;
 import java.util.Locale;
@@ -337,6 +338,14 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
 
         options.setHideBottomControls(mCheckBoxHideBottomControls.isChecked());
         options.setFreeStyleCropEnabled(mCheckBoxFreeStyleCrop.isChecked());
+
+        if (mRadioGroupAspectRatio.getCheckedRadioButtonId() == R.id.radio_fixXY) {
+            int x = Integer.valueOf(mEditTextRatioX.getText().toString().trim());
+            int y = Integer.valueOf(mEditTextRatioY.getText().toString().trim());
+            options.setFreeStyleCropMode(OverlayView.FREESTYLE_CROP_MODE_ENABLE_FIX_XY);
+            options.setFixedXY(x, y);
+        }
+
 
         /*
         If you want to configure how gestures work for all UCropActivity tabs

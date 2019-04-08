@@ -102,6 +102,13 @@
                     android:text="@string/label_square"
                     android:textAppearance="?android:textAppearanceMedium" />
 
+                <RadioButton
+                    android:id="@+id/radio_fixXY"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_fix_xy"
+                    android:textAppearance="?android:textAppearanceMedium" />
+
                 <LinearLayout
                     android:layout_width="140dp"
                     android:layout_height="wrap_content"

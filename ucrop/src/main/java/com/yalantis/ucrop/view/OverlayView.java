@@ -34,6 +34,8 @@ public class OverlayView extends View {
     public static final int FREESTYLE_CROP_MODE_DISABLE = 0;
     public static final int FREESTYLE_CROP_MODE_ENABLE = 1;
     public static final int FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH = 2;
+    public static final int FREESTYLE_CROP_MODE_ENABLE_FIX_XY = 6;
+
 
     public static final boolean DEFAULT_SHOW_CROP_FRAME = true;
     public static final boolean DEFAULT_SHOW_CROP_GRID = true;
@@ -69,6 +71,8 @@ public class OverlayView extends View {
     private int mCropRectCornerTouchAreaLineLength;
 
     private OverlayViewChangeListener mCallback;
+
+    private int fixedX = -1, fixedY = -1;
 
     private boolean mShouldSetupCropBounds;
 
@@ -129,6 +133,27 @@ public class OverlayView extends View {
         this.mFreestyleCropMode = mFreestyleCropMode;
         postInvalidate();
     }
+
+    public void setFixedXY(int x, int y) {
+        this.fixedX = x;
+        this.fixedY = y;
+    }
+
+//    public boolean isFixXY() {
+//        return mFixXY;
+//    }
+//
+//    public void setFixXY(boolean mFixXY) {
+//        this.mFixXY = mFixXY;
+//    }
+//
+//    public int getScaleCropFrameMode() {
+//        return mScaleCropFrameMode;
+//    }
+//
+//    public void setScaleCropFrameMode(int mScaleCropFrameMode) {
+//        this.mScaleCropFrameMode = mScaleCropFrameMode;
+//    }
 
     /**
      * Setter for {@link #mCircleDimmedLayer} variable.
@@ -232,16 +257,25 @@ public class OverlayView extends View {
      * {@link #mCropViewRect} is used to draw crop bounds - uses padding.
      */
     public void setupCropBounds() {
-        int height = (int) (mThisWidth / mTargetAspectRatio);
-        if (height > mThisHeight) {
-            int width = (int) (mThisHeight * mTargetAspectRatio);
-            int halfDiff = (mThisWidth - width) / 2;
-            mCropViewRect.set(getPaddingLeft() + halfDiff, getPaddingTop(),
-                    getPaddingLeft() + width + halfDiff, getPaddingTop() + mThisHeight);
+        if (this.mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE_FIX_XY
+                && fixedX > 0 && fixedX < mThisWidth
+                && fixedY > 0 && fixedY < mThisHeight) {
+                    mCropViewRect.set((mThisWidth - fixedX) / 2,
+                (mThisHeight - fixedY) / 2,
+                (mThisWidth - fixedX) / 2 + fixedX,
+                (mThisHeight - fixedY) / 2 + fixedY);
         } else {
-            int halfDiff = (mThisHeight - height) / 2;
-            mCropViewRect.set(getPaddingLeft(), getPaddingTop() + halfDiff,
-                    getPaddingLeft() + mThisWidth, getPaddingTop() + height + halfDiff);
+            int height = (int) (mThisWidth / mTargetAspectRatio);
+            if (height > mThisHeight) {
+                int width = (int) (mThisHeight * mTargetAspectRatio);
+                int halfDiff = (mThisWidth - width) / 2;
+                mCropViewRect.set(getPaddingLeft() + halfDiff, getPaddingTop(),
+                        getPaddingLeft() + width + halfDiff, getPaddingTop() + mThisHeight);
+            } else {
+                int halfDiff = (mThisHeight - height) / 2;
+                mCropViewRect.set(getPaddingLeft(), getPaddingTop() + halfDiff,
+                        getPaddingLeft() + mThisWidth, getPaddingTop() + height + halfDiff);
+            }
         }
 
         if (mCallback != null) {
@@ -359,15 +393,19 @@ public class OverlayView extends View {
         switch (mCurrentTouchCornerIndex) {
             // resize rectangle
             case 0:
+                if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE_FIX_XY) return;
                 mTempRect.set(touchX, touchY, mCropViewRect.right, mCropViewRect.bottom);
                 break;
             case 1:
+                if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE_FIX_XY) return;
                 mTempRect.set(mCropViewRect.left, touchY, touchX, mCropViewRect.bottom);
                 break;
             case 2:
+                if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE_FIX_XY) return;
                 mTempRect.set(mCropViewRect.left, mCropViewRect.top, touchX, touchY);
                 break;
             case 3:
+                if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE_FIX_XY) return;
                 mTempRect.set(touchX, mCropViewRect.top, mCropViewRect.right, touchY);
                 break;
             // move rectangle
@@ -418,7 +456,8 @@ public class OverlayView extends View {
             }
         }
 
-        if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE && closestPointIndex < 0 && mCropViewRect.contains(touchX, touchY)) {
+        if ((mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE || mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE_FIX_XY)
+                && closestPointIndex < 0 && mCropViewRect.contains(touchX, touchY)) {
             return 4;
         }
 
@@ -571,7 +610,7 @@ public class OverlayView extends View {
 
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({FREESTYLE_CROP_MODE_DISABLE, FREESTYLE_CROP_MODE_ENABLE, FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH})
+    @IntDef({FREESTYLE_CROP_MODE_DISABLE, FREESTYLE_CROP_MODE_ENABLE, FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH, FREESTYLE_CROP_MODE_ENABLE_FIX_XY})
     public @interface FreestyleMode {
     }
 

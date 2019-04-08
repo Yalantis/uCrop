@@ -294,6 +294,9 @@ public class UCrop {
 
         public static final String EXTRA_HIDE_BOTTOM_CONTROLS = EXTRA_PREFIX + ".HideBottomControls";
         public static final String EXTRA_FREE_STYLE_CROP = EXTRA_PREFIX + ".FreeStyleCrop";
+        public static final String EXTRA_FREE_STYLE_CROP_MODE = EXTRA_PREFIX + ".FreeStyleCropMode";
+        public static final String EXTRA_FIXED_X = EXTRA_PREFIX + ".FixedX";
+        public static final String EXTRA_FIXED_Y = EXTRA_PREFIX + ".FixedY";
 
         public static final String EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT = EXTRA_PREFIX + ".AspectRatioSelectedByDefault";
         public static final String EXTRA_ASPECT_RATIO_OPTIONS = EXTRA_PREFIX + ".AspectRatioOptions";
@@ -507,6 +510,15 @@ public class UCrop {
          */
         public void setFreeStyleCropEnabled(boolean enabled) {
             mOptionBundle.putBoolean(EXTRA_FREE_STYLE_CROP, enabled);
+        }
+
+        public void setFreeStyleCropMode(int mode) {
+            mOptionBundle.putInt(EXTRA_FREE_STYLE_CROP_MODE, mode);
+        }
+
+        public void setFixedXY(int x, int y) {
+            mOptionBundle.putInt(EXTRA_FIXED_X, x);
+            mOptionBundle.putInt(EXTRA_FIXED_Y, y);
         }
 
         /**
