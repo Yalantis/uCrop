@@ -28,7 +28,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/controls_wrapper"
-        android:layout_below="@+id/toolbar">
+        android:layout_below="@+id/toolbar"
+        android:layout_marginBottom="-12dp">
 
         <ImageView
             android:id="@+id/image_view_logo"
@@ -42,7 +43,7 @@
         <com.yalantis.ucrop.view.UCropView
             android:id="@+id/ucrop"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:alpha="0" />
 
     </FrameLayout>
@@ -52,7 +53,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@android:color/black"
         android:visibility="gone" />
 
 </RelativeLayout>

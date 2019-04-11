@@ -301,7 +301,6 @@ public class UCropActivity extends AppCompatActivity {
             ViewGroup viewGroup = findViewById(R.id.ucrop_photobox);
             ViewGroup wrapper = viewGroup.findViewById(R.id.controls_wrapper);
             wrapper.setVisibility(View.VISIBLE);
-            wrapper.setBackgroundColor(mRootViewBackgroundColor);
             LayoutInflater.from(this).inflate(R.layout.ucrop_controls, wrapper, true);
 
             mControlsTransition = new AutoTransition();

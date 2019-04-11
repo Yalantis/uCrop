@@ -145,7 +145,6 @@ public class UCropFragment extends Fragment {
 
             ViewGroup wrapper = view.findViewById(R.id.controls_wrapper);
             wrapper.setVisibility(View.VISIBLE);
-            wrapper.setBackgroundColor(mRootViewBackgroundColor);
             LayoutInflater.from(getContext()).inflate(R.layout.ucrop_controls, wrapper, true);
 
             mControlsTransition = new AutoTransition();
