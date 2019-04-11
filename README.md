@@ -24,9 +24,9 @@
 	}
 	```
 
-    ``` compile 'com.github.yalantis:ucrop:2.2.2' ``` - lightweight general solution 
+    ``` implementation 'com.github.yalantis:ucrop:2.2.3' ``` - lightweight general solution 
     
-    ``` compile 'com.github.yalantis:ucrop:2.2.2-native' ``` - get power of the native code to preserve image quality (+ about 1.5 MB to an apk size)
+    ``` implementation 'com.github.yalantis:ucrop:2.2.3-native' ``` - get power of the native code to preserve image quality (+ about 1.5 MB to an apk size)
     
 2. Add UCropActivity into your AndroidManifest.xml
 
@@ -92,6 +92,13 @@ Currently you can change:
   * CPU - armeabi armeabi-v7a x86 x86_64 arm64-v8a (for versions >= 2.1.2)
   
 # Changelog
+### Version: 2.2.3
+
+  * Several fixes including [#445](https://github.com/Yalantis/uCrop/issues/445), [#465](https://github.com/Yalantis/uCrop/issues/465) and more!    
+  * Material design support 
+  * uCrop fragment as child fragment
+  * Added Italian language
+
 ### Version: 2.2.2
 
 * uCrop fragment added

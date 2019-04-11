@@ -25,8 +25,8 @@ public class UCropView extends FrameLayout {
         super(context, attrs, defStyleAttr);
 
         LayoutInflater.from(context).inflate(R.layout.ucrop_view, this, true);
-        mGestureCropImageView = (GestureCropImageView) findViewById(R.id.image_view_crop);
-        mViewOverlay = (OverlayView) findViewById(R.id.view_overlay);
+        mGestureCropImageView = findViewById(R.id.image_view_crop);
+        mViewOverlay = findViewById(R.id.view_overlay);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ucrop_UCropView);
         mViewOverlay.processStyledAttributes(a);
