@@ -9,6 +9,6 @@
     <string name="ucrop_mutate_exception_hint" translatable="false">Therefore, override color resource (ucrop_color_toolbar_widget) in your app to make it work on pre-L devices</string>
     <string name="ucrop_rotate">Rotate</string>
     <string name="ucrop_scale">Scale</string>
-    <string name="ucrop_crop">Crop</string>
+    <string name="ucrop_aspect_ratio">Aspect Ratio</string>
 
 </resources>
