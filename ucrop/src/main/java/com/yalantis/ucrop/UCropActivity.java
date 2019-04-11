@@ -362,6 +362,11 @@ public class UCropActivity extends AppCompatActivity {
         ((ImageView) findViewById(R.id.image_view_logo)).setColorFilter(mLogoColor, PorterDuff.Mode.SRC_ATOP);
 
         findViewById(R.id.ucrop_frame).setBackgroundColor(mRootViewBackgroundColor);
+        if (!mShowBottomControls) {
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) findViewById(R.id.ucrop_frame).getLayoutParams();
+            params.bottomMargin = 0;
+            findViewById(R.id.ucrop_frame).requestLayout();
+        }
     }
 
     private TransformImageView.TransformImageListener mImageListener = new TransformImageView.TransformImageListener() {

@@ -165,6 +165,10 @@ public class UCropFragment extends Fragment {
             setupRotateWidget(view);
             setupScaleWidget(view);
             setupStatesWrapper(view);
+        } else {
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) view.findViewById(R.id.ucrop_frame).getLayoutParams();
+            params.bottomMargin = 0;
+            view.findViewById(R.id.ucrop_frame).requestLayout();
         }
     }
 
