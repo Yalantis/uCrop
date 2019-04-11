@@ -60,7 +60,7 @@
                 style="@style/ucrop_ImageViewWidgetIcon"
                 android:gravity="center"
                 android:orientation="vertical"
-                app:srcCompat="@drawable/ucrop_crop" />
+                app:srcCompat="@drawable/ucrop_aspect_ratio" />
 
             <TextView
                 android:id="@+id/text_view_crop"

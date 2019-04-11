@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#0000"
     android:visibility="gone"
     tools:showIn="@layout/ucrop_activity_photobox"
     tools:visibility="visible">
@@ -43,7 +44,8 @@
 
         <ImageView
             style="@style/ucrop_ImageViewWidgetIcon"
-            android:src="@drawable/ucrop_ic_angle" />
+            android:scaleX="-1"
+            app:srcCompat="@drawable/ucrop_ic_angle" />
 
     </FrameLayout>
 
