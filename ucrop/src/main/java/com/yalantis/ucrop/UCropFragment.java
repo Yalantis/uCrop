@@ -72,6 +72,7 @@ public class UCropFragment extends Fragment {
 
     private int mActiveControlsWidgetColor;
     private int mActiveWidgetColor;
+    private int mControlsWidgetBackgroundColor;
     @ColorInt
     private int mRootViewBackgroundColor;
     private int mLogoColor;
@@ -134,6 +135,7 @@ public class UCropFragment extends Fragment {
     public void setupViews(View view, Bundle args) {
         mActiveWidgetColor = args.getInt(UCrop.Options.EXTRA_UCROP_COLOR_WIDGET_ACTIVE, ContextCompat.getColor(getContext(), R.color.ucrop_color_widget_background));
         mActiveControlsWidgetColor = args.getInt(UCrop.Options.EXTRA_UCROP_COLOR_WIDGET_ACTIVE, ContextCompat.getColor(getContext(), R.color.ucrop_color_widget_active));
+        mControlsWidgetBackgroundColor = args.getInt(UCrop.Options.EXTRA_UCROP_BACKGROUND_COLOR_CONTROLS_WIDGET, ContextCompat.getColor(getContext(), R.color.ucrop_color_widget_background));
         mLogoColor = args.getInt(UCrop.Options.EXTRA_UCROP_LOGO_COLOR, ContextCompat.getColor(getContext(), R.color.ucrop_color_default_logo));
         mShowBottomControls = !args.getBoolean(UCrop.Options.EXTRA_HIDE_BOTTOM_CONTROLS, false);
         mRootViewBackgroundColor = args.getInt(UCrop.Options.EXTRA_UCROP_ROOT_VIEW_BACKGROUND_COLOR, ContextCompat.getColor(getContext(), R.color.ucrop_color_crop_background));
@@ -298,10 +300,12 @@ public class UCropFragment extends Fragment {
      * Use {@link #mActiveWidgetColor} for color filter
      */
     private void setupStatesWrapper(View view) {
+        View wrapperStatesView = view.findViewById(R.id.wrapper_states);
         ImageView stateScaleImageView = view.findViewById(R.id.image_view_state_scale);
         ImageView stateRotateImageView = view.findViewById(R.id.image_view_state_rotate);
         ImageView stateAspectRatioImageView = view.findViewById(R.id.image_view_state_aspect_ratio);
 
+        wrapperStatesView.setBackgroundColor(mControlsWidgetBackgroundColor);
         stateScaleImageView.setImageDrawable(new SelectedStateListDrawable(stateScaleImageView.getDrawable(), mActiveControlsWidgetColor));
         stateRotateImageView.setImageDrawable(new SelectedStateListDrawable(stateRotateImageView.getDrawable(), mActiveControlsWidgetColor));
         stateAspectRatioImageView.setImageDrawable(new SelectedStateListDrawable(stateAspectRatioImageView.getDrawable(), mActiveControlsWidgetColor));
@@ -361,6 +365,7 @@ public class UCropFragment extends Fragment {
 
     private void setupRotateWidget(View view) {
         mTextViewRotateAngle = view.findViewById(R.id.text_view_rotate);
+        mTextViewRotateAngle.setTextColor(mActiveWidgetColor);
         ((HorizontalProgressWheelView) view.findViewById(R.id.rotate_scroll_wheel))
                 .setScrollingListener(new HorizontalProgressWheelView.ScrollingListener() {
                     @Override
@@ -398,6 +403,7 @@ public class UCropFragment extends Fragment {
 
     private void setupScaleWidget(View view) {
         mTextViewScalePercent = view.findViewById(R.id.text_view_scale);
+        mTextViewScalePercent.setTextColor(mActiveWidgetColor);
         ((HorizontalProgressWheelView) view.findViewById(R.id.scale_scroll_wheel))
                 .setScrollingListener(new HorizontalProgressWheelView.ScrollingListener() {
                     @Override

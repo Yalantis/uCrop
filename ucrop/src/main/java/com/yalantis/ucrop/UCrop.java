@@ -284,6 +284,7 @@ public class UCrop {
         public static final String EXTRA_STATUS_BAR_COLOR = EXTRA_PREFIX + ".StatusBarColor";
         public static final String EXTRA_UCROP_COLOR_WIDGET_ACTIVE = EXTRA_PREFIX + ".UcropColorWidgetActive";
         public static final String EXTRA_UCROP_COLOR_CONTROLS_WIDGET_ACTIVE = EXTRA_PREFIX + ".UcropColorControlsWidgetActive";
+        public static final String EXTRA_UCROP_BACKGROUND_COLOR_CONTROLS_WIDGET = EXTRA_PREFIX + ".UcropBackgroundColorControlsWidget";
 
         public static final String EXTRA_UCROP_WIDGET_COLOR_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarWidgetColor";
         public static final String EXTRA_UCROP_TITLE_TEXT_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarTitleText";
@@ -458,6 +459,13 @@ public class UCrop {
          */
         public void setActiveControlsWidgetColor(@ColorInt int color) {
             mOptionBundle.putInt(EXTRA_UCROP_COLOR_CONTROLS_WIDGET_ACTIVE, color);
+        }
+
+        /**
+         * @param color - desired resolved background color of the widget (default is violet)
+         */
+        public void setControlsWidgetBackgroundColor(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_UCROP_BACKGROUND_COLOR_CONTROLS_WIDGET, color);
         }
 
         /**

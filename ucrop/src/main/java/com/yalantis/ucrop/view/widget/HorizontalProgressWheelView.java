@@ -58,6 +58,9 @@ public class HorizontalProgressWheelView extends View {
 
     public void setMiddleLineColor(@ColorInt int middleLineColor) {
         mMiddleLineColor = middleLineColor;
+        if (mProgressMiddleLinePaint != null) {
+            mProgressMiddleLinePaint.setColor(mMiddleLineColor);
+        }
         invalidate();
     }
 
