@@ -26,17 +26,16 @@ android {
     }
     productFlavors {
         activity {
-            buildConfigField("int","RequestMode", "1")
+            buildConfigField("int", "RequestMode", "1")
         }
         fragment {
-            buildConfigField("int","RequestMode", "2")
+            buildConfigField("int", "RequestMode", "2")
         }
     }
 }
 
 dependencies {
-    implementation "com.android.support:appcompat-v7:$support"
-    implementation "com.android.support:support-compat:$support"
-    implementation "com.android.support.constraint:constraint-layout:1.1.3"
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation project(':ucrop')
 }
