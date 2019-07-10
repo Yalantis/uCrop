@@ -4,5 +4,9 @@
     <string name="ucrop_label_edit_photo">裁剪</string>
 
     <string name="ucrop_menu_crop">裁剪</string>
-
+    <string name="ucrop_error_input_data_is_absent">必須指定输入以及输出的 Uri</string>
+    <string name="ucrop_mutate_exception_hint">在你的 App 內复写颜色资源档（ucrop_color_toolbar_widget）使5.0以前装置正常运作</string>
+    <string name="ucrop_rotate">旋转</string>
+    <string name="ucrop_scale">缩放</string>
+    <string name="ucrop_crop">裁剪</string>
 </resources>
