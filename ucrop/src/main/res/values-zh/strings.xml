@@ -1,6 +1,6 @@
-<resources>
+﻿<resources>
 
-    <string name="ucrop_label_original">原始比例</string>
+   <string name="ucrop_label_original">原始比例</string>
     <string name="ucrop_label_edit_photo">裁剪</string>
 
     <string name="ucrop_menu_crop">裁剪</string>
@@ -9,4 +9,5 @@
     <string name="ucrop_rotate">旋转</string>
     <string name="ucrop_scale">缩放</string>
     <string name="ucrop_crop">裁剪</string>
+
 </resources>
