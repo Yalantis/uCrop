@@ -392,6 +392,13 @@ public class UCrop {
         }
 
         /**
+         * @param color - desired color of crop frame corners
+         */
+        public void setCropFrameCornersColor(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_CROP_FRAME_CORNERS_COLOR, color);
+        }
+
+        /**
          * @param width - desired width of crop frame line in pixels
          */
         public void setCropFrameStrokeWidth(@IntRange(from = 0) int width) {
