@@ -213,6 +213,14 @@ public class OverlayView extends View {
     }
 
     /**
+     * Setter for crop corners color
+     * @param color
+     */
+    public void setCropFrameCornersColor(@ColorInt int color) {
+        mCropFrameCornersPaint.setColor(color);
+    }
+
+    /**
      * This method sets aspect ratio for crop bounds.
      *
      * @param targetAspectRatio - aspect ratio for image crop (e.g. 1.77(7) for 16:9)

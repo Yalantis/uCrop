@@ -272,6 +272,7 @@ public class UCrop {
 
         public static final String EXTRA_SHOW_CROP_FRAME = EXTRA_PREFIX + ".ShowCropFrame";
         public static final String EXTRA_CROP_FRAME_COLOR = EXTRA_PREFIX + ".CropFrameColor";
+        public static final String EXTRA_CROP_FRAME_CORNERS_COLOR = EXTRA_PREFIX + ".CropFrameCornersColor";
         public static final String EXTRA_CROP_FRAME_STROKE_WIDTH = EXTRA_PREFIX + ".CropFrameStrokeWidth";
 
         public static final String EXTRA_SHOW_CROP_GRID = EXTRA_PREFIX + ".ShowCropGrid";
