@@ -7,7 +7,7 @@ android {
         applicationId "com.yalantis.ucrop.sample"
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 12
+        versionCode 13
         versionName "1.2.4"
     }
     flavorDimensions "default"
