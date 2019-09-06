@@ -36,7 +36,7 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.1.0-alpha02'
-    implementation 'androidx.exifinterface:exifinterface:1.1.0-alpha01'
-    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
+    implementation "androidx.appcompat:appcompat:${androidx_appcompat_version}"
+    implementation "androidx.exifinterface:exifinterface:${androidx_exifinterface_version}"
+    implementation "com.squareup.okhttp3:okhttp:3.12.1"
 }
