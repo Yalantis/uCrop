@@ -41,6 +41,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.transition.AutoTransition;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
 
 import static androidx.appcompat.app.AppCompatActivity.RESULT_OK;
 
