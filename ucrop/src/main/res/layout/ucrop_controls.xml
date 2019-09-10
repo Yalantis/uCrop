@@ -101,6 +101,5 @@
                 android:text="@string/ucrop_scale" />
 
         </LinearLayout>
-
     </LinearLayout>
 </RelativeLayout>
