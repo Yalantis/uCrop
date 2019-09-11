@@ -67,7 +67,6 @@
                 style="@style/ucrop_TextViewWidget"
                 android:text="@string/ucrop_crop" />
 
-
         </LinearLayout>
 
         <LinearLayout
