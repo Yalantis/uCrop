@@ -26,7 +26,8 @@
     <FrameLayout
         android:id="@+id/wrapper_reset_rotate"
         style="@style/ucrop_WrapperRotateButton"
-        android:layout_centerVertical="true">
+        android:layout_centerVertical="true"
+        android:background="?attr/selectableItemBackground">
 
         <ImageView
             style="@style/ucrop_ImageViewWidgetIcon"
@@ -39,12 +40,13 @@
         style="@style/ucrop_WrapperRotateButton"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true">
+        android:layout_centerVertical="true"
+        android:background="?attr/selectableItemBackground">
 
         <ImageView
             style="@style/ucrop_ImageViewWidgetIcon"
-            android:tint="@color/ucrop_color_widget_rotate_angle"
-            android:src="@drawable/ucrop_ic_angle" />
+            android:src="@drawable/ucrop_ic_angle"
+            android:tint="@color/ucrop_color_widget_rotate_angle" />
 
     </FrameLayout>
 
