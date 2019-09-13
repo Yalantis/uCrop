@@ -12,18 +12,26 @@
     <color name="ucrop_color_toolbar">@color/ucrop_color_white</color>
     <color name="ucrop_color_statusbar">#f5f5f5</color>
     <color name="ucrop_color_toolbar_widget">@color/ucrop_color_black</color>
-    <color name="ucrop_color_widget">@color/ucrop_color_black</color>
-    <color name="ucrop_color_widget_active">@color/ucrop_color_white</color>
-    <color name="ucrop_color_active_controls_color">@color/ucrop_color_blaze_orange</color>
-    <color name="ucrop_color_inactive_controls_color">@color/ucrop_color_heather</color>
+<!--    <color name="ucrop_color_widget">@color/ucrop_color_black</color>-->
+<!--    <color name="ucrop_color_widget_active">@color/ucrop_color_white</color>-->
+<!--    <color name="ucrop_color_active_controls_color">@color/ucrop_color_blaze_orange</color>-->
+<!--    <color name="ucrop_color_inactive_controls_color">@color/ucrop_color_heather</color>-->
     <color name="ucrop_color_widget_rotate_mid_line">@color/ucrop_color_blaze_orange</color>
     <color name="ucrop_color_widget_rotate_angle">@color/ucrop_color_ebony_clay</color>
     <color name="ucrop_color_active_aspect_ratio">@color/ucrop_color_blaze_orange</color>
     <color name="ucrop_color_inactive_aspect_ratio">@color/ucrop_color_ebony_clay</color>
-    <color name="ucrop_color_widget_background">@color/ucrop_color_ebony_clay</color>
+<!--    <color name="ucrop_color_widget_background">@color/ucrop_color_ebony_clay</color>-->
     <color name="ucrop_color_widget_text">@color/ucrop_color_blaze_orange</color>
     <color name="ucrop_color_progress_wheel_line">@color/ucrop_color_ebony_clay</color>
     <color name="ucrop_color_crop_background">@color/ucrop_color_black</color>
+
+    <color name="ucrop_color_control_panel_background">@color/ucrop_color_ebony_clay</color>
+    <color name="ucrop_color_control_panel_text">@color/ucrop_color_white</color>
+    <color name="ucrop_color_control_panel_active_icon">@color/ucrop_color_blaze_orange</color>
+    <color name="ucrop_color_control_panel_inactive_icon">@color/ucrop_color_heather</color>
+
+    <color name="ucrop_color_aspect_ratio_active">@color/ucrop_color_blaze_orange</color>
+    <color name="ucrop_color_aspect_ratio_inactive">@color/ucrop_color_ebony_clay</color>
 
     <!--Crop View-->
     <color name="ucrop_color_default_crop_grid">#80ffffff</color>

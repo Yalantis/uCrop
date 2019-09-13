@@ -46,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/ucrop_height_wrapper_states"
         android:layout_below="@+id/controls_shadow"
-        android:background="@color/ucrop_color_widget_background"
+        android:background="@color/ucrop_color_control_panel_background"
         android:baselineAligned="false"
         android:gravity="center"
         android:orientation="horizontal">

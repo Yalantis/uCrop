@@ -301,6 +301,11 @@ public class UCrop {
 
         public static final String EXTRA_UCROP_ROOT_VIEW_BACKGROUND_COLOR = EXTRA_PREFIX + ".UcropRootViewBackgroundColor";
 
+        private static final String EXTRA_UCROP_CONTROL_PANEL_BACKGROUND_COLOR = EXTRA_PREFIX + ".ControlPanelBackgroundColor";
+        private static final String EXTRA_UCROP_CONTROL_PANEL_TEXT_COLOR = EXTRA_PREFIX + ".ControlPanelTextColor";
+        private static final String EXTRA_UCROP_ACTIVE_CONTROL_ICON = EXTRA_PREFIX + ".ActiveControlIcon";
+        private static final String EXTRA_UCROP_INACTIVE_CONTROL_ICON = EXTRA_PREFIX + ".InactiveControlIcon";
+
 
         private final Bundle mOptionBundle;
 
@@ -466,6 +471,38 @@ public class UCrop {
          */
         public void setToolbarWidgetColor(@ColorInt int color) {
             mOptionBundle.putInt(EXTRA_UCROP_WIDGET_COLOR_TOOLBAR, color);
+        }
+
+        /**
+         * @param color - desired resolved color for control panel background
+         *              (default color is #20242F)
+         */
+        public void setControlPanelBackgroundColor(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_UCROP_CONTROL_PANEL_BACKGROUND_COLOR, color);
+        }
+
+        /**
+         * @param color - desired resolved color for control panel text
+         *              (default color is #FFFFFF)
+         */
+        public void setControlPanelTextColor(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_UCROP_CONTROL_PANEL_TEXT_COLOR, color);
+        }
+
+        /**
+         * @param color - desired resolved color of the active/selected item
+         *              on the control panel (default color is #FF6300)
+         */
+        public void setActiveControlIcon(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_UCROP_ACTIVE_CONTROL_ICON, color);
+        }
+
+        /**
+         * @param color - desired resolved color of the inactive/unselected item
+         *              on the control panel (default color is #B3BECE)
+         */
+        public void setInactiveControlIcon(@ColorInt int color) {
+            mOptionBundle.putInt(EXTRA_UCROP_INACTIVE_CONTROL_ICON, color);
         }
 
         /**
