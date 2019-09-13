@@ -32,6 +32,8 @@
         <item name="android:layout_gravity">center</item>
         <item name="android:duplicateParentState">true</item>
         <item name="android:textColor">@color/ucrop_scale_text_view_selector</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="ucrop_TextViewWidgetText">
