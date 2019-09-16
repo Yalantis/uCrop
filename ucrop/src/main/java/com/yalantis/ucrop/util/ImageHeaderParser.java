@@ -30,7 +30,6 @@
 
 package com.yalantis.ucrop.util;
 
-import android.support.media.ExifInterface;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -39,6 +38,8 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+
+import androidx.exifinterface.media.ExifInterface;
 
 /**
  * A class for parsing the exif orientation from an image header.
