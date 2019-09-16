@@ -28,31 +28,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/controls_wrapper"
-        android:layout_below="@+id/toolbar">
-
-        <ImageView
-            android:id="@+id/image_view_logo"
-            android:layout_width="@dimen/ucrop_default_crop_logo_size"
-            android:layout_height="@dimen/ucrop_default_crop_logo_size"
-            android:layout_gravity="center"
-            app:srcCompat="@drawable/ucrop_vector_ic_crop"
-            tools:background="@drawable/ucrop_vector_ic_crop"
-            tools:ignore="ContentDescription,MissingPrefix" />
-
-        <com.yalantis.ucrop.view.UCropView
-            android:id="@+id/ucrop"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:alpha="0" />
-
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/controls_wrapper"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@android:color/black"
-        android:visibility="gone" />
+        android:layout_below="@+id/toolbar" />
 
 </RelativeLayout>

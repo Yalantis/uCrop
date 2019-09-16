@@ -131,6 +131,14 @@ public class UCropFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mGestureCropImageView != null) {
+            mGestureCropImageView.cancelAllAnimations();
+        }
+    }
+
 
     public void setupViews(View view, Bundle args) {
         mActiveWidgetColor = args.getInt(UCrop.Options.EXTRA_UCROP_COLOR_WIDGET_ACTIVE, ContextCompat.getColor(getContext(), R.color.ucrop_color_control_panel_background));
