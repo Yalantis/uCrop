@@ -6,16 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.annotation.IdRes;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.transition.AutoTransition;
-import android.support.transition.Transition;
-import android.support.transition.TransitionManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,7 +34,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static android.app.Activity.RESULT_OK;
+import androidx.annotation.ColorInt;
+import androidx.annotation.IdRes;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.transition.AutoTransition;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
+
+import static androidx.appcompat.app.AppCompatActivity.RESULT_OK;
 
 @SuppressWarnings("ConstantConditions")
 public class UCropFragment extends Fragment {
