@@ -301,10 +301,10 @@ public class UCrop {
 
         public static final String EXTRA_UCROP_ROOT_VIEW_BACKGROUND_COLOR = EXTRA_PREFIX + ".UcropRootViewBackgroundColor";
 
-        private static final String EXTRA_UCROP_CONTROL_PANEL_BACKGROUND_COLOR = EXTRA_PREFIX + ".ControlPanelBackgroundColor";
-        private static final String EXTRA_UCROP_CONTROL_PANEL_TEXT_COLOR = EXTRA_PREFIX + ".ControlPanelTextColor";
-        private static final String EXTRA_UCROP_ACTIVE_CONTROL_ICON = EXTRA_PREFIX + ".ActiveControlIcon";
-        private static final String EXTRA_UCROP_INACTIVE_CONTROL_ICON = EXTRA_PREFIX + ".InactiveControlIcon";
+        public static final String EXTRA_UCROP_CONTROL_PANEL_BACKGROUND_COLOR = EXTRA_PREFIX + ".ControlPanelBackgroundColor";
+        public static final String EXTRA_UCROP_CONTROL_PANEL_TEXT_COLOR = EXTRA_PREFIX + ".ControlPanelTextColor";
+        public static final String EXTRA_UCROP_ACTIVE_CONTROL_ICON = EXTRA_PREFIX + ".ActiveControlIcon";
+        public static final String EXTRA_UCROP_INACTIVE_CONTROL_ICON = EXTRA_PREFIX + ".InactiveControlIcon";
 
 
         private final Bundle mOptionBundle;

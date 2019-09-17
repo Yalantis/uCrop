@@ -73,6 +73,12 @@ public class UCropFragment extends Fragment {
 
     private int mActiveControlsWidgetColor;
     private int mActiveWidgetColor;
+    private int mControlPanelBackgroundColor;
+    private int mControlPanelTextColor;
+    private int mActiveControlIconColor;
+    private int mInactiveControlIconColor;
+
+
     @ColorInt
     private int mRootViewBackgroundColor;
     private int mLogoColor;
@@ -143,6 +149,25 @@ public class UCropFragment extends Fragment {
     public void setupViews(View view, Bundle args) {
         mActiveWidgetColor = args.getInt(UCrop.Options.EXTRA_UCROP_COLOR_WIDGET_ACTIVE, ContextCompat.getColor(getContext(), R.color.ucrop_color_control_panel_background));
         mActiveControlsWidgetColor = args.getInt(UCrop.Options.EXTRA_UCROP_COLOR_WIDGET_ACTIVE, ContextCompat.getColor(getContext(), R.color.ucrop_color_control_panel_active_icon));
+
+        mControlPanelBackgroundColor = args.getInt(
+                UCrop.Options.EXTRA_UCROP_CONTROL_PANEL_BACKGROUND_COLOR,
+                ContextCompat.getColor(getContext(), R.color.ucrop_color_control_panel_background)
+        );
+        mControlPanelTextColor = args.getInt(
+                UCrop.Options.EXTRA_UCROP_CONTROL_PANEL_TEXT_COLOR,
+                ContextCompat.getColor(getContext(), R.color.ucrop_color_control_panel_text)
+        );
+        mActiveControlIconColor = args.getInt(
+                UCrop.Options.EXTRA_UCROP_ACTIVE_CONTROL_ICON,
+                ContextCompat.getColor(getContext(), R.color.ucrop_color_control_panel_active_icon)
+        );
+        mInactiveControlIconColor = args.getInt(
+                UCrop.Options.EXTRA_UCROP_INACTIVE_CONTROL_ICON,
+                ContextCompat.getColor(getContext(), R.color.ucrop_color_control_panel_inactive_icon)
+        );
+
+
         mLogoColor = args.getInt(UCrop.Options.EXTRA_UCROP_LOGO_COLOR, ContextCompat.getColor(getContext(), R.color.ucrop_color_default_logo));
         mShowBottomControls = !args.getBoolean(UCrop.Options.EXTRA_HIDE_BOTTOM_CONTROLS, false);
         mRootViewBackgroundColor = args.getInt(UCrop.Options.EXTRA_UCROP_ROOT_VIEW_BACKGROUND_COLOR, ContextCompat.getColor(getContext(), R.color.ucrop_color_crop_background));
