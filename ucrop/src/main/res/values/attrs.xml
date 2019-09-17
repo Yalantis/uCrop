@@ -19,6 +19,7 @@
 
         <attr name="ucrop_frame_stroke_size" format="dimension"/>
         <attr name="ucrop_frame_color" format="color"/>
+        <attr name="ucrop_frame_corners_color" format="color"/>
         <attr name="ucrop_show_frame" format="boolean"/>
 
     </declare-styleable>
