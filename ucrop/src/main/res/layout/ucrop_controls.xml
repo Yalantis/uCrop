@@ -63,7 +63,7 @@
                 app:srcCompat="@drawable/ucrop_crop" />
 
             <TextView
-                android:id="@+id/text_view_crop"
+                android:id="@+id/text_view_state_crop"
                 style="@style/ucrop_TextViewWidget"
                 android:text="@string/ucrop_crop" />
 
@@ -79,7 +79,7 @@
                 app:srcCompat="@drawable/ucrop_rotate" />
 
             <TextView
-                android:id="@+id/text_view_rotate"
+                android:id="@+id/text_view_state_rotate"
                 style="@style/ucrop_TextViewWidget"
                 android:text="@string/ucrop_rotate" />
 
@@ -95,7 +95,7 @@
                 app:srcCompat="@drawable/ucrop_scale" />
 
             <TextView
-                android:id="@+id/text_view_scale"
+                android:id="@+id/text_view_state_scale"
                 style="@style/ucrop_TextViewWidget"
                 android:text="@string/ucrop_scale" />
 

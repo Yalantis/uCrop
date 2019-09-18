@@ -10,10 +10,19 @@ import android.graphics.drawable.StateListDrawable;
 public class SelectedStateListDrawable extends StateListDrawable {
 
     private int mSelectionColor;
+    private int mUnselectedColor = -1;
 
     public SelectedStateListDrawable(Drawable drawable, int selectionColor) {
         super();
         this.mSelectionColor = selectionColor;
+        addState(new int[]{android.R.attr.state_selected}, drawable);
+        addState(new int[]{}, drawable);
+    }
+
+    public SelectedStateListDrawable(Drawable drawable, int selectionColor, int unselectedColor) {
+        super();
+        this.mSelectionColor = selectionColor;
+        this.mUnselectedColor = unselectedColor;
         addState(new int[]{android.R.attr.state_selected}, drawable);
         addState(new int[]{}, drawable);
     }
@@ -28,6 +37,8 @@ public class SelectedStateListDrawable extends StateListDrawable {
         }
         if (isStatePressedInArray) {
             super.setColorFilter(mSelectionColor, PorterDuff.Mode.SRC_ATOP);
+        } else if (mUnselectedColor != -1) {
+            super.setColorFilter(mUnselectedColor, PorterDuff.Mode.SRC_ATOP);
         } else {
             super.clearColorFilter();
         }
