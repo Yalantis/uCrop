@@ -60,7 +60,7 @@
                 style="@style/ucrop_ImageViewWidgetIcon"
                 android:gravity="center"
                 android:orientation="vertical"
-                app:srcCompat="@drawable/ucrop_crop" />
+                app:srcCompat="@drawable/ucrop_ic_crop" />
 
             <TextView
                 android:id="@+id/text_view_crop"
@@ -76,7 +76,7 @@
             <ImageView
                 android:id="@+id/image_view_state_rotate"
                 style="@style/ucrop_ImageViewWidgetIcon"
-                app:srcCompat="@drawable/ucrop_rotate" />
+                app:srcCompat="@drawable/ucrop_ic_rotate" />
 
             <TextView
                 android:id="@+id/text_view_rotate"
@@ -92,7 +92,7 @@
             <ImageView
                 android:id="@+id/image_view_state_scale"
                 style="@style/ucrop_ImageViewWidgetIcon"
-                app:srcCompat="@drawable/ucrop_scale" />
+                app:srcCompat="@drawable/ucrop_ic_scale" />
 
             <TextView
                 android:id="@+id/text_view_scale"
