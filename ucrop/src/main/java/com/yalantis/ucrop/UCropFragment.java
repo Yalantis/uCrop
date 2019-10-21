@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -228,6 +229,10 @@ public class UCropFragment extends Fragment {
         mOverlayView.setCropGridColumnCount(bundle.getInt(UCrop.Options.EXTRA_CROP_GRID_COLUMN_COUNT, OverlayView.DEFAULT_CROP_GRID_COLUMN_COUNT));
         mOverlayView.setCropGridColor(bundle.getInt(UCrop.Options.EXTRA_CROP_GRID_COLOR, getResources().getColor(R.color.ucrop_color_default_crop_grid)));
         mOverlayView.setCropGridStrokeWidth(bundle.getInt(UCrop.Options.EXTRA_CROP_GRID_STROKE_WIDTH, getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_grid_stoke_width)));
+
+        if (bundle.containsKey(UCrop.Options.EXTRA_CROP_VIEW_RECT)) {
+            mOverlayView.setCropViewRect((RectF) bundle.getParcelable(UCrop.Options.EXTRA_CROP_VIEW_RECT));
+        }
 
         // Aspect ratio options
         float aspectRatioX = bundle.getFloat(UCrop.EXTRA_ASPECT_RATIO_X, 0);
