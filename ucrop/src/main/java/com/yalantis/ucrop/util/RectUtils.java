@@ -1,6 +1,7 @@
 package com.yalantis.ucrop.util;
 
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 
 public class RectUtils {
 
@@ -67,6 +68,39 @@ public class RectUtils {
         }
         r.sort();
         return r;
+    }
+
+    /**
+     * Takes an rect in image space (received rect can only be in image space, since you can't
+     * know the view's width and height from the outside). So in case you want to process the image
+     * outside uCrop, you will only have coordinates in image space and not in uCrop's view space.
+     * Those need to be converted.
+     *
+     * @param rectInImageSpace RectF in image space
+     * @param viewWidth The view's width
+     * @param viewHeight The view's height
+     * @param drawable The drawable object to retrieve drawable width and height
+     *
+     * @return A new RectF object representing how the RectF should be drawn on screen.
+     */
+    public static RectF convertImageSpaceRectToCropViewRect(RectF rectInImageSpace, int viewWidth, int viewHeight, Drawable drawable) {
+        double viewAspectRatio = (double) viewWidth / viewHeight;
+
+        int drawableWidth = drawable.getIntrinsicWidth();
+        int drawableHeight = drawable.getIntrinsicHeight();
+
+        int imageWidthInsideView = (int) (drawableWidth * viewAspectRatio);
+        int imageHeightInsideView = (int) (drawableHeight * viewAspectRatio);
+
+        double widthAspectRatio = (double) viewWidth / imageWidthInsideView;
+        double heightAspectRatio = (double) viewHeight / imageHeightInsideView;
+
+        return new RectF(
+                (float) (rectInImageSpace.left * widthAspectRatio),
+                (float) (rectInImageSpace.top * heightAspectRatio),
+                (float) (rectInImageSpace.right * widthAspectRatio),
+                (float) (rectInImageSpace.bottom * heightAspectRatio)
+        );
     }
 
 }

@@ -105,6 +105,9 @@ public class OverlayView extends View {
         return mCropViewRect;
     }
 
+    /**
+     * Setter for mCropViewRect. Can be used to set an initial value for the mCropViewRect.
+     */
     public void setCropViewRect(RectF rect) {
         mCropViewRect.set(rect);
     }

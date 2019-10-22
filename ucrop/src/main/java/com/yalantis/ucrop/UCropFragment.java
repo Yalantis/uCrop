@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.model.AspectRatio;
+import com.yalantis.ucrop.util.RectUtils;
 import com.yalantis.ucrop.util.SelectedStateListDrawable;
 import com.yalantis.ucrop.view.CropImageView;
 import com.yalantis.ucrop.view.GestureCropImageView;
@@ -230,10 +232,6 @@ public class UCropFragment extends Fragment {
         mOverlayView.setCropGridColor(bundle.getInt(UCrop.Options.EXTRA_CROP_GRID_COLOR, getResources().getColor(R.color.ucrop_color_default_crop_grid)));
         mOverlayView.setCropGridStrokeWidth(bundle.getInt(UCrop.Options.EXTRA_CROP_GRID_STROKE_WIDTH, getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_grid_stoke_width)));
 
-        if (bundle.containsKey(UCrop.Options.EXTRA_CROP_VIEW_RECT)) {
-            mOverlayView.setCropViewRect((RectF) bundle.getParcelable(UCrop.Options.EXTRA_CROP_VIEW_RECT));
-        }
-
         // Aspect ratio options
         float aspectRatioX = bundle.getFloat(UCrop.EXTRA_ASPECT_RATIO_X, 0);
         float aspectRatioY = bundle.getFloat(UCrop.EXTRA_ASPECT_RATIO_Y, 0);
@@ -289,6 +287,17 @@ public class UCropFragment extends Fragment {
         @Override
         public void onLoadComplete() {
             mUCropView.animate().alpha(1).setDuration(300).setInterpolator(new AccelerateInterpolator());
+            if (getArguments().containsKey(UCrop.Options.EXTRA_CROP_VIEW_RECT)) {
+                RectF rectInImageSpace = getArguments().getParcelable(UCrop.Options.EXTRA_CROP_VIEW_RECT);
+
+                int viewWidth = mGestureCropImageView.getWidth();
+                int viewHeight = mGestureCropImageView.getHeight();
+
+                Drawable drawable = mGestureCropImageView.getDrawable();
+
+                RectF cropViewRect = RectUtils.convertImageSpaceRectToCropViewRect(rectInImageSpace, viewWidth, viewHeight, drawable);
+                mOverlayView.setCropViewRect(cropViewRect);
+            }
             mBlockingView.setClickable(false);
             callback.loadingProgress(false);
         }

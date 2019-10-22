@@ -436,7 +436,8 @@ public class UCrop {
         }
 
         /**
-         * @param rect - desired cropping view rect
+         * @param rect - desired crop view rect (Coordinates have to be in image space). They will
+         *             be automatically converted to the desired rect inside the crop view.
          */
         public void setCropViewRect(@NonNull RectF rect) {
             mOptionBundle.putParcelable(EXTRA_CROP_VIEW_RECT, rect);
