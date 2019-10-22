@@ -84,16 +84,11 @@ public class RectUtils {
      * @return A new RectF object representing how the RectF should be drawn on screen.
      */
     public static RectF convertImageSpaceRectToCropViewRect(RectF rectInImageSpace, int viewWidth, int viewHeight, Drawable drawable) {
-        double viewAspectRatio = (double) viewWidth / viewHeight;
-
         int drawableWidth = drawable.getIntrinsicWidth();
         int drawableHeight = drawable.getIntrinsicHeight();
 
-        int imageWidthInsideView = (int) (drawableWidth * viewAspectRatio);
-        int imageHeightInsideView = (int) (drawableHeight * viewAspectRatio);
-
-        double widthAspectRatio = (double) viewWidth / imageWidthInsideView;
-        double heightAspectRatio = (double) viewHeight / imageHeightInsideView;
+        double widthAspectRatio = (double) viewWidth / drawableWidth;
+        double heightAspectRatio = (double) viewHeight / drawableHeight;
 
         return new RectF(
                 (float) (rectInImageSpace.left * widthAspectRatio),
