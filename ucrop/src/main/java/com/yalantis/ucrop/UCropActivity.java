@@ -382,8 +382,8 @@ public class UCropActivity extends AppCompatActivity {
         @Override
         public void onLoadComplete() {
             mUCropView.animate().alpha(1).setDuration(300).setInterpolator(new AccelerateInterpolator());
-            if (getIntent().hasExtra(UCrop.Options.EXTRA_CROP_VIEW_RECT)) {
-                RectF rectInImageSpace = getIntent().getParcelableExtra(UCrop.Options.EXTRA_CROP_VIEW_RECT);
+            if (getIntent().hasExtra(UCrop.Options.EXTRA_CROP_VIEW_RECT_IN_IMAGE_SPACE)) {
+                RectF rectInImageSpace = getIntent().getParcelableExtra(UCrop.Options.EXTRA_CROP_VIEW_RECT_IN_IMAGE_SPACE);
 
                 int viewWidth = mGestureCropImageView.getWidth();
                 int viewHeight = mGestureCropImageView.getHeight();
