@@ -88,6 +88,21 @@ public class CropImageView extends TransformImageView {
                 .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
+
+    public boolean shouldCrop() {
+        int width = Math.round(mCropRect.width() / getCurrentScale());
+        int height = Math.round(mCropRect.height() / getCurrentScale());
+        RectF mCurrentImageRect = RectUtils.trapToRect(mCurrentImageCorners);
+        int pixelError = 1;
+        pixelError += Math.round(Math.max(width, height) / 1000f);
+        return (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0)
+                || Math.abs(mCropRect.left - mCurrentImageRect.left) > pixelError
+                || Math.abs(mCropRect.top - mCurrentImageRect.top) > pixelError
+                || Math.abs(mCropRect.bottom - mCurrentImageRect.bottom) > pixelError
+                || Math.abs(mCropRect.right - mCurrentImageRect.right) > pixelError
+                ||  getCurrentAngle() != 0;
+    }
+
     /**
      * @return - maximum scale value for current image and crop ratio
      */
