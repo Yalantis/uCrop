@@ -172,7 +172,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
             }
         } else if ("content".equals(inputUriScheme)) {
             String path = getFilePath();
-            if (!TextUtils.isEmpty(path) && new File(path).exists()) {
+            if (!TextUtils.isEmpty(path) && new File(path).exists() && new File(path).canWrite()) {
                 mInputUri = Uri.fromFile(new File(path));
             } else {
                 try {
