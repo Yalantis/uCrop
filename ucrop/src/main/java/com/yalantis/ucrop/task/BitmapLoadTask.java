@@ -1,10 +1,13 @@
 package com.yalantis.ucrop.task;
 
 import android.Manifest.permission;
+import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -12,6 +15,11 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Size;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
 import com.yalantis.ucrop.model.ExifInfo;
@@ -26,9 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -45,6 +50,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
 
     private static final String TAG = "BitmapWorkerTask";
 
+    private final boolean mBeforeAndroidQ;
     private final Context mContext;
     private Uri mInputUri;
     private Uri mOutputUri;
@@ -74,6 +80,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
                           @NonNull Uri inputUri, @Nullable Uri outputUri,
                           int requiredWidth, int requiredHeight,
                           BitmapLoadCallback loadCallback) {
+        mBeforeAndroidQ = android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.Q;
         mContext = context;
         mInputUri = inputUri;
         mOutputUri = outputUri;
@@ -95,49 +102,70 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
             return new BitmapWorkerResult(e);
         }
 
-        final ParcelFileDescriptor parcelFileDescriptor;
-        try {
-            parcelFileDescriptor = mContext.getContentResolver().openFileDescriptor(mInputUri, "r");
-        } catch (FileNotFoundException e) {
-            return new BitmapWorkerResult(e);
-        }
-
-        final FileDescriptor fileDescriptor;
-        if (parcelFileDescriptor != null) {
-            fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-        } else {
-            return new BitmapWorkerResult(new NullPointerException("ParcelFileDescriptor was null for given Uri: [" + mInputUri + "]"));
-        }
-
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
-        if (options.outWidth == -1 || options.outHeight == -1) {
-            return new BitmapWorkerResult(new IllegalArgumentException("Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]"));
-        }
-
-        options.inSampleSize = BitmapLoadUtils.calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
-        options.inJustDecodeBounds = false;
-
         Bitmap decodeSampledBitmap = null;
+        ContentResolver resolver = mContext.getContentResolver();
+        if (mBeforeAndroidQ) {
 
-        boolean decodeAttemptSuccess = false;
-        while (!decodeAttemptSuccess) {
+            final ParcelFileDescriptor parcelFileDescriptor;
             try {
-                decodeSampledBitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
-                decodeAttemptSuccess = true;
-            } catch (OutOfMemoryError error) {
-                Log.e(TAG, "doInBackground: BitmapFactory.decodeFileDescriptor: ", error);
-                options.inSampleSize *= 2;
+                parcelFileDescriptor = resolver.openFileDescriptor(mInputUri, "r");
+            } catch (FileNotFoundException e) {
+                return new BitmapWorkerResult(e);
+            }
+
+            final FileDescriptor fileDescriptor;
+            if (parcelFileDescriptor != null) {
+                fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+            } else {
+                return new BitmapWorkerResult(new NullPointerException("ParcelFileDescriptor was null for given Uri: [" + mInputUri + "]"));
+            }
+
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+            if (options.outWidth == -1 || options.outHeight == -1) {
+                return new BitmapWorkerResult(new IllegalArgumentException("Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]"));
+            }
+
+            options.inSampleSize = BitmapLoadUtils.calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
+            options.inJustDecodeBounds = false;
+
+            boolean decodeAttemptSuccess = false;
+            while (!decodeAttemptSuccess) {
+                try {
+                    decodeSampledBitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+                    decodeAttemptSuccess = true;
+                } catch (OutOfMemoryError error) {
+                    Log.e(TAG, "doInBackground: BitmapFactory.decodeFileDescriptor: ", error);
+                    options.inSampleSize *= 2;
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                BitmapLoadUtils.close(parcelFileDescriptor);
+            }
+        } else {
+            try {
+                ImageDecoder.Source source = ImageDecoder.createSource(resolver, mInputUri);
+                decodeSampledBitmap = ImageDecoder.decodeBitmap(source, new ImageDecoder.OnHeaderDecodedListener() {
+                    @SuppressLint("NewApi")
+                    @Override
+                    public void onHeaderDecoded(@NonNull ImageDecoder decoder, @NonNull ImageDecoder.ImageInfo info, @NonNull ImageDecoder.Source source) {
+                        Size size = info.getSize();
+                        if (size.getWidth() == -1 || size.getWidth() == -1) {
+                            throw new IllegalArgumentException("Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]");
+                        }
+                    }
+                });
+            } catch (IllegalArgumentException e) {
+                return new BitmapWorkerResult(e);
+            } catch (IOException e) {
+                Log.e(TAG, "doInBackground: ImageDecoder.decodeBitmap: ", e);
             }
         }
 
         if (decodeSampledBitmap == null) {
             return new BitmapWorkerResult(new IllegalArgumentException("Bitmap could not be decoded from the Uri: [" + mInputUri + "]"));
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            BitmapLoadUtils.close(parcelFileDescriptor);
         }
 
         int exifOrientation = BitmapLoadUtils.getExifOrientation(mContext, mInputUri);
@@ -172,7 +200,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
             }
         } else if ("content".equals(inputUriScheme)) {
             String path = getFilePath();
-            if (!TextUtils.isEmpty(path) && new File(path).exists()) {
+            if (!TextUtils.isEmpty(path) && new File(path).exists() && mBeforeAndroidQ) {
                 mInputUri = Uri.fromFile(new File(path));
             } else {
                 try {
@@ -213,7 +241,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
                 throw new NullPointerException("InputStream for given input Uri is null");
             }
 
-            byte buffer[] = new byte[1024];
+            byte[] buffer = new byte[1024];
             int length;
             while ((length = inputStream.read(buffer)) > 0) {
                 outputStream.write(buffer, 0, length);
