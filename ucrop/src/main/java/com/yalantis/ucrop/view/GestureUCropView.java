@@ -15,6 +15,7 @@ public class GestureUCropView extends UCropView {
     private RotationGestureDetector mRotateDetector;
 
     private GestureDetector mGestureDetector;
+    private GestureDetector mDoubleTapGestureDetector;
 
     private float mMidPntX, mMidPntY;
     private boolean mIsRotateEnabled = true, mIsScaleEnabled = true;
@@ -76,6 +77,31 @@ public class GestureUCropView extends UCropView {
         return mDoubleTapScaleSteps;
     }
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        // Log.d("GestureUCropView", "dispatchTouchEvent() called with: ev = [" + ev + "]");
+        boolean handled = super.dispatchTouchEvent(ev);
+        mDoubleTapGestureDetector.onTouchEvent(ev);
+        return handled;
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        // Log.d("GestureUCropView", "onInterceptTouchEvent() called with: ev = [" + ev + "]");
+        if (ev.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
+            MotionEvent downEvent = MotionEvent.obtain(ev);
+            downEvent.setAction(MotionEvent.ACTION_DOWN);
+            // mock ACTION_DOWN & ACTION_POINTER_DOWN
+            onTouchEvent(downEvent);
+            onTouchEvent(ev);
+
+            downEvent.recycle();
+            // intercept touch event
+            return true;
+        }
+        return super.onInterceptTouchEvent(ev);
+    }
+
     /**
      * If it's ACTION_DOWN event - user touches the screen and all current animation must be canceled.
      * If it's ACTION_UP event - user removed all fingers from the screen and current image position must be corrected.
@@ -84,7 +110,10 @@ public class GestureUCropView extends UCropView {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
+        // Log.d("GestureUCropView", "onTouchEvent() called with: event = [" + event + "]");
+        int actionMasked = event.getActionMasked();
+
+        if (actionMasked == MotionEvent.ACTION_DOWN) {
             getCropImageView().cancelAllAnimations();
         }
 
@@ -103,7 +132,7 @@ public class GestureUCropView extends UCropView {
             mRotateDetector.onTouchEvent(event);
         }
 
-        if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
+        if (actionMasked == MotionEvent.ACTION_UP) {
             getCropImageView().setImageToWrapCropBounds();
         }
         return true;
@@ -120,6 +149,7 @@ public class GestureUCropView extends UCropView {
 
     private void setupGestureListeners() {
         mGestureDetector = new GestureDetector(getContext(), new GestureListener(), null, true);
+        mDoubleTapGestureDetector = new GestureDetector(getContext(), new DoubleTapGestureListener(), null, true);
         mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
         mRotateDetector = new RotationGestureDetector(new RotateListener());
     }
@@ -133,14 +163,15 @@ public class GestureUCropView extends UCropView {
         }
     }
 
-    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
-
+    private class DoubleTapGestureListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             getCropImageView().zoomImageToPosition(getDoubleTapTargetScale(), e.getX(), e.getY(), DOUBLE_TAP_ZOOM_DURATION);
-            return super.onDoubleTap(e);
+            return true;
         }
+    }
 
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             getCropImageView().postTranslate(-distanceX, -distanceY);
