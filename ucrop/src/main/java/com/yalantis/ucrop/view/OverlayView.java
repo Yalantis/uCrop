@@ -374,9 +374,16 @@ public class OverlayView extends View {
                 break;
             // move rectangle
             case 4:
-                mTempRect.offset(touchX - mPreviousTouchX, touchY - mPreviousTouchY);
-                if (mTempRect.left > getLeft() && mTempRect.top > getTop()
-                        && mTempRect.right < getRight() && mTempRect.bottom < getBottom()) {
+                float dx = touchX - mPreviousTouchX;
+                float dy = touchY - mPreviousTouchY;
+                dx = dx > 0
+                        ? Math.min(dx + mTempRect.right, getWidth()) - mTempRect.right
+                        : Math.max(dx + mTempRect.left, 0) - mTempRect.left;
+                dy = dy > 0
+                        ? Math.min(dy + mTempRect.bottom, getHeight()) - mTempRect.bottom
+                        : Math.max(dy + mTempRect.top, 0) - mTempRect.top;
+                if (!(dx == 0 && dy == 0)) {
+                    mTempRect.offset(dx, dy);
                     mCropViewRect.set(mTempRect);
                     updateGridPoints();
                     postInvalidate();
