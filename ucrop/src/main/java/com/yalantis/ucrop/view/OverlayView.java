@@ -42,6 +42,16 @@ public class OverlayView extends View {
     public static final int DEFAULT_FREESTYLE_CROP_MODE = FREESTYLE_CROP_MODE_DISABLE;
     public static final int DEFAULT_CROP_GRID_ROW_COUNT = 2;
     public static final int DEFAULT_CROP_GRID_COLUMN_COUNT = 2;
+    private static final int POSITION_LT = 0;
+    private static final int POSITION_RT = 1;
+    private static final int POSITION_RB = 2;
+    private static final int POSITION_LB = 3;
+    private static final int POSITION_CENTER = 4;
+    private static final int POSITION_L = 10;
+    private static final int POSITION_T = 11;
+    private static final int POSITION_R = 12;
+    private static final int POSITION_B = 13;
+
 
     private final RectF mCropViewRect = new RectF();
     private final RectF mTempRect = new RectF();
@@ -64,7 +74,7 @@ public class OverlayView extends View {
     @FreestyleMode
     private int mFreestyleCropMode = DEFAULT_FREESTYLE_CROP_MODE;
     private float mPreviousTouchX = -1, mPreviousTouchY = -1;
-    private int mCurrentTouchCornerIndex = -1;
+    private int mCurrentTouchPosition = -1;
     private int mTouchPointThreshold;
     private int mCropRectMinSize;
     private int mCropRectCornerTouchAreaLineLength;
@@ -307,8 +317,8 @@ public class OverlayView extends View {
 
         int actionMasked = event.getActionMasked();
         if (actionMasked == MotionEvent.ACTION_DOWN) {
-            mCurrentTouchCornerIndex = getCurrentTouchIndex(x, y);
-            boolean shouldHandle = mCurrentTouchCornerIndex != -1;
+            mCurrentTouchPosition = getCurrentTouchPosition(x, y);
+            boolean shouldHandle = mCurrentTouchPosition != -1;
             if (!shouldHandle) {
                 mPreviousTouchX = -1;
                 mPreviousTouchY = -1;
@@ -320,7 +330,7 @@ public class OverlayView extends View {
         }
 
         if (actionMasked == MotionEvent.ACTION_MOVE) {
-            if (event.getPointerCount() == 1 && mCurrentTouchCornerIndex != -1) {
+            if (event.getPointerCount() == 1 && mCurrentTouchPosition != -1) {
 
                 x = Math.min(Math.max(x, getPaddingLeft()), getWidth() - getPaddingRight());
                 y = Math.min(Math.max(y, getPaddingTop()), getHeight() - getPaddingBottom());
@@ -337,7 +347,7 @@ public class OverlayView extends View {
         if (actionMasked == MotionEvent.ACTION_UP || actionMasked == MotionEvent.ACTION_CANCEL) {
             mPreviousTouchX = -1;
             mPreviousTouchY = -1;
-            mCurrentTouchCornerIndex = -1;
+            mCurrentTouchPosition = -1;
 
             if (mCallback != null) {
                 mCallback.onCropRectUpdated(mCropViewRect);
@@ -349,31 +359,45 @@ public class OverlayView extends View {
 
     /**
      * * The order of the corners is:
-     * 0------->1
-     * ^        |
-     * |   4    |
-     * |        v
-     * 3<-------2
+     * LT----T-->RT
+     * ^          |
+     * L  CENTER  R
+     * |          v
+     * LB<---B---RB
+     *
+     * @see #POSITION_LT
      */
     private void updateCropViewRect(float touchX, float touchY) {
         mTempRect.set(mCropViewRect);
 
-        switch (mCurrentTouchCornerIndex) {
+        switch (mCurrentTouchPosition) {
             // resize rectangle
-            case 0:
+            case POSITION_LT:
                 mTempRect.set(touchX, touchY, mCropViewRect.right, mCropViewRect.bottom);
                 break;
-            case 1:
+            case POSITION_RT:
                 mTempRect.set(mCropViewRect.left, touchY, touchX, mCropViewRect.bottom);
                 break;
-            case 2:
+            case POSITION_RB:
                 mTempRect.set(mCropViewRect.left, mCropViewRect.top, touchX, touchY);
                 break;
-            case 3:
+            case POSITION_LB:
                 mTempRect.set(touchX, mCropViewRect.top, mCropViewRect.right, touchY);
                 break;
+            case POSITION_L:
+                mTempRect.set(touchX, mCropViewRect.top, mCropViewRect.right, mCropViewRect.bottom);
+                break;
+            case POSITION_T:
+                mTempRect.set(mCropViewRect.left, touchY, mCropViewRect.right, mCropViewRect.bottom);
+                break;
+            case POSITION_R:
+                mTempRect.set(mCropViewRect.left, mCropViewRect.top, touchX, mCropViewRect.bottom);
+                break;
+            case POSITION_B:
+                mTempRect.set(mCropViewRect.left, mCropViewRect.top, mCropViewRect.right, touchY);
+                break;
             // move rectangle
-            case 4:
+            case POSITION_CENTER:
                 float dx = touchX - mPreviousTouchX;
                 float dy = touchY - mPreviousTouchY;
                 dx = dx > 0
@@ -412,10 +436,19 @@ public class OverlayView extends View {
      * |   4    |
      * |        v
      * 3<-------2
+     * <p>
+     * 2020-03-15, Expend to:
+     * LT----T-->RT
+     * ^          |
+     * L  CENTER  R
+     * |          v
+     * LB<---B---RB
      *
      * @return - index of corner that is being dragged
+     * @see #POSITION_LT
      */
-    private int getCurrentTouchIndex(float touchX, float touchY) {
+    private int getCurrentTouchPosition(float touchX, float touchY) {
+        // LT/RT/RB/LB
         int closestPointIndex = -1;
         double closestPointDistance = mTouchPointThreshold;
         for (int i = 0; i < 8; i += 2) {
@@ -426,27 +459,59 @@ public class OverlayView extends View {
                 closestPointIndex = i / 2;
             }
         }
-
-        if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE && closestPointIndex < 0 && mCropViewRect.contains(touchX, touchY)) {
-            return 4;
+        if (closestPointIndex != -1) {
+            return closestPointIndex;
         }
 
-//        for (int i = 0; i <= 8; i += 2) {
-//
-//            double distanceToCorner;
-//            if (i < 8) { // corners
-//                distanceToCorner = Math.sqrt(Math.pow(touchX - mCropGridCorners[i], 2)
-//                        + Math.pow(touchY - mCropGridCorners[i + 1], 2));
-//            } else { // center
-//                distanceToCorner = Math.sqrt(Math.pow(touchX - mCropGridCenter[0], 2)
-//                        + Math.pow(touchY - mCropGridCenter[1], 2));
-//            }
-//            if (distanceToCorner < closestPointDistance) {
-//                closestPointDistance = distanceToCorner;
-//                closestPointIndex = i / 2;
-//            }
-//        }
-        return closestPointIndex;
+        final RectF r = mCropViewRect;
+        final int t = mTouchPointThreshold;
+        // L
+        mTempRect.set(
+                r.left - t,
+                r.top + t,
+                r.left + t,
+                r.bottom - t
+        );
+        if (mTempRect.contains(touchX, touchY)) {
+            return POSITION_L;
+        }
+        // T
+        mTempRect.set(
+                r.left + t,
+                r.top - t,
+                r.right - t,
+                r.top + t
+        );
+        if (mTempRect.contains(touchX, touchY)) {
+            return POSITION_T;
+        }
+        // R
+        mTempRect.set(
+                r.right - t,
+                r.top + t,
+                r.right + t,
+                r.bottom - t
+        );
+        if (mTempRect.contains(touchX, touchY)) {
+            return POSITION_R;
+        }
+        // B
+        mTempRect.set(
+                r.left + t,
+                r.bottom - t,
+                r.right - t,
+                r.bottom + t
+        );
+        if (mTempRect.contains(touchX, touchY)) {
+            return POSITION_B;
+        }
+
+        // CENTER
+        if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE && mCropViewRect.contains(touchX, touchY)) {
+            return POSITION_CENTER;
+        }
+
+        return -1;
     }
 
     /**
