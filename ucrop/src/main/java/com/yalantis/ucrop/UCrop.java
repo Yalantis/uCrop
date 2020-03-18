@@ -1,5 +1,6 @@
 package com.yalantis.ucrop;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -123,7 +124,7 @@ public class UCrop {
      *
      * @param activity Activity to receive result
      */
-    public void start(@NonNull AppCompatActivity activity) {
+    public void start(@NonNull Activity activity) {
         start(activity, REQUEST_CROP);
     }
 
@@ -133,7 +134,7 @@ public class UCrop {
      * @param activity    Activity to receive result
      * @param requestCode requestCode for result
      */
-    public void start(@NonNull AppCompatActivity activity, int requestCode) {
+    public void start(@NonNull Activity activity, int requestCode) {
         activity.startActivityForResult(getIntent(activity), requestCode);
     }
 
