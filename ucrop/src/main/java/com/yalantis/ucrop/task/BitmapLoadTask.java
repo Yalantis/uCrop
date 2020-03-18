@@ -1,34 +1,26 @@
 package com.yalantis.ucrop.task;
 
-import android.Manifest.permission;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.os.ParcelFileDescriptor;
-import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
 import com.yalantis.ucrop.model.ExifInfo;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
-import com.yalantis.ucrop.util.FileUtils;
 
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -95,27 +87,8 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
             return new BitmapWorkerResult(e);
         }
 
-        final ParcelFileDescriptor parcelFileDescriptor;
-        try {
-            parcelFileDescriptor = mContext.getContentResolver().openFileDescriptor(mInputUri, "r");
-        } catch (FileNotFoundException e) {
-            return new BitmapWorkerResult(e);
-        }
-
-        final FileDescriptor fileDescriptor;
-        if (parcelFileDescriptor != null) {
-            fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-        } else {
-            return new BitmapWorkerResult(new NullPointerException("ParcelFileDescriptor was null for given Uri: [" + mInputUri + "]"));
-        }
-
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
-        if (options.outWidth == -1 || options.outHeight == -1) {
-            return new BitmapWorkerResult(new IllegalArgumentException("Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]"));
-        }
-
         options.inSampleSize = BitmapLoadUtils.calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
         options.inJustDecodeBounds = false;
 
@@ -124,20 +97,27 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         boolean decodeAttemptSuccess = false;
         while (!decodeAttemptSuccess) {
             try {
-                decodeSampledBitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+                InputStream stream = mContext.getContentResolver().openInputStream(mInputUri);
+                try {
+                    decodeSampledBitmap = BitmapFactory.decodeStream(stream, null, options);
+                    if (options.outWidth == -1 || options.outHeight == -1) {
+                        return new BitmapWorkerResult(new IllegalArgumentException("Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]"));
+                    }
+                } finally {
+                    BitmapLoadUtils.close(stream);
+                }
                 decodeAttemptSuccess = true;
             } catch (OutOfMemoryError error) {
                 Log.e(TAG, "doInBackground: BitmapFactory.decodeFileDescriptor: ", error);
                 options.inSampleSize *= 2;
+            } catch (IOException e) {
+                Log.e(TAG, "doInBackground: ImageDecoder.createSource: ", e);
+                return new BitmapWorkerResult(new IllegalArgumentException("Bitmap could not be decoded from the Uri: [" + mInputUri + "]", e));
             }
         }
 
         if (decodeSampledBitmap == null) {
             return new BitmapWorkerResult(new IllegalArgumentException("Bitmap could not be decoded from the Uri: [" + mInputUri + "]"));
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            BitmapLoadUtils.close(parcelFileDescriptor);
         }
 
         int exifOrientation = BitmapLoadUtils.getExifOrientation(mContext, mInputUri);
@@ -171,29 +151,15 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
                 throw e;
             }
         } else if ("content".equals(inputUriScheme)) {
-            String path = getFilePath();
-            if (!TextUtils.isEmpty(path) && new File(path).exists()) {
-                mInputUri = Uri.fromFile(new File(path));
-            } else {
-                try {
-                    copyFile(mInputUri, mOutputUri);
-                } catch (NullPointerException | IOException e) {
-                    Log.e(TAG, "Copying failed", e);
-                    throw e;
-                }
+            try {
+                copyFile(mInputUri, mOutputUri);
+            } catch (NullPointerException | IOException e) {
+                Log.e(TAG, "Copying failed", e);
+                throw e;
             }
         } else if (!"file".equals(inputUriScheme)) {
             Log.e(TAG, "Invalid Uri scheme " + inputUriScheme);
             throw new IllegalArgumentException("Invalid Uri scheme" + inputUriScheme);
-        }
-    }
-
-    private String getFilePath() {
-        if (ContextCompat.checkSelfPermission(mContext, permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED) {
-            return FileUtils.getPath(mContext, mInputUri);
-        } else {
-            return null;
         }
     }
 
