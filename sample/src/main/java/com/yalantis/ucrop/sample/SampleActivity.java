@@ -372,9 +372,9 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         // Color palette
         options.setToolbarColor(ContextCompat.getColor(this, R.color.your_color_res));
         options.setStatusBarColor(ContextCompat.getColor(this, R.color.your_color_res));
-        options.setActiveWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
         options.setToolbarWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
         options.setRootViewBackgroundColor(ContextCompat.getColor(this, R.color.your_color_res));
+        options.setActiveControlsWidgetColor(ContextCompat.getColor(this, R.color.your_color_res));
 
         // Aspect ratio options
         options.setAspectRatioOptions(1,
