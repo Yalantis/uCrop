@@ -45,14 +45,8 @@ public class AspectRatioTextView extends AppCompatTextView {
         this(context, attrs, 0);
     }
 
-    public AspectRatioTextView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ucrop_AspectRatioTextView);
-        init(a);
-    }
-
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public AspectRatioTextView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public AspectRatioTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ucrop_AspectRatioTextView);
         init(a);

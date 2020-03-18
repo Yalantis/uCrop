@@ -1,9 +1,13 @@
 package com.yalantis.ucrop;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -19,8 +23,6 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -123,7 +125,7 @@ public class UCrop {
      *
      * @param activity Activity to receive result
      */
-    public void start(@NonNull AppCompatActivity activity) {
+    public void start(@NonNull Activity activity) {
         start(activity, REQUEST_CROP);
     }
 
@@ -133,7 +135,7 @@ public class UCrop {
      * @param activity    Activity to receive result
      * @param requestCode requestCode for result
      */
-    public void start(@NonNull AppCompatActivity activity, int requestCode) {
+    public void start(@NonNull Activity activity, int requestCode) {
         activity.startActivityForResult(getIntent(activity), requestCode);
     }
 
@@ -147,12 +149,32 @@ public class UCrop {
     }
 
     /**
+     * Send the crop Intent from a support library Fragment
+     *
+     * @param fragment Fragment to receive result
+     */
+    public void start(@NonNull Context context, @NonNull androidx.fragment.app.Fragment fragment) {
+        start(context, fragment, REQUEST_CROP);
+    }
+
+    /**
      * Send the crop Intent with a custom request code
      *
      * @param fragment    Fragment to receive result
      * @param requestCode requestCode for result
      */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void start(@NonNull Context context, @NonNull Fragment fragment, int requestCode) {
+        fragment.startActivityForResult(getIntent(context), requestCode);
+    }
+
+    /**
+     * Send the crop Intent with a custom request code
+     *
+     * @param fragment    Fragment to receive result
+     * @param requestCode requestCode for result
+     */
+    public void start(@NonNull Context context, @NonNull androidx.fragment.app.Fragment fragment, int requestCode) {
         fragment.startActivityForResult(getIntent(context), requestCode);
     }
 
@@ -216,7 +238,7 @@ public class UCrop {
      * @return aspect ratio as a floating point value (x:y) - so it will be 1 for 1:1 or 4/3 for 4:3
      */
     public static float getOutputCropAspectRatio(@NonNull Intent intent) {
-        return intent.getParcelableExtra(EXTRA_OUTPUT_CROP_ASPECT_RATIO);
+        return intent.getFloatExtra(EXTRA_OUTPUT_CROP_ASPECT_RATIO, 0f);
     }
 
     /**

@@ -18,6 +18,8 @@ import com.yalantis.ucrop.task.BitmapLoadTask;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

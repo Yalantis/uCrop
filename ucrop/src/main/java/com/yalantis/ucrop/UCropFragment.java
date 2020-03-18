@@ -46,7 +46,7 @@ import androidx.transition.AutoTransition;
 import androidx.transition.Transition;
 import androidx.transition.TransitionManager;
 
-import static androidx.appcompat.app.AppCompatActivity.RESULT_OK;
+import static android.app.Activity.RESULT_OK;
 
 @SuppressWarnings("ConstantConditions")
 public class UCropFragment extends Fragment {
@@ -73,6 +73,7 @@ public class UCropFragment extends Fragment {
     private UCropFragmentCallback callback;
 
     private int mActiveControlsWidgetColor;
+
     @ColorInt
     private int mRootViewBackgroundColor;
     private int mLogoColor;
@@ -299,7 +300,7 @@ public class UCropFragment extends Fragment {
     };
 
     /**
-     * Use {@link #mActiveControlsWidgetColor} for color filter
+     * Use {@link #mActiveWidgetColor} for color filter
      */
     private void setupStatesWrapper(View view) {
         ImageView stateScaleImageView = view.findViewById(R.id.image_view_state_scale);
@@ -398,7 +399,6 @@ public class UCropFragment extends Fragment {
                 rotateByAngle(90);
             }
         });
-
         setAngleTextColor(mActiveControlsWidgetColor);
     }
 
