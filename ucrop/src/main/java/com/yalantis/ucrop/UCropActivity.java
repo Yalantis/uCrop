@@ -305,7 +305,6 @@ public class UCropActivity extends AppCompatActivity {
             ViewGroup viewGroup = findViewById(R.id.ucrop_photobox);
             ViewGroup wrapper = viewGroup.findViewById(R.id.controls_wrapper);
             wrapper.setVisibility(View.VISIBLE);
-            wrapper.setBackgroundColor(mRootViewBackgroundColor);
             LayoutInflater.from(this).inflate(R.layout.ucrop_controls, wrapper, true);
 
             mControlsTransition = new AutoTransition();
@@ -367,6 +366,11 @@ public class UCropActivity extends AppCompatActivity {
         ((ImageView) findViewById(R.id.image_view_logo)).setColorFilter(mLogoColor, PorterDuff.Mode.SRC_ATOP);
 
         findViewById(R.id.ucrop_frame).setBackgroundColor(mRootViewBackgroundColor);
+        if (!mShowBottomControls) {
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) findViewById(R.id.ucrop_frame).getLayoutParams();
+            params.bottomMargin = 0;
+            findViewById(R.id.ucrop_frame).requestLayout();
+        }
     }
 
     private TransformImageView.TransformImageListener mImageListener = new TransformImageView.TransformImageListener() {
