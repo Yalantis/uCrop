@@ -1,9 +1,7 @@
 package com.yalantis.ucrop.sample;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Animatable;
@@ -41,7 +39,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 /**
@@ -105,23 +102,6 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
             handleCropError(data);
         }
     }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_STORAGE_READ_ACCESS_PERMISSION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    pickFromGallery();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
-
 
     private TextWatcher mAspectRatioTextWatcher = new TextWatcher() {
         @Override
@@ -227,24 +207,16 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
     }
 
     private void pickFromGallery() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE,
-                    getString(R.string.permission_read_storage_rationale),
-                    REQUEST_STORAGE_READ_ACCESS_PERMISSION);
-        } else {
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
-                    .setType("image/*")
-                    .addCategory(Intent.CATEGORY_OPENABLE);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
+                .setType("image/*")
+                .addCategory(Intent.CATEGORY_OPENABLE);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                String[] mimeTypes = {"image/jpeg", "image/png"};
-                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-            }
-
-            startActivityForResult(Intent.createChooser(intent, getString(R.string.label_select_picture)), requestMode);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            String[] mimeTypes = {"image/jpeg", "image/png"};
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
         }
+
+        startActivityForResult(Intent.createChooser(intent, getString(R.string.label_select_picture)), requestMode);
     }
 
     private void startCrop(@NonNull Uri uri) {
