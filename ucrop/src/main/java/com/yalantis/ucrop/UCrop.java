@@ -1,5 +1,6 @@
 package com.yalantis.ucrop;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -123,7 +124,7 @@ public class UCrop {
      *
      * @param activity Activity to receive result
      */
-    public void start(@NonNull AppCompatActivity activity) {
+    public void start(@NonNull Activity activity) {
         start(activity, REQUEST_CROP);
     }
 
@@ -133,7 +134,7 @@ public class UCrop {
      * @param activity    Activity to receive result
      * @param requestCode requestCode for result
      */
-    public void start(@NonNull AppCompatActivity activity, int requestCode) {
+    public void start(@NonNull Activity activity, int requestCode) {
         activity.startActivityForResult(getIntent(activity), requestCode);
     }
 
@@ -260,7 +261,6 @@ public class UCrop {
 
         public static final String EXTRA_TOOL_BAR_COLOR = EXTRA_PREFIX + ".ToolbarColor";
         public static final String EXTRA_STATUS_BAR_COLOR = EXTRA_PREFIX + ".StatusBarColor";
-        public static final String EXTRA_UCROP_COLOR_WIDGET_ACTIVE = EXTRA_PREFIX + ".UcropColorWidgetActive";
         public static final String EXTRA_UCROP_COLOR_CONTROLS_WIDGET_ACTIVE = EXTRA_PREFIX + ".UcropColorControlsWidgetActive";
 
         public static final String EXTRA_UCROP_WIDGET_COLOR_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarWidgetColor";
@@ -425,14 +425,7 @@ public class UCrop {
         }
 
         /**
-         * @param color - desired resolved color of the progress wheel middle line (default is violet)
-         */
-        public void setActiveWidgetColor(@ColorInt int color) {
-            mOptionBundle.putInt(EXTRA_UCROP_COLOR_WIDGET_ACTIVE, color);
-        }
-
-        /**
-         * @param color - desired resolved color of the active and selected widget (default is white)
+         * @param color - desired resolved color of the active and selected widget and progress wheel middle line (default is white)
          */
         public void setActiveControlsWidgetColor(@ColorInt int color) {
             mOptionBundle.putInt(EXTRA_UCROP_COLOR_CONTROLS_WIDGET_ACTIVE, color);
