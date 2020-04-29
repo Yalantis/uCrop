@@ -214,6 +214,13 @@ public class OverlayView extends View {
     }
 
     /**
+     * Setter for crop grid corner color
+     */
+    public void setCropGridCornerColor(@ColorInt int color) {
+        mCropFrameCornersPaint.setColor(color);
+    }
+
+    /**
      * This method sets aspect ratio for crop bounds.
      *
      * @param targetAspectRatio - aspect ratio for image crop (e.g. 1.77(7) for 16:9)
@@ -545,6 +552,7 @@ public class OverlayView extends View {
                 getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_frame_stoke_width));
         int cropFrameColor = a.getColor(R.styleable.ucrop_UCropView_ucrop_frame_color,
                 getResources().getColor(R.color.ucrop_color_default_crop_frame));
+
         mCropFramePaint.setStrokeWidth(cropFrameStrokeSize);
         mCropFramePaint.setColor(cropFrameColor);
         mCropFramePaint.setStyle(Paint.Style.STROKE);

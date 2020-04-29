@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ucrop_label_original">オリジナル</string>
+    <string name="ucrop_label_edit_photo">画像編集</string>
+
+    <string name="ucrop_menu_crop">切り抜き</string>
+
+    <string name="ucrop_scale">拡大</string>
+    <string name="ucrop_rotate">回転</string>
+    <string name="ucrop_crop">比率</string>
+</resources>

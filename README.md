@@ -93,6 +93,14 @@ Currently you can change:
   
 # Changelog
 
+### Version: 2.2.5
+*   Fixed [#584](https://github.com/Yalantis/uCrop/issues/584)
+*   Fixed [#598](https://github.com/Yalantis/uCrop/issues/598)
+*   Fixed [#543](https://github.com/Yalantis/uCrop/issues/543)
+*   Fixed [#602](https://github.com/Yalantis/uCrop/issues/602)
+*   And other improvements
+
+
 ### Version: 2.2.4
 
   * **AndroidX migration**
