@@ -119,6 +119,13 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         if (decodeSampledBitmap == null) {
             return new BitmapWorkerResult(new IllegalArgumentException("Bitmap could not be decoded from the Uri: [" + mInputUri + "]"));
         }
+        // this is a workaround till the issue #648 will be fixed
+        // https://github.com/Yalantis/uCrop/issues/648
+        final int MAX_BITMAP_SIZE = 100 * 1024 * 1024; // 100 MB
+        int bitmapSize = decodeSampledBitmap.getByteCount();
+        if (bitmapSize > MAX_BITMAP_SIZE) {
+            return new BitmapWorkerResult(new IllegalArgumentException("This bitmap could not be drawn because it's too large(" + bitmapSize + "bytes)"));
+        }
 
         int exifOrientation = BitmapLoadUtils.getExifOrientation(mContext, mInputUri);
         int exifDegrees = BitmapLoadUtils.exifToDegrees(exifOrientation);
