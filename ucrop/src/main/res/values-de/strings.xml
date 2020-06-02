@@ -3,4 +3,8 @@
     <string name="ucrop_label_edit_photo">Foto editieren</string>
     <string name="ucrop_label_original">Original</string>
     <string name="ucrop_menu_crop">Zuschneiden</string>
+
+    <string name="ucrop_rotate">Rotieren</string>
+    <string name="ucrop_scale">Skalieren</string>
+    <string name="ucrop_crop">Zuschneiden</string>
 </resources>
