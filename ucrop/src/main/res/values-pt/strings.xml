@@ -1,0 +1,12 @@
+<resources>
+
+    <string name="ucrop_label_original">Original</string>
+    <string name="ucrop_label_edit_photo">Editar Foto</string>
+
+    <string name="ucrop_menu_crop">Cortar</string>
+
+    <string name="ucrop_rotate">Girar</string>
+    <string name="ucrop_scale">Tamanho</string>
+    <string name="ucrop_crop">Cortar</string>
+
+</resources>
