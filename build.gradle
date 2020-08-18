@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        androidx_appcompat_version = "1.1.0"
+        androidx_appcompat_version = "1.2.0"
         androidx_core_version = "1.1.0"
         androidx_exifinterface_version = "1.1.0-beta01"
         androidx_transition_version = "1.2.0-rc01"
@@ -9,13 +9,10 @@ buildscript {
 
     repositories {
         jcenter()
-        maven {
-            url 'https://maven.google.com/'
-            name 'Google'
-        }
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:4.0.1'
     }
 }
 
@@ -29,10 +26,7 @@ allprojects {
 
     repositories {
         jcenter()
-        maven {
-            url 'https://maven.google.com/'
-            name 'Google'
-        }
+        google()
     }
 }
 
