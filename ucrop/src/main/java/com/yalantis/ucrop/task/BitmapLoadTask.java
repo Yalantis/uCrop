@@ -97,18 +97,19 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         Bitmap decodeSampledBitmap = null;
 
         boolean decodeAttemptSuccess = false;
+        final int MAX_BITMAP_SIZE = 100 * 1024 * 1024; // 100 MB
         while (!decodeAttemptSuccess) {
             try {
                 InputStream stream = mContext.getContentResolver().openInputStream(mInputUri);
-                try {
-                    decodeSampledBitmap = BitmapFactory.decodeStream(stream, null, options);
-                    if (options.outWidth == -1 || options.outHeight == -1) {
-                        return new BitmapWorkerResult(new IllegalArgumentException("Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]"));
-                    }
+@@ -106,6 +107,11 @@ protected BitmapWorkerResult doInBackground(Void... params) {
                 } finally {
                     BitmapLoadUtils.close(stream);
                 }
-                if (checkSize(decodeSampledBitmap, options)) continue;
+                int bitmapSize = decodeSampledBitmap != null ? decodeSampledBitmap.getByteCount() : 0;
+                if (bitmapSize > MAX_BITMAP_SIZE) { // AVOID CRASH 'Canvas: trying to draw too large bitmap.'
+                    options.inSampleSize *= 2;
+                    continue;
+                }
                 decodeAttemptSuccess = true;
             } catch (OutOfMemoryError error) {
                 Log.e(TAG, "doInBackground: BitmapFactory.decodeFileDescriptor: ", error);
