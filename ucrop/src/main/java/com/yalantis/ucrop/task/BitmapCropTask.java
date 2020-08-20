@@ -8,6 +8,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.exifinterface.media.ExifInterface;
+
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.model.CropParameters;
 import com.yalantis.ucrop.model.ExifInfo;
@@ -16,15 +20,13 @@ import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yalantis.ucrop.util.ImageHeaderParser;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.exifinterface.media.ExifInterface;
 
 /**
  * Crops part of image that fills the crop bounds.
@@ -166,12 +168,18 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         }
 
         OutputStream outputStream = null;
+        ByteArrayOutputStream outStream = null;
         try {
-            outputStream = context.getContentResolver().openOutputStream(Uri.fromFile(new File(mImageOutputPath)));
-            croppedBitmap.compress(mCompressFormat, mCompressQuality, outputStream);
+            outputStream = new FileOutputStream(new File(mImageOutputPath), false);
+            outStream = new ByteArrayOutputStream();
+            croppedBitmap.compress(mCompressFormat, mCompressQuality, outStream);
+            outputStream.write(outStream.toByteArray());
             croppedBitmap.recycle();
+        } catch (IOException exc) {
+            Log.e(TAG, exc.getLocalizedMessage());
         } finally {
             BitmapLoadUtils.close(outputStream);
+            BitmapLoadUtils.close(outStream);
         }
     }
 
