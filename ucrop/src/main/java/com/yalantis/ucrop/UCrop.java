@@ -282,6 +282,14 @@ public class UCrop {
         public static final String EXTRA_CROP_GRID_CORNER_COLOR = EXTRA_PREFIX + ".CropGridCornerColor";
         public static final String EXTRA_CROP_GRID_STROKE_WIDTH = EXTRA_PREFIX + ".CropGridStrokeWidth";
 
+        public static final String EXTRA_CROP_INNER_LINE_STROKE_COLOR = EXTRA_PREFIX + ".CropInnerLineStrokeColor";
+        public static final String EXTRA_CROP_INNER_LINE_STROKE_WIDTH = EXTRA_PREFIX + ".CropInnerLineStrokeWidth";
+        public static final String EXTRA_CROP_INNER_DASH_ENABLE = EXTRA_PREFIX + ".CropInnerLineDashEnable";
+        public static final String EXTRA_CROP_INNER_DASH_INTERVAL = EXTRA_PREFIX + ".CropInnerLineDashInterval";
+        public static final String EXTRA_CROP_INNER_DASH_PHASE = EXTRA_PREFIX + ".CropInnerLineDashPhase";
+
+        public static final String EXTRA_CROP_CIRCULAR_PATH_PADDING = EXTRA_PREFIX + ".CropCircularPathPadding";
+
         public static final String EXTRA_TOOL_BAR_COLOR = EXTRA_PREFIX + ".ToolbarColor";
         public static final String EXTRA_STATUS_BAR_COLOR = EXTRA_PREFIX + ".StatusBarColor";
         public static final String EXTRA_UCROP_COLOR_CONTROLS_WIDGET_ACTIVE = EXTRA_PREFIX + ".UcropColorControlsWidgetActive";
