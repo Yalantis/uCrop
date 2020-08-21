@@ -1,0 +1,12 @@
+<resources>
+
+    <string name="ucrop_label_original">Orijinal</string>
+    <string name="ucrop_label_edit_photo">Fotoğrafı Düzenle</string>
+
+    <string name="ucrop_menu_crop">Kırp</string>
+
+    <string name="ucrop_rotate">Döndürme</string>
+    <string name="ucrop_scale">Ölçek </string>
+    <string name="ucrop_crop">Kırp</string>
+
+</resources>

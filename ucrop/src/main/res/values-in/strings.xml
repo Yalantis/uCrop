@@ -1,0 +1,12 @@
+<resources>
+
+    <string name="ucrop_label_original">Asli</string>
+    <string name="ucrop_label_edit_photo">Edit Foto</string>
+
+    <string name="ucrop_menu_crop">Pangkas</string>
+
+    <string name="ucrop_rotate">Memutar</string>
+    <string name="ucrop_scale">Skala</string>
+    <string name="ucrop_crop">Pangkas</string>
+
+</resources>
