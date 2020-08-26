@@ -338,6 +338,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         options.setCropGridColor(Color.GREEN);
         options.setCropGridColumnCount(2);
         options.setCropGridRowCount(1);
+        options.setCropViewRectInImageSpace(new RectF(100, 100, 500, 500));
         options.setToolbarCropDrawable(R.drawable.your_crop_icon);
         options.setToolbarCancelDrawable(R.drawable.your_cancel_icon);
 
