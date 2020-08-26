@@ -503,7 +503,17 @@ public class OverlayView extends View {
         }
 
         if (mShowCropFrame) {
-            canvas.drawRect(mCropViewRect, mCropFramePaint);
+            if (mCircleDimmedLayer) {
+                canvas.drawCircle(
+                        mCropViewRect.centerX(),
+                        mCropViewRect.centerY(),
+                        mCropViewRect.width() / 2,
+                        mCropFramePaint
+                );
+            } else {
+                canvas.drawRect(mCropViewRect, mCropFramePaint);
+            }
+
         }
 
         if (mFreestyleCropMode != FREESTYLE_CROP_MODE_DISABLE) {
