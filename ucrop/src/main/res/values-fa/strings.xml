@@ -1,0 +1,13 @@
+  
+<resources>
+
+    <string name="ucrop_label_original">اصلی</string>
+    <string name="ucrop_label_edit_photo">ویرایش عکس</string>
+
+    <string name="ucrop_menu_crop">برش</string>
+
+    <string name="ucrop_rotate">چرخش</string>
+    <string name="ucrop_scale">اندازه</string>
+    <string name="ucrop_crop">برش</string>
+
+</resources>
