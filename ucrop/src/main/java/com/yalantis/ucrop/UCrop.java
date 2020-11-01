@@ -37,6 +37,8 @@ public class UCrop {
 
     private static final String EXTRA_PREFIX = BuildConfig.APPLICATION_ID;
 
+    public static final String EXTRA_IO_TAG = EXTRA_PREFIX + ".Tag";
+
     public static final String EXTRA_INPUT_URI = EXTRA_PREFIX + ".InputUri";
     public static final String EXTRA_OUTPUT_URI = EXTRA_PREFIX + ".OutputUri";
     public static final String EXTRA_OUTPUT_CROP_ASPECT_RATIO = EXTRA_PREFIX + ".CropAspectRatio";
@@ -117,6 +119,16 @@ public class UCrop {
 
     public UCrop withOptions(@NonNull Options options) {
         mCropOptionsBundle.putAll(options.getOptionBundle());
+        return this;
+    }
+
+    /**
+     * Attach a tag to {@link UCropActivity} so that it's received back in onActivityResult().
+     *
+     * @param tag Tag to attach
+     */
+    public UCrop withTag(@NonNull Bundle tag) {
+        mCropOptionsBundle.putBundle(EXTRA_IO_TAG, tag);
         return this;
     }
 
