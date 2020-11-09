@@ -114,7 +114,7 @@ public class CropImageView extends TransformImageView {
      * @return - initial scale value for current image and crop ratio
      */
     public float getInitialMinScale() {
-        return mInitialMinScale;
+        return mInitialMinScale != 0 ? mInitialMinScale : 1;
     }
 
     /**
