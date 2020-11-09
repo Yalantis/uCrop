@@ -51,6 +51,7 @@ public class CropImageView extends TransformImageView {
     private Runnable mWrapCropBoundsRunnable, mZoomImageToPositionRunnable = null;
 
     private float mMaxScale, mMinScale;
+    private float mInitialMinScale;
     private int mMaxResultImageSizeX = 0, mMaxResultImageSizeY = 0;
     private long mImageToWrapCropBoundsAnimDuration = DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION;
 
@@ -107,6 +108,13 @@ public class CropImageView extends TransformImageView {
      */
     public float getTargetAspectRatio() {
         return mTargetAspectRatio;
+    }
+
+    /**
+     * @return - initial scale value for current image and crop ratio
+     */
+    public float getInitialMinScale() {
+        return mInitialMinScale != 0 ? mInitialMinScale : 1;
     }
 
     /**
@@ -485,13 +493,13 @@ public class CropImageView extends TransformImageView {
         float widthScale = mCropRect.width() / drawableWidth;
         float heightScale = mCropRect.height() / drawableHeight;
 
-        float initialMinScale = Math.max(widthScale, heightScale);
+        mInitialMinScale = Math.max(widthScale, heightScale);
 
-        float tw = (cropRectWidth - drawableWidth * initialMinScale) / 2.0f + mCropRect.left;
-        float th = (cropRectHeight - drawableHeight * initialMinScale) / 2.0f + mCropRect.top;
+        float tw = (cropRectWidth - drawableWidth * mInitialMinScale) / 2.0f + mCropRect.left;
+        float th = (cropRectHeight - drawableHeight * mInitialMinScale) / 2.0f + mCropRect.top;
 
         mCurrentImageMatrix.reset();
-        mCurrentImageMatrix.postScale(initialMinScale, initialMinScale);
+        mCurrentImageMatrix.postScale(mInitialMinScale, mInitialMinScale);
         mCurrentImageMatrix.postTranslate(tw, th);
         setImageMatrix(mCurrentImageMatrix);
     }
