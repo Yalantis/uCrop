@@ -517,9 +517,9 @@ public class UCrop {
          * @param aspectRatio       - list of aspect ratio options that are available to user
          */
         public void setAspectRatioOptions(int selectedByDefault, AspectRatio... aspectRatio) {
-            if (selectedByDefault > aspectRatio.length) {
+            if (selectedByDefault >= aspectRatio.length) {
                 throw new IllegalArgumentException(String.format(Locale.US,
-                        "Index [selectedByDefault = %d] cannot be higher than aspect ratio options count [count = %d].",
+                        "Index [selectedByDefault = %d] (0-based) cannot be higher or equal than aspect ratio options count [count = %d].",
                         selectedByDefault, aspectRatio.length));
             }
             mOptionBundle.putInt(EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT, selectedByDefault);
