@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp">
+
+    <RadioGroup
+        android:id="@+id/radio_group_directory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checkedButton="@+id/radio_external_storage_dcim">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/choose_the_destination_directory"
+            android:textAppearance="?android:textAppearanceSmall" />
+
+        <RadioButton
+            android:id="@+id/radio_external_storage_dcim"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/radio_external_storage_dcim_text"/>
+
+        <RadioButton
+            android:id="@+id/radio_external_storage_pictures"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/radio_external_storage_pictures_text"/>
+
+        <RadioButton
+            android:id="@+id/radio_app_external_storage_dcim"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/radio_app_external_storage_dcim_text"/>
+
+        <RadioButton
+            android:id="@+id/radio_app_external_storage_pictures"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/radio_app_external_storage_pictures_text"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="5dp"
+            android:background="@color/colorAccent" />
+
+    </RadioGroup>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/file_name"
+        android:textAppearance="?android:textAppearanceSmall" />
+
+    <EditText
+        android:id="@+id/edit_text_file_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/edit_text_file_name_hint"
+        android:autofillHints="SampleFile"/>
+
+</LinearLayout>

@@ -46,4 +46,25 @@
     <string name="file_provider_authorities">com.yalantis.ucrop.provider</string>
     <string name="channel_name">ucrop_chanel</string>
     <string name="channel_description">ucrop result image</string>
+    <string name="button_file_destination">Chose File Destination</string>
+    <string name="no_file_chooser_error">No application found on device to open view</string>
+
+    <!-- Choose File Dialog -->
+    <string name="choose_the_destination_directory">Choose the Destination Directory</string>
+    <string name="radio_external_storage_dcim_text">Shared Storage DCIM</string>
+    <string name="radio_external_storage_pictures_text">Shared Storage Pictures</string>
+    <string name="radio_app_external_storage_dcim_text">App External Storage DCIM</string>
+    <string name="radio_app_external_storage_pictures_text">App External Storage Pictures</string>
+    <string name="file_name">File name</string>
+    <string name="edit_text_file_name_hint">@string/file_name</string>
+
+    <string name="radio_tmp_destination_text">Tmp File destination</string>
+    <string name="radio_choose_destination">Choose destination</string>
+    <string name="checkbox_use_document_provider_text">Use document provider for creating or choosing the destination file</string>
+    <string name="checkbox_use_file_provider_text">Use a file provider for creating the file destination URI</string>
+
+    <string name="text_view_content_warning_text">
+        Warning: On Android versions lower then Lollipop, if the output file URI has a \"content\"
+        schema, it is not possible to preserve the Exif info!
+    </string>
 </resources>

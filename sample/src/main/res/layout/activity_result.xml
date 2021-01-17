@@ -15,6 +15,16 @@
         app:title="@string/format_crop_result_d_d"
         app:titleTextColor="@android:color/white"/>
 
+    <TextView
+        android:id="@+id/text_view_content_warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:textColor="@android:color/holo_red_dark"
+        android:textAppearance="?android:textAppearanceLarge"
+        android:text="@string/text_view_content_warning_text"
+        android:visibility="gone"/>
+
     <com.yalantis.ucrop.view.UCropView
         android:id="@+id/ucrop"
         android:layout_width="match_parent"
