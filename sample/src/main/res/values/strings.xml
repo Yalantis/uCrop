@@ -46,7 +46,7 @@
     <string name="file_provider_authorities">com.yalantis.ucrop.provider</string>
     <string name="channel_name">ucrop_chanel</string>
     <string name="channel_description">ucrop result image</string>
-    <string name="button_file_destination">Chose File Destination</string>
+    <string name="button_file_destination">Choose File Destination</string>
     <string name="no_file_chooser_error">No application found on device to open view</string>
 
     <!-- Choose File Dialog -->
