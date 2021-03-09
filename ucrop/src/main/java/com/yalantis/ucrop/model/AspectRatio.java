@@ -14,17 +14,24 @@ public class AspectRatio implements Parcelable {
     private final String mAspectRatioTitle;
     private final float mAspectRatioX;
     private final float mAspectRatioY;
+    private final boolean mCircle;
 
     public AspectRatio(@Nullable String aspectRatioTitle, float aspectRatioX, float aspectRatioY) {
+        this(aspectRatioTitle, aspectRatioX, aspectRatioY, false);
+    }
+
+    public AspectRatio(@Nullable String aspectRatioTitle, float aspectRatioX, float aspectRatioY, boolean circle) {
         mAspectRatioTitle = aspectRatioTitle;
         mAspectRatioX = aspectRatioX;
         mAspectRatioY = aspectRatioY;
+        mCircle = circle;
     }
 
     protected AspectRatio(Parcel in) {
         mAspectRatioTitle = in.readString();
         mAspectRatioX = in.readFloat();
         mAspectRatioY = in.readFloat();
+        mCircle = in.readInt() != 0;
     }
 
     @Override
@@ -32,6 +39,7 @@ public class AspectRatio implements Parcelable {
         dest.writeString(mAspectRatioTitle);
         dest.writeFloat(mAspectRatioX);
         dest.writeFloat(mAspectRatioY);
+        dest.writeInt(mCircle ? 1 : 0);
     }
 
     @Override
@@ -64,4 +72,7 @@ public class AspectRatio implements Parcelable {
         return mAspectRatioY;
     }
 
+    public boolean isCircle() {
+        return mCircle;
+    }
 }

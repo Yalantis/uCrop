@@ -44,6 +44,7 @@ public class CropImageView extends TransformImageView {
     private final Matrix mTempMatrix = new Matrix();
 
     private float mTargetAspectRatio;
+    private boolean mCircleCrop;
     private float mMaxScaleMultiplier = DEFAULT_MAX_SCALE_MULTIPLIER;
 
     private CropBoundsChangeListener mCropBoundsChangeListener;
@@ -110,6 +111,13 @@ public class CropImageView extends TransformImageView {
     }
 
     /**
+     * @return - whether circle crop is enabled or not
+     */
+    public boolean isCircleCrop() {
+        return mCircleCrop;
+    }
+
+    /**
      * Updates current crop rectangle with given. Also recalculates image properties and position
      * to fit new crop rectangle.
      *
@@ -146,6 +154,10 @@ public class CropImageView extends TransformImageView {
         if (mCropBoundsChangeListener != null) {
             mCropBoundsChangeListener.onCropAspectRatioChanged(mTargetAspectRatio);
         }
+    }
+
+    public void setCircleCrop(boolean circleCrop) {
+        mCircleCrop = circleCrop;
     }
 
     @Nullable
