@@ -31,4 +31,8 @@
     <color name="ucrop_color_default_dimmed">#8c000000</color>
     <color name="ucrop_color_default_logo">#4f212121</color>
 
+
+    <color name="ucrop_tm_button_bg">#ffffff</color>
+    <color name="ucrop_tm_button_action_color">#0e8eff</color>
+
 </resources>

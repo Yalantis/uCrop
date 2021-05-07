@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/wrapper_states"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/ucrop_height_wrapper_states"
+        android:background="@color/ucrop_tm_button_bg"
+        android:baselineAligned="false"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/state_rotate"
+            style="@style/ucrop_WrapperIconState">
+
+            <ImageView
+                android:id="@+id/image_view_state_rotate"
+                style="@style/ucrop_ImageViewWidgetIcon"
+                app:srcCompat="@drawable/ucrop_rotate" />
+
+            <TextView
+                android:id="@+id/text_view_rotate"
+                style="@style/ucrop_TextViewWidget"
+                android:text="@string/ucrop_rotate" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/state_crop"
+            style="@style/ucrop_WrapperIconState">
+
+            <ImageView
+                android:id="@+id/image_view_state_aspect_ratio"
+                style="@style/ucrop_ImageViewWidgetIcon"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:srcCompat="@drawable/ucrop_crop" />
+
+            <TextView
+                android:id="@+id/text_view_crop"
+                style="@style/ucrop_TextViewWidget"
+                android:text="@string/ucrop_crop" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</RelativeLayout>
