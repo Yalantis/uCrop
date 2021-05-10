@@ -2,6 +2,7 @@ package com.yalantis.ucrop.sample;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -35,6 +36,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
+
+import lib.folderpicker.FolderPicker;
 
 import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 import static android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
@@ -126,10 +129,10 @@ public class ResultActivity extends BaseActivity {
             Uri imageUri = getIntent().getData();
             if (imageUri != null && imageUri.getScheme().equals("file")) {
                 try {
-                    copyFileToDownloads(getIntent().getData());
+                    PickFolder();
                 } catch (Exception e) {
                     Toast.makeText(ResultActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, imageUri.toString(), e);
+                    Log.i("fereshteh", imageUri.toString(), e);
                 }
             } else {
                 Toast.makeText(ResultActivity.this, getString(R.string.toast_unexpected_error), Toast.LENGTH_SHORT).show();
@@ -137,11 +140,35 @@ public class ResultActivity extends BaseActivity {
         }
     }
 
-    private void copyFileToDownloads(Uri croppedFileUri) throws Exception {
-        String downloadsDirectoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+    private String folderLocation;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        int FOLDERPICKER_CODE = 2;
+        if (requestCode == FOLDERPICKER_CODE && resultCode == Activity.RESULT_OK) {
+            folderLocation = intent.getExtras().getString("data");
+            try {
+                copyFileToDownloads(getIntent().getData(), folderLocation);
+            } catch (Exception e) {
+                Toast.makeText(ResultActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.i("fereshteh", "blah blah", e);
+            }
+            Log.i("folderLocation", folderLocation);
+
+        }
+    }
+    private void PickFolder(){
+        int FOLDERPICKER_CODE = 2;
+        Intent intent = new Intent(this, FolderPicker.class);
+        startActivityForResult(intent, FOLDERPICKER_CODE);
+    }
+
+    private void copyFileToDownloads(Uri croppedFileUri, String destination) throws Exception {
+//        String downloadsDirectoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
         String filename = String.format("%d_%s", Calendar.getInstance().getTimeInMillis(), croppedFileUri.getLastPathSegment());
 
-        File saveFile = new File(downloadsDirectoryPath, filename);
+        File saveFile = new File(destination, filename);
 
         FileInputStream inStream = new FileInputStream(new File(croppedFileUri.getPath()));
         FileOutputStream outStream = new FileOutputStream(saveFile);
