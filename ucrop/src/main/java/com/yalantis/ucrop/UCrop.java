@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.yalantis.ucrop.model.AspectRatio;
 
@@ -34,6 +36,7 @@ public class UCrop {
     public static final int REQUEST_CROP = 69;
     public static final int RESULT_ERROR = 96;
     public static final int MIN_SIZE = 10;
+    public static final int MAX_SIZE = 50;
 
     private static final String EXTRA_PREFIX = BuildConfig.APPLICATION_ID;
 
@@ -102,12 +105,19 @@ public class UCrop {
      * @param height max cropped image height
      */
     public UCrop withMaxResultSize(@IntRange(from = MIN_SIZE) int width, @IntRange(from = MIN_SIZE) int height) {
-        if (width < MIN_SIZE) {
-            width = MIN_SIZE;
+//        if (width < MIN_SIZE) {
+//            width = MIN_SIZE;
+//        }
+//
+//        if (height < MIN_SIZE) {
+//            height = MIN_SIZE;
+//        }
+        if (width > MAX_SIZE) {
+            width = MAX_SIZE;
         }
 
-        if (height < MIN_SIZE) {
-            height = MIN_SIZE;
+        if (height > MAX_SIZE) {
+            height = MAX_SIZE;
         }
 
         mCropOptionsBundle.putInt(EXTRA_MAX_SIZE_X, width);
