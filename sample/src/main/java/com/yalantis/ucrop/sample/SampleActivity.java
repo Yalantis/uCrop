@@ -81,7 +81,11 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);
+        Boolean back = (Boolean)getIntent().getSerializableExtra("back");
         setupUI();
+        if (back != null){
+            startCrop(SavedUriSingleton.getUri());
+        }
     }
 
     @Override
@@ -89,6 +93,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         if (resultCode == RESULT_OK) {
             if (requestCode == requestMode) {
                 final Uri selectedUri = data.getData();
+                SavedUriSingleton.setUri(selectedUri);
                 if (selectedUri != null) {
                     startCrop(selectedUri);
                 } else {
@@ -140,7 +145,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
     };
 
     @SuppressWarnings("ConstantConditions")
-    private void setupUI() {
+    public void setupUI() {
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

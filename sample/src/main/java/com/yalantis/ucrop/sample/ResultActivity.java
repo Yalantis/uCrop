@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.List;
 
@@ -97,7 +98,11 @@ public class ResultActivity extends BaseActivity {
         if (item.getItemId() == R.id.menu_download) {
             saveCroppedImage();
         } else if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
+            //onBackPressed();
+            //Toast.makeText(ResultActivity.this, "Back", Toast.LENGTH_LONG).show();
+            Intent sample_activity = new Intent(this, SampleActivity.class);
+            sample_activity.putExtra("back", true);
+            startActivity(sample_activity);
         }
         return super.onOptionsItemSelected(item);
     }
