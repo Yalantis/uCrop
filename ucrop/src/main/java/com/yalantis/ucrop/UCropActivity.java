@@ -261,6 +261,9 @@ public class UCropActivity extends AppCompatActivity {
 
         int aspectRationSelectedByDefault = intent.getIntExtra(UCrop.Options.EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT, 0);
         ArrayList<AspectRatio> aspectRatioList = intent.getParcelableArrayListExtra(UCrop.Options.EXTRA_ASPECT_RATIO_OPTIONS);
+        if (intent.getBooleanExtra(UCrop.Options.EXTRA_RATIO_VIS, false)) {
+            mWrapperStateAspectRatio.setVisibility(View.GONE);
+        }
 
         if (aspectRatioX > 0 && aspectRatioY > 0) {
             if (mWrapperStateAspectRatio != null) {

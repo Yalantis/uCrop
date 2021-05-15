@@ -271,6 +271,7 @@ public class UCrop {
 
         public static final String EXTRA_COMPRESSION_FORMAT_NAME = EXTRA_PREFIX + ".CompressionFormatName";
         public static final String EXTRA_COMPRESSION_QUALITY = EXTRA_PREFIX + ".CompressionQuality";
+        public static final String EXTRA_RATIO_VIS = EXTRA_PREFIX + ".RatioVis";
 
         public static final String EXTRA_ALLOWED_GESTURES = EXTRA_PREFIX + ".AllowedGestures";
 
@@ -335,6 +336,11 @@ public class UCrop {
          */
         public void setCompressionQuality(@IntRange(from = 0) int compressQuality) {
             mOptionBundle.putInt(EXTRA_COMPRESSION_QUALITY, compressQuality);
+        }
+
+
+        public void setRatioVisibility(boolean x) {
+            mOptionBundle.putBoolean(EXTRA_RATIO_VIS, x);
         }
 
         /**

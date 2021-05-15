@@ -1,5 +1,6 @@
 package com.yalantis.ucrop.sample;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -83,11 +84,13 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         setContentView(R.layout.activity_sample);
         Boolean back = (Boolean)getIntent().getSerializableExtra("back");
         setupUI();
+
         if (back != null){
             startCrop(SavedUriSingleton.getUri());
         }
     }
 
+    @SuppressLint("MissingSuperCall")
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
@@ -301,7 +304,13 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
      */
     private UCrop advancedConfig(@NonNull UCrop uCrop) {
         UCrop.Options options = new UCrop.Options();
-
+        switch (mRadioGroupAspectRatio.getCheckedRadioButtonId()) {
+            case R.id.radio_origin:
+                options.setRatioVisibility(true);
+                break;
+            default:
+                break;
+        }
         switch (mRadioGroupCompressionSettings.getCheckedRadioButtonId()) {
             case R.id.radio_png:
                 options.setCompressionFormat(Bitmap.CompressFormat.PNG);
@@ -315,6 +324,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
 
         options.setHideBottomControls(mCheckBoxHideBottomControls.isChecked());
         options.setFreeStyleCropEnabled(mCheckBoxFreeStyleCrop.isChecked());
+
 
         /*
         If you want to configure how gestures work for all UCropActivity tabs
