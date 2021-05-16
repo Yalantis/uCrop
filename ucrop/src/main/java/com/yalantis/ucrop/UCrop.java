@@ -272,6 +272,7 @@ public class UCrop {
         public static final String EXTRA_COMPRESSION_FORMAT_NAME = EXTRA_PREFIX + ".CompressionFormatName";
         public static final String EXTRA_COMPRESSION_QUALITY = EXTRA_PREFIX + ".CompressionQuality";
         public static final String EXTRA_RATIO_VIS = EXTRA_PREFIX + ".RatioVis";
+        public static final String EXTRA_IMAGE_X = EXTRA_PREFIX + ".ImageX";
 
         public static final String EXTRA_ALLOWED_GESTURES = EXTRA_PREFIX + ".AllowedGestures";
 
@@ -461,6 +462,10 @@ public class UCrop {
          */
         public void setToolbarColor(@ColorInt int color) {
             mOptionBundle.putInt(EXTRA_TOOL_BAR_COLOR, color);
+        }
+
+        public void setImageX(int x) {
+            mOptionBundle.putInt(EXTRA_IMAGE_X, x);
         }
 
         /**

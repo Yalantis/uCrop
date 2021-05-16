@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
@@ -26,12 +27,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.yalantis.ucrop.RatioSingleton;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 import com.yalantis.ucrop.UCropFragment;
 import com.yalantis.ucrop.UCropFragmentCallback;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Locale;
 import java.util.Random;
 
@@ -90,6 +93,31 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         }
     }
 
+//    private void getDropboxIMGSize(Uri uri){
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+//        options.inJustDecodeBounds = true;
+//        BitmapFactory.decodeFile(new File(uri.getPath()).getAbsolutePath());
+//        int imageHeight = options.outHeight;
+//        int imageWidth = options.outWidth;
+//        Toast.makeText(SampleActivity.this, String.valueOf(imageWidth), Toast.LENGTH_LONG).show();
+//
+//    }
+
+    public void getImageSize(Uri uri){
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            InputStream input = this.getContentResolver().openInputStream(uri);
+            BitmapFactory.decodeStream(input, null, options);  input.close();
+            //Toast.makeText(SampleActivity.this, String.valueOf(options.outHeight), Toast.LENGTH_LONG).show();
+//            return new int[]{options.outWidth, options.outHeight};
+            RatioSingleton.setX(options.outWidth);
+            RatioSingleton.setY(options.outHeight);
+        }
+        catch (Exception e){}
+//        return new int[]{0,0};
+    }
+
     @SuppressLint("MissingSuperCall")
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -97,6 +125,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
             if (requestCode == requestMode) {
                 final Uri selectedUri = data.getData();
                 SavedUriSingleton.setUri(selectedUri);
+                getImageSize(selectedUri);
                 if (selectedUri != null) {
                     startCrop(selectedUri);
                 } else {
@@ -320,6 +349,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
                 options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
                 break;
         }
+        options.setImageX(RatioSingleton.getX());
         options.setCompressionQuality(mSeekBarQuality.getProgress());
 
         options.setHideBottomControls(mCheckBoxHideBottomControls.isChecked());
