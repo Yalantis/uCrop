@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
 
+import com.yalantis.ucrop.RatioSingleton;
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
 import com.yalantis.ucrop.model.ExifInfo;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
@@ -53,6 +54,7 @@ public class TransformImageView extends AppCompatImageView {
     private int mMaxBitmapSize = 0;
 
     private String mImageInputPath, mImageOutputPath;
+    public int x, y;
     private ExifInfo mExifInfo;
 
     /**

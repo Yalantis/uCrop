@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.model.AspectRatio;
@@ -261,6 +263,9 @@ public class UCropActivity extends AppCompatActivity {
 
         int aspectRationSelectedByDefault = intent.getIntExtra(UCrop.Options.EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT, 0);
         ArrayList<AspectRatio> aspectRatioList = intent.getParcelableArrayListExtra(UCrop.Options.EXTRA_ASPECT_RATIO_OPTIONS);
+        if (intent.getBooleanExtra(UCrop.Options.EXTRA_RATIO_VIS, false)) {
+            mWrapperStateAspectRatio.setVisibility(View.GONE);
+        }
 
         if (aspectRatioX > 0 && aspectRatioY > 0) {
             if (mWrapperStateAspectRatio != null) {
@@ -445,7 +450,10 @@ public class UCropActivity extends AppCompatActivity {
             aspectRatioList.add(new AspectRatio(getString(R.string.ucrop_label_original).toUpperCase(),
                     CropImageView.SOURCE_IMAGE_ASPECT_RATIO, CropImageView.SOURCE_IMAGE_ASPECT_RATIO));
             aspectRatioList.add(new AspectRatio(null, 3, 2));
-            aspectRatioList.add(new AspectRatio(null, 16, 9));
+            //Toast.makeText(this, mGestureCropImageView.toString(), Toast.LENGTH_LONG).show();
+            if (intent.getIntExtra(UCrop.Options.EXTRA_IMAGE_X, 0) < 220) {
+                aspectRatioList.add(new AspectRatio(null, 16, 9));
+            }
         }
 
         LinearLayout wrapperAspectRatioList = findViewById(R.id.layout_aspect_ratio);

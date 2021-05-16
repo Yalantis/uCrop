@@ -40,4 +40,5 @@ dependencies {
     implementation "androidx.exifinterface:exifinterface:${androidx_exifinterface_version}"
     implementation "androidx.transition:transition:${androidx_transition_version}"
     implementation "com.squareup.okhttp3:okhttp:3.12.1"
+    compile 'lib.kashif:folderpicker:2.4'
 }
