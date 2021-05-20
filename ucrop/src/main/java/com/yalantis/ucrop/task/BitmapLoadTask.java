@@ -11,6 +11,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.yalantis.ucrop.UCropHttpClientStore;
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
 import com.yalantis.ucrop.model.ExifInfo;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
@@ -204,15 +205,15 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
             throw new NullPointerException("Output Uri is null - cannot download image");
         }
 
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = UCropHttpClientStore.INSTANCE.getClient();
 
         BufferedSource source = null;
         Sink sink = null;
         Response response = null;
         try {
             Request request = new Request.Builder()
-                    .url(inputUri.toString())
-                    .build();
+                .url(inputUri.toString())
+                .build();
             response = client.newCall(request).execute();
             source = response.body().source();
 
