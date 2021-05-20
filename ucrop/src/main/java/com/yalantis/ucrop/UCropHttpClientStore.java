@@ -12,6 +12,11 @@ public class UCropHttpClientStore {
 
     private OkHttpClient client;
 
+    /**
+     * @return stored OkHttpClient if it was already set,
+     *         or just an instance created via empty constructor
+     *         and store it
+     */
     @NonNull
     public OkHttpClient getClient() {
         if (client == null) {
@@ -20,6 +25,10 @@ public class UCropHttpClientStore {
         return client;
     }
 
+    /**
+     * @param client OkHttpClient for downloading bitmap form remote Uri,
+     *               it may contain any preferences you need
+     */
     public void setClient(@NonNull OkHttpClient client) {
         this.client = client;
     }
