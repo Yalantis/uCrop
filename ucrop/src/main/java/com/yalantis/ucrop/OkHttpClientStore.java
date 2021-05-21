@@ -4,11 +4,11 @@ import androidx.annotation.NonNull;
 
 import okhttp3.OkHttpClient;
 
-public class UCropHttpClientStore {
+public class OkHttpClientStore {
 
-    private UCropHttpClientStore() {}
+    private OkHttpClientStore() {}
 
-    public final static UCropHttpClientStore INSTANCE = new UCropHttpClientStore();
+    public final static OkHttpClientStore INSTANCE = new OkHttpClientStore();
 
     private OkHttpClient client;
 
@@ -29,7 +29,7 @@ public class UCropHttpClientStore {
      * @param client OkHttpClient for downloading bitmap form remote Uri,
      *               it may contain any preferences you need
      */
-    public void setClient(@NonNull OkHttpClient client) {
+    void setClient(@NonNull OkHttpClient client) {
         this.client = client;
     }
 }

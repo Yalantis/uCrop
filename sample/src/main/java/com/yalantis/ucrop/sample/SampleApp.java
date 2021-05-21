@@ -2,7 +2,7 @@ package com.yalantis.ucrop.sample;
 
 import android.app.Application;
 
-import com.yalantis.ucrop.UCropHttpClientStore;
+import com.yalantis.ucrop.UCropInitializer;
 
 import java.util.Collections;
 
@@ -27,6 +27,7 @@ public class SampleApp extends Application {
             .connectionSpecs(Collections.singletonList(cs))
             .build();
 
-        UCropHttpClientStore.INSTANCE.setClient(client);
+        new UCropInitializer()
+            .setOkHttpClient(client);
     }
 }
