@@ -38,6 +38,8 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
     private static final String TAG = "BitmapCropTask";
 
+    private static final String CONTENT_SCHEME = "content";
+
     private final WeakReference<Context> mContext;
 
     private Bitmap mViewBitmap;
@@ -93,6 +95,10 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
             return new NullPointerException("ViewBitmap is recycled");
         } else if (mCurrentImageRect.isEmpty()) {
             return new NullPointerException("CurrentImageRect is empty");
+        }
+
+        if (mImageOutputUri == null) {
+            return new NullPointerException("ImageOutputUri is null");
         }
 
         try {
@@ -158,15 +164,17 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         if (shouldCrop) {
             saveImage(Bitmap.createBitmap(mViewBitmap, cropOffsetX, cropOffsetY, mCroppedImageWidth, mCroppedImageHeight));
             if (mCompressFormat.equals(Bitmap.CompressFormat.JPEG)) {
-                if (mImageInputUri != null && "content".equals(mImageInputUri.getScheme()) && "content".equals(mImageOutputUri.getScheme())) {
+                boolean hasImageInputUriContentSchema = hasContentScheme(mImageInputUri);
+                boolean hasImageOutputUriContentSchema = hasContentScheme(mImageOutputUri);
+                if (hasImageInputUriContentSchema && hasImageOutputUriContentSchema) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         ImageHeaderParser.copyExif(context, mCroppedImageWidth, mCroppedImageHeight, mImageInputUri, mImageOutputUri);
                     } else {
                         Log.e(TAG, "It is not possible to write exif info into file represented by \"content\" Uri if Android < LOLLIPOP");
                     }
-                } else if (mImageInputUri != null && "content".equals(mImageInputUri.getScheme())) {
+                } else if (hasImageInputUriContentSchema) {
                     ImageHeaderParser.copyExif(context, mCroppedImageWidth, mCroppedImageHeight, mImageInputUri, mImageOutputPath);
-                } else if (mImageOutputUri != null && "content".equals(mImageOutputUri.getScheme())) {
+                } else if (hasImageOutputUriContentSchema) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         ExifInterface originalExif = new ExifInterface(mImageInputPath);
                         ImageHeaderParser.copyExif(context, originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputUri);
@@ -183,6 +191,10 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
             FileUtils.copyFile(context ,mImageInputUri, mImageOutputUri);
             return false;
         }
+    }
+
+    private boolean hasContentScheme(Uri uri) {
+        return uri != null && CONTENT_SCHEME.equals(uri.getScheme());
     }
 
     private void saveImage(@NonNull Bitmap croppedBitmap) {
@@ -232,7 +244,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
             if (t == null) {
                 Uri uri;
 
-                if (mImageOutputUri != null && "content".equals(mImageOutputUri.getScheme())) {
+                if (hasContentScheme(mImageOutputUri)) {
                     uri = mImageOutputUri;
                 } else {
                     uri = Uri.fromFile(new File(mImageOutputPath));
