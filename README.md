@@ -84,6 +84,12 @@ Currently you can change:
    * choose whether you want rectangle or oval crop area
    * the UI colors (Toolbar, StatusBar, active widget state)
    * and more...
+   
+Since version 2.2.7 in case if you need to change transport protocol, setup timeout etc. You may set your `OkHttpClient` next way:
+
+    ```java
+    new UCropInitializer().setOkHttpClient(client);
+    ``` 
     
 # Compatibility
   
