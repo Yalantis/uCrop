@@ -263,6 +263,9 @@ public class FileUtils {
                 FileChannel inputChannel = ((FileInputStream)isFrom).getChannel();
                 FileChannel outputChannel = ((FileOutputStream)osTo).getChannel();
                 inputChannel.transferTo(0, inputChannel.size(), outputChannel);
+            } else {
+                throw new IllegalArgumentException("The input or output URI don't represent a file. " +
+                                                   "uCrop requires then to represent files in order to work properly.");
             }
         } finally {
             if (isFrom != null) isFrom.close();
