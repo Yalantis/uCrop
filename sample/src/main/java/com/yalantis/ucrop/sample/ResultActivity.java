@@ -22,6 +22,14 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.FileProvider;
+
+import com.yalantis.ucrop.util.BitmapLoadUtils;
 import com.yalantis.ucrop.view.UCropView;
 
 import java.io.File;
@@ -33,13 +41,6 @@ import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.FileProvider;
 
 import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 import static android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
@@ -167,6 +168,9 @@ public class ResultActivity extends BaseActivity {
                     Toast.makeText(ResultActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.e(TAG, imageUri.toString(), e);
                 }
+            } else if (BitmapLoadUtils.hasContentScheme(imageUri)){
+                Toast.makeText(ResultActivity.this, getString(R.string.toast_already_saved), Toast.LENGTH_SHORT).show();
+                finish();
             } else {
                 Toast.makeText(ResultActivity.this, getString(R.string.toast_unexpected_error), Toast.LENGTH_SHORT).show();
             }
