@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="DestinationButton" parent="Widget.AppCompat.Button.Colored">
+        <item name="background">@drawable/bg_text_border</item>
+    </style>
+
+    <style name="DestinationText" parent="Widget.AppCompat.TextView">
+        <item name="android:background">@drawable/bg_text_border</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:layout_marginRight">2dp</item>
+    </style>
+
+</resources>

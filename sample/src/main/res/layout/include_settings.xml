@@ -61,6 +61,85 @@
                 android:layout_margin="5dp"
                 android:background="@color/colorAccent" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioGroup
+                    android:id="@+id/radio_group_choose_destination"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/radio_tmp_destination"
+                        android:layout_width="0dp"
+                        android:layout_weight="0.5"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:textAppearanceMedium"
+                        android:text="@string/radio_tmp_destination_text"
+                        tools:checked="true"/>
+
+                    <RadioButton
+                        android:id="@+id/radio_choose_destination"
+                        android:layout_width="0dp"
+                        android:layout_weight="0.5"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:textAppearanceMedium"
+                            android:text="@string/radio_choose_destination"/>
+
+                </RadioGroup>
+
+                <!-- Only visible for Android API versions between 19 and 28 -->
+                <CheckBox
+                    android:id="@+id/checkbox_use_document_provider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/checkbox_use_document_provider_text"
+                    android:checked="true"
+                    android:enabled="false"
+                    android:visibility="gone"/>
+
+                <CheckBox
+                    android:id="@+id/checkbox_use_file_provider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/checkbox_use_file_provider_text"
+                    android:checked="true"
+                    android:enabled="false"
+                    android:visibility="gone"/>
+
+                <Button
+                    android:id="@+id/button_file_destination"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_file_destination"
+                    android:textAllCaps="true"
+                    android:enabled="false"
+                    style="@style/DestinationButton"
+                    android:textAppearance="?android:textAppearanceMedium"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/file_destination_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    android:text=""
+                    style="@style/DestinationText" />
+
+            </LinearLayout>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_margin="5dp"
+                android:background="@color/colorAccent" />
+
             <RadioGroup
                 android:id="@+id/radio_group_aspect_ratio"
                 android:layout_width="match_parent"

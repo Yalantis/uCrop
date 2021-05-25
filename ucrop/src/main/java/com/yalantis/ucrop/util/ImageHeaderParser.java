@@ -30,15 +30,21 @@
 
 package com.yalantis.ucrop.util;
 
+import android.content.Context;
+import android.net.Uri;
+import android.os.Build;
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 
+import androidx.annotation.RequiresApi;
 import androidx.exifinterface.media.ExifInterface;
 
 /**
@@ -376,7 +382,169 @@ public class ImageHeaderParser {
         }
     }
 
+    /**
+     * Copy exif information represented by originalExif into the file represented by imageOutputPath.
+     *
+     * @param originalExif The exif info from the original input file
+     * @param width output image new width
+     * @param height output image new height
+     * @param imageOutputPath The path to the output file
+     */
     public static void copyExif(ExifInterface originalExif, int width, int height, String imageOutputPath) {
+
+        try {
+            ExifInterface newExif = new ExifInterface(imageOutputPath);
+
+            copyExifAttributes(originalExif, newExif, width, height);
+
+        } catch (IOException e) {
+            Log.d(TAG, e.getMessage());
+        }
+    }
+
+    /**
+     * Copy exif information from the file represented by imageInputUri into the file represented by imageOutputPath and
+     * overwrites it's width and height with the given ones.
+     *
+     * @param context The context from which to obtain a content resolver
+     * @param width output image new width
+     * @param height output image new height
+     * @param imageInputUri The {@link Uri} that represents the input file
+     * @param imageOutputPath The path to the output file
+     */
+    public static void copyExif(Context context, int width, int height, Uri imageInputUri, String imageOutputPath) {
+        if(context == null) {
+            Log.d(TAG, "context is null");
+            return;
+        }
+
+        InputStream ins = null;
+        try  {
+            ins = context.getContentResolver().openInputStream(imageInputUri);
+            ExifInterface originalExif = new ExifInterface(ins);
+
+            ExifInterface newExif = new ExifInterface(imageOutputPath);
+
+            copyExifAttributes(originalExif, newExif, width, height);
+
+        } catch (IOException e) {
+            Log.d(TAG, e.getMessage(), e);
+        } finally {
+            if (ins != null) {
+                try {
+                    ins.close();
+                } catch (IOException e) {
+                    Log.d(TAG, e.getMessage(), e);
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Copy exif information from the file represented by imageInputUri into the file represented by imageOutputUri and
+     * overwrites it's width and height with the given ones.
+     * This is done by {@link ExifInterface} through a seekable {@link FileDescriptor} and this is only possible
+     * starting on Lollipop version of Android.
+     *
+     * @param context The context from which to obtain a content resolver
+     * @param width output image new width
+     * @param height output image new height
+     * @param imageInputUri The {@link Uri} that represents the input file
+     * @param imageOutputUri The {@link Uri} that represents the output file
+     */
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    public static void copyExif(Context context, int width, int height, Uri imageInputUri, Uri imageOutputUri) {
+        if(context == null) {
+            Log.d(TAG, "context is null");
+            return;
+        }
+
+        InputStream ins = null;
+        ParcelFileDescriptor outFd = null;
+        try  {
+            ins = context.getContentResolver().openInputStream(imageInputUri);
+            ExifInterface originalExif = new ExifInterface(ins);
+
+            outFd = context.getContentResolver().openFileDescriptor(imageOutputUri, "rw");
+            ExifInterface newExif = new ExifInterface(outFd.getFileDescriptor());
+            copyExifAttributes(originalExif, newExif, width, height);
+
+        } catch (IOException e) {
+            Log.d(TAG, e.getMessage(), e);
+        } finally {
+            if (ins != null) {
+                try {
+                    ins.close();
+                } catch (IOException e) {
+                    Log.d(TAG, e.getMessage(), e);
+                }
+            }
+            if (outFd != null) {
+                try {
+                    outFd.close();
+                } catch (IOException e) {
+                    Log.d(TAG, e.getMessage(), e);
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Copy exif information represented by originalExif into the file represented by imageOutputUri and overwrites it's
+     * width and height with the given ones.
+     * This is done by {@link ExifInterface} through a seekable {@link FileDescriptor} and this is only possible
+     * starting on Lollipop version of Android.
+     *
+     * @param context The context from which to obtain a content resolver
+     * @param originalExif The exif info from the original input file
+     * @param width output image new width
+     * @param height output image new height
+     * @param imageOutputUri The {@link Uri} that represents the output file
+     */
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    public static void copyExif(Context context, ExifInterface originalExif, int width, int height, Uri imageOutputUri) {
+
+        if(context == null) {
+            Log.d(TAG, "context is null");
+            return;
+        }
+
+        ParcelFileDescriptor outFd = null;
+        try {
+
+            // In order to the ExifInterface be able to validate JPEG info from the file, the FileDescriptor must to be
+            // opened en "rw" (read and write) mode
+            outFd = context.getContentResolver().openFileDescriptor(imageOutputUri, "rw");
+            ExifInterface newExif = new ExifInterface(outFd.getFileDescriptor());
+
+            copyExifAttributes(originalExif, newExif, width, height);
+
+        } catch (IOException e) {
+            Log.d(TAG, e.getMessage());
+        } finally {
+            if (outFd != null) {
+                try {
+                    outFd.close();
+                } catch (IOException e) {
+                    Log.d(TAG, e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Copy Exif attributes from the originalExif to the newExif and overwrites it's width and height with the given ones.
+     *
+     * @param originalExif Original exif information
+     * @param newExif New exif information
+     * @param width Width for overwriting into the newExif
+     * @param height Height for overwriting into the newExif
+     * @throws IOException If it occurs some IO error while trying to save the new exif info.
+     */
+    private static void copyExifAttributes(ExifInterface originalExif, ExifInterface newExif, int width, int height) throws IOException {
+
         String[] attributes = new String[]{
                 ExifInterface.TAG_F_NUMBER,
                 ExifInterface.TAG_DATETIME,
@@ -402,24 +570,18 @@ public class ImageHeaderParser {
                 ExifInterface.TAG_WHITE_BALANCE
         };
 
-        try {
-            ExifInterface newExif = new ExifInterface(imageOutputPath);
-            String value;
-            for (String attribute : attributes) {
-                value = originalExif.getAttribute(attribute);
-                if (!TextUtils.isEmpty(value)) {
-                    newExif.setAttribute(attribute, value);
-                }
+        String value;
+        for (String attribute : attributes) {
+            value = originalExif.getAttribute(attribute);
+            if (!TextUtils.isEmpty(value)) {
+                newExif.setAttribute(attribute, value);
             }
-            newExif.setAttribute(ExifInterface.TAG_IMAGE_WIDTH, String.valueOf(width));
-            newExif.setAttribute(ExifInterface.TAG_IMAGE_LENGTH, String.valueOf(height));
-            newExif.setAttribute(ExifInterface.TAG_ORIENTATION, "0");
-
-            newExif.saveAttributes();
-
-        } catch (IOException e) {
-            Log.d(TAG, e.getMessage());
         }
+        newExif.setAttribute(ExifInterface.TAG_IMAGE_WIDTH, String.valueOf(width));
+        newExif.setAttribute(ExifInterface.TAG_IMAGE_LENGTH, String.valueOf(height));
+        newExif.setAttribute(ExifInterface.TAG_ORIENTATION, "0");
+
+        newExif.saveAttributes();
     }
 
 }

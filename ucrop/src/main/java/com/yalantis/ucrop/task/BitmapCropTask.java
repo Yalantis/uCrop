@@ -6,6 +6,7 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -22,8 +23,6 @@ import com.yalantis.ucrop.util.ImageHeaderParser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
@@ -39,6 +38,8 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
     private static final String TAG = "BitmapCropTask";
 
+    private static final String CONTENT_SCHEME = "content";
+
     private final WeakReference<Context> mContext;
 
     private Bitmap mViewBitmap;
@@ -52,6 +53,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     private final Bitmap.CompressFormat mCompressFormat;
     private final int mCompressQuality;
     private final String mImageInputPath, mImageOutputPath;
+    private final Uri mImageInputUri, mImageOutputUri;
     private final ExifInfo mExifInfo;
     private final BitmapCropCallback mCropCallback;
 
@@ -77,6 +79,8 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
 
         mImageInputPath = cropParameters.getImageInputPath();
         mImageOutputPath = cropParameters.getImageOutputPath();
+        mImageInputUri = cropParameters.getContentImageInputUri();
+        mImageOutputUri = cropParameters.getContentImageOutputUri();
         mExifInfo = cropParameters.getExifInfo();
 
         mCropCallback = cropCallback;
@@ -93,6 +97,10 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
             return new NullPointerException("CurrentImageRect is empty");
         }
 
+        if (mImageOutputUri == null) {
+            return new NullPointerException("ImageOutputUri is null");
+        }
+
         try {
             crop();
             mViewBitmap = null;
@@ -104,6 +112,11 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     }
 
     private boolean crop() throws IOException {
+        Context context = mContext.get();
+        if (context == null) {
+            return false;
+        }
+
         // Downsize if needed
         if (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0) {
             float cropWidth = mCropRect.width() / mCurrentScale;
@@ -149,19 +162,42 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         Log.i(TAG, "Should crop: " + shouldCrop);
 
         if (shouldCrop) {
-            ExifInterface originalExif = new ExifInterface(mImageInputPath);
             saveImage(Bitmap.createBitmap(mViewBitmap, cropOffsetX, cropOffsetY, mCroppedImageWidth, mCroppedImageHeight));
             if (mCompressFormat.equals(Bitmap.CompressFormat.JPEG)) {
-                ImageHeaderParser.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputPath);
+                boolean hasImageInputUriContentSchema = hasContentScheme(mImageInputUri);
+                boolean hasImageOutputUriContentSchema = hasContentScheme(mImageOutputUri);
+                if (hasImageInputUriContentSchema && hasImageOutputUriContentSchema) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        ImageHeaderParser.copyExif(context, mCroppedImageWidth, mCroppedImageHeight, mImageInputUri, mImageOutputUri);
+                    } else {
+                        Log.e(TAG, "It is not possible to write exif info into file represented by \"content\" Uri if Android < LOLLIPOP");
+                    }
+                } else if (hasImageInputUriContentSchema) {
+                    ImageHeaderParser.copyExif(context, mCroppedImageWidth, mCroppedImageHeight, mImageInputUri, mImageOutputPath);
+                } else if (hasImageOutputUriContentSchema) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        ExifInterface originalExif = new ExifInterface(mImageInputPath);
+                        ImageHeaderParser.copyExif(context, originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputUri);
+                    } else {
+                        Log.e(TAG, "It is not possible to write exif info into file represented by \"content\" Uri if Android < LOLLIPOP");
+                    }
+                } else {
+                    ExifInterface originalExif = new ExifInterface(mImageInputPath);
+                    ImageHeaderParser.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputPath);
+                }
             }
             return true;
         } else {
-            FileUtils.copyFile(mImageInputPath, mImageOutputPath);
+            FileUtils.copyFile(context ,mImageInputUri, mImageOutputUri);
             return false;
         }
     }
 
-    private void saveImage(@NonNull Bitmap croppedBitmap) throws FileNotFoundException {
+    private boolean hasContentScheme(Uri uri) {
+        return uri != null && CONTENT_SCHEME.equals(uri.getScheme());
+    }
+
+    private void saveImage(@NonNull Bitmap croppedBitmap) {
         Context context = mContext.get();
         if (context == null) {
             return;
@@ -170,7 +206,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         OutputStream outputStream = null;
         ByteArrayOutputStream outStream = null;
         try {
-            outputStream = new FileOutputStream(new File(mImageOutputPath), false);
+            outputStream = context.getContentResolver().openOutputStream(mImageOutputUri);
             outStream = new ByteArrayOutputStream();
             croppedBitmap.compress(mCompressFormat, mCompressQuality, outStream);
             outputStream.write(outStream.toByteArray());
@@ -206,7 +242,13 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     protected void onPostExecute(@Nullable Throwable t) {
         if (mCropCallback != null) {
             if (t == null) {
-                Uri uri = Uri.fromFile(new File(mImageOutputPath));
+                Uri uri;
+
+                if (hasContentScheme(mImageOutputUri)) {
+                    uri = mImageOutputUri;
+                } else {
+                    uri = Uri.fromFile(new File(mImageOutputPath));
+                }
                 mCropCallback.onBitmapCropped(uri, cropOffsetX, cropOffsetY, mCroppedImageWidth, mCroppedImageHeight);
             } else {
                 mCropCallback.onCropFailure(t);
