@@ -42,6 +42,7 @@
     <string name="toast_cannot_retrieve_selected_image">Cannot retrieve selected image</string>
     <string name="toast_cannot_retrieve_cropped_image">Cannot retrieve cropped image</string>
     <string name="toast_unexpected_error">Unexpected error</string>
+    <string name="toast_already_saved">Your image is already saved</string>
 
     <string name="file_provider_authorities">com.yalantis.ucrop.provider</string>
     <string name="channel_name">ucrop_chanel</string>

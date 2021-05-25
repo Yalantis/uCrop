@@ -12,6 +12,10 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.exifinterface.media.ExifInterface;
+
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
 import com.yalantis.ucrop.task.BitmapLoadTask;
 
@@ -19,14 +23,12 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.exifinterface.media.ExifInterface;
-
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
  */
 public class BitmapLoadUtils {
+
+    private static final String CONTENT_SCHEME = "content";
 
     private static final String TAG = "BitmapLoadUtils";
 
@@ -169,6 +171,10 @@ public class BitmapLoadUtils {
                 // silence
             }
         }
+    }
+
+    public static boolean hasContentScheme(Uri uri) {
+        return uri != null && CONTENT_SCHEME.equals(uri.getScheme());
     }
 
 }

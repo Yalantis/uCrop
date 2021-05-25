@@ -164,27 +164,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         if (shouldCrop) {
             saveImage(Bitmap.createBitmap(mViewBitmap, cropOffsetX, cropOffsetY, mCroppedImageWidth, mCroppedImageHeight));
             if (mCompressFormat.equals(Bitmap.CompressFormat.JPEG)) {
-                boolean hasImageInputUriContentSchema = hasContentScheme(mImageInputUri);
-                boolean hasImageOutputUriContentSchema = hasContentScheme(mImageOutputUri);
-                if (hasImageInputUriContentSchema && hasImageOutputUriContentSchema) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        ImageHeaderParser.copyExif(context, mCroppedImageWidth, mCroppedImageHeight, mImageInputUri, mImageOutputUri);
-                    } else {
-                        Log.e(TAG, "It is not possible to write exif info into file represented by \"content\" Uri if Android < LOLLIPOP");
-                    }
-                } else if (hasImageInputUriContentSchema) {
-                    ImageHeaderParser.copyExif(context, mCroppedImageWidth, mCroppedImageHeight, mImageInputUri, mImageOutputPath);
-                } else if (hasImageOutputUriContentSchema) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        ExifInterface originalExif = new ExifInterface(mImageInputPath);
-                        ImageHeaderParser.copyExif(context, originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputUri);
-                    } else {
-                        Log.e(TAG, "It is not possible to write exif info into file represented by \"content\" Uri if Android < LOLLIPOP");
-                    }
-                } else {
-                    ExifInterface originalExif = new ExifInterface(mImageInputPath);
-                    ImageHeaderParser.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputPath);
-                }
+                copyExifForOutputFile(context);
             }
             return true;
         } else {
@@ -193,8 +173,35 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         }
     }
 
-    private boolean hasContentScheme(Uri uri) {
-        return uri != null && CONTENT_SCHEME.equals(uri.getScheme());
+    private void copyExifForOutputFile(Context context) throws IOException {
+        boolean hasImageInputUriContentSchema = BitmapLoadUtils.hasContentScheme(mImageInputUri);
+        boolean hasImageOutputUriContentSchema = BitmapLoadUtils.hasContentScheme(mImageOutputUri);
+        /*
+         * ImageHeaderParser.copyExif with output uri as a parameter
+         * uses ExifInterface constructor with FileDescriptor param for overriding output file exif info,
+         * which doesn't support ExitInterface.saveAttributes call for SDK lower than 21.
+         *
+         * See documentation for ImageHeaderParser.copyExif and ExifInterface.saveAttributes implementation.
+         */
+        if (hasImageInputUriContentSchema && hasImageOutputUriContentSchema) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                ImageHeaderParser.copyExif(context, mCroppedImageWidth, mCroppedImageHeight, mImageInputUri, mImageOutputUri);
+            } else {
+                Log.e(TAG, "It is not possible to write exif info into file represented by \"content\" Uri if Android < LOLLIPOP");
+            }
+        } else if (hasImageInputUriContentSchema) {
+            ImageHeaderParser.copyExif(context, mCroppedImageWidth, mCroppedImageHeight, mImageInputUri, mImageOutputPath);
+        } else if (hasImageOutputUriContentSchema) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                ExifInterface originalExif = new ExifInterface(mImageInputPath);
+                ImageHeaderParser.copyExif(context, originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputUri);
+            } else {
+                Log.e(TAG, "It is not possible to write exif info into file represented by \"content\" Uri if Android < LOLLIPOP");
+            }
+        } else {
+            ExifInterface originalExif = new ExifInterface(mImageInputPath);
+            ImageHeaderParser.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputPath);
+        }
     }
 
     private void saveImage(@NonNull Bitmap croppedBitmap) {
@@ -244,7 +251,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
             if (t == null) {
                 Uri uri;
 
-                if (hasContentScheme(mImageOutputUri)) {
+                if (BitmapLoadUtils.hasContentScheme(mImageOutputUri)) {
                     uri = mImageOutputUri;
                 } else {
                     uri = Uri.fromFile(new File(mImageOutputPath));
