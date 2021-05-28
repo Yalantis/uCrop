@@ -36,6 +36,7 @@ public class AspectRatioTextView extends AppCompatTextView {
 
     private String mAspectRatioTitle;
     private float mAspectRatioX, mAspectRatioY;
+    private boolean mCircle;
 
     public AspectRatioTextView(Context context) {
         this(context, null);
@@ -71,6 +72,7 @@ public class AspectRatioTextView extends AppCompatTextView {
         mAspectRatioTitle = aspectRatio.getAspectRatioTitle();
         mAspectRatioX = aspectRatio.getAspectRatioX();
         mAspectRatioY = aspectRatio.getAspectRatioY();
+        mCircle = aspectRatio.isCircle();
 
         if (mAspectRatioX == CropImageView.SOURCE_IMAGE_ASPECT_RATIO || mAspectRatioY == CropImageView.SOURCE_IMAGE_ASPECT_RATIO) {
             mAspectRatio = CropImageView.SOURCE_IMAGE_ASPECT_RATIO;
@@ -87,6 +89,10 @@ public class AspectRatioTextView extends AppCompatTextView {
             setTitle();
         }
         return mAspectRatio;
+    }
+
+    public boolean isCircle() {
+        return mCircle;
     }
 
     @Override

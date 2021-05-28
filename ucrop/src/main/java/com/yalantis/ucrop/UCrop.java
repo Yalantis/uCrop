@@ -39,6 +39,7 @@ public class UCrop {
     public static final String EXTRA_INPUT_URI = EXTRA_PREFIX + ".InputUri";
     public static final String EXTRA_OUTPUT_URI = EXTRA_PREFIX + ".OutputUri";
     public static final String EXTRA_OUTPUT_CROP_ASPECT_RATIO = EXTRA_PREFIX + ".CropAspectRatio";
+    public static final String EXTRA_OUTPUT_CIRCLE_CROP = EXTRA_PREFIX + ".CircleCrop";
     public static final String EXTRA_OUTPUT_IMAGE_WIDTH = EXTRA_PREFIX + ".ImageWidth";
     public static final String EXTRA_OUTPUT_IMAGE_HEIGHT = EXTRA_PREFIX + ".ImageHeight";
     public static final String EXTRA_OUTPUT_OFFSET_X = EXTRA_PREFIX + ".OffsetX";
@@ -218,6 +219,16 @@ public class UCrop {
      */
     public static float getOutputCropAspectRatio(@NonNull Intent intent) {
         return intent.getFloatExtra(EXTRA_OUTPUT_CROP_ASPECT_RATIO, 0f);
+    }
+
+    /**
+     * Retrieve if image is circle cropped from the result Intent
+     *
+     * @param intent crop result intent
+     * @return circle crop flag
+     */
+    public static boolean getOutputCircleCrop(@NonNull Intent intent) {
+        return intent.getBooleanExtra(EXTRA_OUTPUT_CIRCLE_CROP, false);
     }
 
     /**
