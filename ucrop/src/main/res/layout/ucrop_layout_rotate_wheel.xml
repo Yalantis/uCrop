@@ -11,6 +11,7 @@
     <TextView
         android:id="@+id/text_view_rotate"
         style="@style/ucrop_TextViewWidgetText"
+        android:contentDescription="@string/ucrop_ucrop_text_view_rotate_content_description"
         tools:text="100°" />
 
     <com.yalantis.ucrop.view.widget.HorizontalProgressWheelView
@@ -27,6 +28,7 @@
         android:id="@+id/wrapper_reset_rotate"
         style="@style/ucrop_WrapperRotateButton"
         android:layout_centerVertical="true"
+        android:contentDescription="@string/ucrop_wrapper_reset_rotate_content_description"
         android:background="?attr/selectableItemBackground">
 
         <ImageView
@@ -41,6 +43,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
+        android:contentDescription="@string/ucrop_wrapper_rotate_by_angle_content_description"
         android:background="?attr/selectableItemBackground">
 
         <ImageView

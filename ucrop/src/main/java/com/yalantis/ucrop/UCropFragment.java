@@ -389,7 +389,6 @@ public class UCropFragment extends Fragment {
 
         ((HorizontalProgressWheelView) view.findViewById(R.id.rotate_scroll_wheel)).setMiddleLineColor(mActiveControlsWidgetColor);
 
-
         view.findViewById(R.id.wrapper_reset_rotate).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -432,6 +431,20 @@ public class UCropFragment extends Fragment {
                 });
         ((HorizontalProgressWheelView) view.findViewById(R.id.scale_scroll_wheel)).setMiddleLineColor(mActiveControlsWidgetColor);
 
+        view.findViewById(R.id.wrapper_plus_scale).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scaleByPercent(100);
+            }
+        });
+
+        view.findViewById(R.id.wrapper_minus_scale).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scaleByPercent(-100);
+            }
+        });
+
         setScaleTextColor(mActiveControlsWidgetColor);
     }
 
@@ -467,6 +480,17 @@ public class UCropFragment extends Fragment {
     private void rotateByAngle(int angle) {
         mGestureCropImageView.postRotate(angle);
         mGestureCropImageView.setImageToWrapCropBounds();
+    }
+
+
+    private void scaleByPercent(int percent) {
+        if (percent > 0) {
+            mGestureCropImageView.zoomInImage(mGestureCropImageView.getCurrentScale()
+                    + percent * ((mGestureCropImageView.getMaxScale() - mGestureCropImageView.getMinScale()) / SCALE_WIDGET_SENSITIVITY_COEFFICIENT));
+        } else {
+            mGestureCropImageView.zoomOutImage(mGestureCropImageView.getCurrentScale()
+                    + percent * ((mGestureCropImageView.getMaxScale() - mGestureCropImageView.getMinScale()) / SCALE_WIDGET_SENSITIVITY_COEFFICIENT));
+        }
     }
 
     private final View.OnClickListener mStateClickListener = new View.OnClickListener() {
