@@ -20,8 +20,7 @@
 
 #ifdef PNG_ARM_NEON_IMPLEMENTATION
 #  if PNG_ARM_NEON_IMPLEMENTATION == 1
-//Don't know what this is??
-//#    define PNG_ARM_NEON_INTRINSICS_AVAILABLE
+#    define PNG_ARM_NEON_INTRINSICS_AVAILABLE
 #    if defined(_MSC_VER) && defined(_M_ARM64) && !defined(__clang__)
 #      include <arm64_neon.h>
 #    else

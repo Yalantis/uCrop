@@ -23,11 +23,10 @@ LOCAL_SRC_FILES :=\
 	pngwutil.c \
 	arm/arm_init.c \
 	arm/filter_neon.S \
+	arm/palette_neon_intrinsics.c \
 	arm/filter_neon_intrinsics.c
 
 LOCAL_LDLIBS    := -landroid -llog -lz
-LOCAL_SHARED_LIBRARIES := -lz
-LOCAL_EXPORT_LDLIBS := -lz
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/.
 
 include $(BUILD_SHARED_LIBRARY)
