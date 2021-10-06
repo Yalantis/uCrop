@@ -27,17 +27,8 @@
     ``` implementation 'com.github.yalantis:ucrop:2.2.6' ``` - lightweight general solution
     
     ``` implementation 'com.github.yalantis:ucrop:2.2.6-native' ``` - get power of the native code to preserve image quality (+ about 1.5 MB to an apk size)
-    
-2. Add UCropActivity into your AndroidManifest.xml
 
-    ```
-    <activity
-        android:name="com.yalantis.ucrop.UCropActivity"
-        android:screenOrientation="portrait"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
-    ```
-
-3. The uCrop configuration is created using the builder pattern.
+2. The uCrop configuration is created using the builder pattern.
 
 	```java
     UCrop.of(sourceUri, destinationUri)
@@ -47,7 +38,7 @@
     ```
 
 
-4. Override `onActivityResult` method and handle uCrop result.
+3. Override `onActivityResult` method and handle uCrop result.
 
     ```java
     @Override
@@ -59,7 +50,7 @@
         }
     }
     ```
-5. You may want to add this to your PROGUARD config:
+4. You may want to add this to your PROGUARD config:
 
     ```
     -dontwarn com.yalantis.ucrop**
