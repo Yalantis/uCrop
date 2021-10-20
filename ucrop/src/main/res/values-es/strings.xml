@@ -5,7 +5,7 @@
     <string name="ucrop_menu_crop">Recortar</string>
 
     <string name="ucrop_navigation_icon_left_content_description">cierra editor de fotos</string>
-    <string name="ucrop_navigation_icon_right_content_description">acepta la imagen recortada. Botón</string>
+    <string name="ucrop_navigation_icon_right_content_description">acepta la imagen recortada. Boton</string>
     <string name="ucrop_navigation_icon_right_loader_content_description">ruleta de cargando foto</string>
 
     <string name="ucrop_rotate">Rotar</string>
