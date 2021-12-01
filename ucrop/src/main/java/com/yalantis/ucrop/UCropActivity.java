@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -84,6 +85,8 @@ public class UCropActivity extends AppCompatActivity {
     private static final int ROTATE_WIDGET_SENSITIVITY_COEFFICIENT = 42;
 
     private String mToolbarTitle;
+    private int mGravity = Gravity.START;
+    private Float mToolbarTextSize = 14F;
 
     // Enables dynamic coloring
     private int mToolbarColor;
@@ -102,6 +105,8 @@ public class UCropActivity extends AppCompatActivity {
     private boolean mShowLoader = true;
 
     private UCropView mUCropView;
+    private TextView mToolbarTextView;
+    private Toolbar mToolbarView;
     private GestureCropImageView mGestureCropImageView;
     private OverlayView mOverlayView;
     private ViewGroup mWrapperStateAspectRatio, mWrapperStateRotate, mWrapperStateScale;
@@ -212,7 +217,7 @@ public class UCropActivity extends AppCompatActivity {
     }
 
     /**
-     * This method extracts {@link com.yalantis.ucrop.UCrop.Options #optionsBundle} from incoming intent
+     * This method extracts {@link UCrop.Options #optionsBundle} from incoming intent
      * and setups Activity, {@link OverlayView} and {@link CropImageView} properly.
      */
     @SuppressWarnings("deprecation")
@@ -289,6 +294,8 @@ public class UCropActivity extends AppCompatActivity {
         mToolbarColor = intent.getIntExtra(UCrop.Options.EXTRA_TOOL_BAR_COLOR, ContextCompat.getColor(this, R.color.ucrop_color_toolbar));
         mActiveControlsWidgetColor = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_COLOR_CONTROLS_WIDGET_ACTIVE, ContextCompat.getColor(this, R.color.ucrop_color_active_controls_color));
 
+        mGravity = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_TITLE_GRAVITY_TOOLBAR, Gravity.START);
+        mToolbarTextSize = intent.getFloatExtra(UCrop.Options.EXTRA_UCROP_TITLE_SIZE_TOOLBAR, 20F);
         mToolbarWidgetColor = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_WIDGET_COLOR_TOOLBAR, ContextCompat.getColor(this, R.color.ucrop_color_toolbar_widget));
         mToolbarCancelDrawable = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_WIDGET_CANCEL_DRAWABLE, R.drawable.ucrop_ic_cross);
         mToolbarCropDrawable = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_WIDGET_CROP_DRAWABLE, R.drawable.ucrop_ic_done);
@@ -335,22 +342,29 @@ public class UCropActivity extends AppCompatActivity {
     private void setupAppBar() {
         setStatusBarColor(mStatusBarColor);
 
-        final Toolbar toolbar = findViewById(R.id.toolbar);
+        mToolbarView = findViewById(R.id.toolbar);
 
         // Set all of the Toolbar coloring
-        toolbar.setBackgroundColor(mToolbarColor);
-        toolbar.setTitleTextColor(mToolbarWidgetColor);
+        mToolbarView.setBackgroundColor(mToolbarColor);
+        mToolbarView.setTitleTextColor(mToolbarWidgetColor);
 
-        final TextView toolbarTitle = toolbar.findViewById(R.id.toolbar_title);
-        toolbarTitle.setTextColor(mToolbarWidgetColor);
-        toolbarTitle.setText(mToolbarTitle);
+        mToolbarTextView = mToolbarView.findViewById(R.id.toolbar_title);
+        //Set the title size
+        mToolbarTextView.setTextSize(mToolbarTextSize);
+        mToolbarTextView.setTextColor(mToolbarWidgetColor);
+        mToolbarTextView.setText(mToolbarTitle);
+
+        //Set the title alignment mode
+        Toolbar.LayoutParams lp = new Toolbar.LayoutParams(Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT);
+        lp.gravity = mGravity;
+        mToolbarTextView.setLayoutParams(lp);
 
         // Color buttons inside the Toolbar
         Drawable stateButtonDrawable = ContextCompat.getDrawable(this, mToolbarCancelDrawable).mutate();
         stateButtonDrawable.setColorFilter(mToolbarWidgetColor, PorterDuff.Mode.SRC_ATOP);
-        toolbar.setNavigationIcon(stateButtonDrawable);
+        mToolbarView.setNavigationIcon(stateButtonDrawable);
 
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbarView);
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayShowTitleEnabled(false);
