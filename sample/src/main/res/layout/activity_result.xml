@@ -13,7 +13,7 @@
         android:background="?colorAccent"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:title="@string/format_crop_result_d_d"
-        app:titleTextColor="@android:color/white"/>
+        app:titleTextColor="@android:color/white" />
 
     <com.yalantis.ucrop.view.UCropView
         android:id="@+id/ucrop"

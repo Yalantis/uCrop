@@ -1,8 +1,10 @@
 package com.yalantis.ucrop.sample;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
@@ -25,12 +27,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.yalantis.ucrop.RatioSingleton;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropActivity;
 import com.yalantis.ucrop.UCropFragment;
 import com.yalantis.ucrop.UCropFragmentCallback;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Locale;
 import java.util.Random;
 
@@ -81,14 +85,47 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);
+        Boolean back = (Boolean)getIntent().getSerializableExtra("back");
         setupUI();
+
+        if (back != null){
+            startCrop(SavedUriSingleton.getUri());
+        }
     }
 
+//    private void getDropboxIMGSize(Uri uri){
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+//        options.inJustDecodeBounds = true;
+//        BitmapFactory.decodeFile(new File(uri.getPath()).getAbsolutePath());
+//        int imageHeight = options.outHeight;
+//        int imageWidth = options.outWidth;
+//        Toast.makeText(SampleActivity.this, String.valueOf(imageWidth), Toast.LENGTH_LONG).show();
+//
+//    }
+
+    public void getImageSize(Uri uri){
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            InputStream input = this.getContentResolver().openInputStream(uri);
+            BitmapFactory.decodeStream(input, null, options);  input.close();
+            //Toast.makeText(SampleActivity.this, String.valueOf(options.outHeight), Toast.LENGTH_LONG).show();
+//            return new int[]{options.outWidth, options.outHeight};
+            RatioSingleton.setX(options.outWidth);
+            RatioSingleton.setY(options.outHeight);
+        }
+        catch (Exception e){}
+//        return new int[]{0,0};
+    }
+
+    @SuppressLint("MissingSuperCall")
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (requestCode == requestMode) {
                 final Uri selectedUri = data.getData();
+                SavedUriSingleton.setUri(selectedUri);
+                getImageSize(selectedUri);
                 if (selectedUri != null) {
                     startCrop(selectedUri);
                 } else {
@@ -140,7 +177,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
     };
 
     @SuppressWarnings("ConstantConditions")
-    private void setupUI() {
+    public void setupUI() {
         findViewById(R.id.button_crop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -296,7 +333,13 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
      */
     private UCrop advancedConfig(@NonNull UCrop uCrop) {
         UCrop.Options options = new UCrop.Options();
-
+        switch (mRadioGroupAspectRatio.getCheckedRadioButtonId()) {
+            case R.id.radio_origin:
+                options.setRatioVisibility(true);
+                break;
+            default:
+                break;
+        }
         switch (mRadioGroupCompressionSettings.getCheckedRadioButtonId()) {
             case R.id.radio_png:
                 options.setCompressionFormat(Bitmap.CompressFormat.PNG);
@@ -306,10 +349,12 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
                 options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
                 break;
         }
+        options.setImageX(RatioSingleton.getX());
         options.setCompressionQuality(mSeekBarQuality.getProgress());
 
         options.setHideBottomControls(mCheckBoxHideBottomControls.isChecked());
         options.setFreeStyleCropEnabled(mCheckBoxFreeStyleCrop.isChecked());
+
 
         /*
         If you want to configure how gestures work for all UCropActivity tabs

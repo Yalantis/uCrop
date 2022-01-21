@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.yalantis.ucrop.model.AspectRatio;
 
@@ -34,6 +36,7 @@ public class UCrop {
     public static final int REQUEST_CROP = 69;
     public static final int RESULT_ERROR = 96;
     public static final int MIN_SIZE = 10;
+    public static final int MAX_SIZE = 50;
 
     private static final String EXTRA_PREFIX = BuildConfig.APPLICATION_ID;
 
@@ -102,12 +105,19 @@ public class UCrop {
      * @param height max cropped image height
      */
     public UCrop withMaxResultSize(@IntRange(from = MIN_SIZE) int width, @IntRange(from = MIN_SIZE) int height) {
-        if (width < MIN_SIZE) {
-            width = MIN_SIZE;
+//        if (width < MIN_SIZE) {
+//            width = MIN_SIZE;
+//        }
+//
+//        if (height < MIN_SIZE) {
+//            height = MIN_SIZE;
+//        }
+        if (width > MAX_SIZE) {
+            width = MAX_SIZE;
         }
 
-        if (height < MIN_SIZE) {
-            height = MIN_SIZE;
+        if (height > MAX_SIZE) {
+            height = MAX_SIZE;
         }
 
         mCropOptionsBundle.putInt(EXTRA_MAX_SIZE_X, width);
@@ -261,6 +271,8 @@ public class UCrop {
 
         public static final String EXTRA_COMPRESSION_FORMAT_NAME = EXTRA_PREFIX + ".CompressionFormatName";
         public static final String EXTRA_COMPRESSION_QUALITY = EXTRA_PREFIX + ".CompressionQuality";
+        public static final String EXTRA_RATIO_VIS = EXTRA_PREFIX + ".RatioVis";
+        public static final String EXTRA_IMAGE_X = EXTRA_PREFIX + ".ImageX";
 
         public static final String EXTRA_ALLOWED_GESTURES = EXTRA_PREFIX + ".AllowedGestures";
 
@@ -325,6 +337,11 @@ public class UCrop {
          */
         public void setCompressionQuality(@IntRange(from = 0) int compressQuality) {
             mOptionBundle.putInt(EXTRA_COMPRESSION_QUALITY, compressQuality);
+        }
+
+
+        public void setRatioVisibility(boolean x) {
+            mOptionBundle.putBoolean(EXTRA_RATIO_VIS, x);
         }
 
         /**
@@ -445,6 +462,10 @@ public class UCrop {
          */
         public void setToolbarColor(@ColorInt int color) {
             mOptionBundle.putInt(EXTRA_TOOL_BAR_COLOR, color);
+        }
+
+        public void setImageX(int x) {
+            mOptionBundle.putInt(EXTRA_IMAGE_X, x);
         }
 
         /**
