@@ -93,7 +93,17 @@ Currently, you can change:
 
 # Changelog
 
+### Version: 2.2.8
+
+*   Merged pending pull requests with improvements and bugfixes
+*   Update compileSdk and targetSdk versions up to 31
+*   Add localizations
+*   Fixed [#609](https://github.com/Yalantis/uCrop/issues/609)
+*   Fixed [#794](https://github.com/Yalantis/uCrop/issues/794)
+
+
 ### Version: 2.2.5
+
 *   Fixed [#584](https://github.com/Yalantis/uCrop/issues/584)
 *   Fixed [#598](https://github.com/Yalantis/uCrop/issues/598)
 *   Fixed [#543](https://github.com/Yalantis/uCrop/issues/543)
