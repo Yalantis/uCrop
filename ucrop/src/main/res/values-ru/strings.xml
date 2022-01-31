@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ucrop_label_original">Оригинал</string>
+    <string name="ucrop_rotate">Повернуть</string>
+    <string name="ucrop_scale">Масштабировать</string>
+    <string name="ucrop_crop">Обрезать</string>
+    <string name="ucrop_menu_crop">Обрезать</string>
+    <string name="ucrop_label_edit_photo">Редактировать фото</string>
+</resources>
