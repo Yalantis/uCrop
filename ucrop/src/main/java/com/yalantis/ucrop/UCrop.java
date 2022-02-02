@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -281,6 +282,7 @@ public class UCrop {
         public static final String EXTRA_CROP_GRID_COLOR = EXTRA_PREFIX + ".CropGridColor";
         public static final String EXTRA_CROP_GRID_CORNER_COLOR = EXTRA_PREFIX + ".CropGridCornerColor";
         public static final String EXTRA_CROP_GRID_STROKE_WIDTH = EXTRA_PREFIX + ".CropGridStrokeWidth";
+        public static final String EXTRA_CROP_VIEW_RECT_IN_IMAGE_SPACE = EXTRA_PREFIX + ".CropViewRectInImageSpace";
 
         public static final String EXTRA_TOOL_BAR_COLOR = EXTRA_PREFIX + ".ToolbarColor";
         public static final String EXTRA_STATUS_BAR_COLOR = EXTRA_PREFIX + ".StatusBarColor";
@@ -438,6 +440,29 @@ public class UCrop {
          */
         public void setCropGridStrokeWidth(@IntRange(from = 0) int width) {
             mOptionBundle.putInt(EXTRA_CROP_GRID_STROKE_WIDTH, width);
+        }
+
+        /**
+         *  <p>This method will accept a RectF with coordinates from the image space.</p><br>
+         *
+         *  <p>Example: Useful if you want want to process the image and detect objects within before
+         *  opening uCrop in order to highlight desired cropping area, like for example document
+         *  detection and you want to display the cropping Rect over the detected document when
+         *  uCrop starts.</p><br>
+         *
+         *  <p>Passing your desired RectF will result in the
+         *  {@link com.yalantis.ucrop.view.OverlayView}'s highlighting the desired area.
+         *  This rect will be automatically converted to a RectF that corresponds with the image's
+         *  coordinates inside the view.</p><br>
+         *
+         *  <p>This must be used in combination with {@link #setMaxBitmapSize} to set a greater bitmap
+         *  size, otherwise bigger images will be downscaled and coordinates of objects detected
+         *  in input image space won't match with the new downscaled image ones.</p><br>
+         *
+         * @param rect - desired crop view rect in image space.
+         */
+        public void setCropViewRectInImageSpace(@NonNull RectF rect) {
+            mOptionBundle.putParcelable(EXTRA_CROP_VIEW_RECT_IN_IMAGE_SPACE, rect);
         }
 
         /**

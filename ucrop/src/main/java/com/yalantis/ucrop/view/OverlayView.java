@@ -105,6 +105,13 @@ public class OverlayView extends View {
         return mCropViewRect;
     }
 
+    /**
+     * Setter for mCropViewRect. Can be used to set an initial value for the mCropViewRect.
+     */
+    public void setCropViewRect(RectF rect) {
+        mCropViewRect.set(rect);
+    }
+
     @Deprecated
     /***
      * Please use the new method {@link #getFreestyleCropMode() getFreestyleCropMode} method as we have more than 1 freestyle crop mode.
@@ -240,16 +247,18 @@ public class OverlayView extends View {
      * {@link #mCropViewRect} is used to draw crop bounds - uses padding.
      */
     public void setupCropBounds() {
-        int height = (int) (mThisWidth / mTargetAspectRatio);
-        if (height > mThisHeight) {
-            int width = (int) (mThisHeight * mTargetAspectRatio);
-            int halfDiff = (mThisWidth - width) / 2;
-            mCropViewRect.set(getPaddingLeft() + halfDiff, getPaddingTop(),
-                    getPaddingLeft() + width + halfDiff, getPaddingTop() + mThisHeight);
-        } else {
-            int halfDiff = (mThisHeight - height) / 2;
-            mCropViewRect.set(getPaddingLeft(), getPaddingTop() + halfDiff,
-                    getPaddingLeft() + mThisWidth, getPaddingTop() + height + halfDiff);
+        if (mCropViewRect.isEmpty()) {
+            int height = (int) (mThisWidth / mTargetAspectRatio);
+            if (height > mThisHeight) {
+                int width = (int) (mThisHeight * mTargetAspectRatio);
+                int halfDiff = (mThisWidth - width) / 2;
+                mCropViewRect.set(getPaddingLeft() + halfDiff, getPaddingTop(),
+                        getPaddingLeft() + width + halfDiff, getPaddingTop() + mThisHeight);
+            } else {
+                int halfDiff = (mThisHeight - height) / 2;
+                mCropViewRect.set(getPaddingLeft(), getPaddingTop() + halfDiff,
+                        getPaddingLeft() + mThisWidth, getPaddingTop() + height + halfDiff);
+            }
         }
 
         if (mCallback != null) {

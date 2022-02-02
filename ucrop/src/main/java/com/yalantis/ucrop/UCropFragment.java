@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -19,6 +21,7 @@ import android.widget.TextView;
 
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.model.AspectRatio;
+import com.yalantis.ucrop.util.RectUtils;
 import com.yalantis.ucrop.util.SelectedStateListDrawable;
 import com.yalantis.ucrop.view.CropImageView;
 import com.yalantis.ucrop.view.GestureCropImageView;
@@ -292,6 +295,17 @@ public class UCropFragment extends Fragment {
         @Override
         public void onLoadComplete() {
             mUCropView.animate().alpha(1).setDuration(300).setInterpolator(new AccelerateInterpolator());
+            if (getArguments().containsKey(UCrop.Options.EXTRA_CROP_VIEW_RECT_IN_IMAGE_SPACE)) {
+                RectF rectInImageSpace = getArguments().getParcelable(UCrop.Options.EXTRA_CROP_VIEW_RECT_IN_IMAGE_SPACE);
+
+                int viewWidth = mGestureCropImageView.getWidth();
+                int viewHeight = mGestureCropImageView.getHeight();
+
+                Drawable drawable = mGestureCropImageView.getDrawable();
+
+                RectF cropViewRect = RectUtils.convertImageSpaceRectToCropViewRect(rectInImageSpace, viewWidth, viewHeight, drawable);
+                mOverlayView.setCropViewRect(cropViewRect);
+            }
             mBlockingView.setClickable(false);
             callback.loadingProgress(false);
         }
