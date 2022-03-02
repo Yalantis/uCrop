@@ -1,5 +1,6 @@
 package com.yalantis.ucrop.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -56,7 +57,9 @@ public class OverlayView extends View {
     private boolean mShowCropFrame, mShowCropGrid;
     private boolean mCircleDimmedLayer;
     private int mDimmedColor;
+    private Path mDimmedPath = new Path();
     private Path mCircularPath = new Path();
+    private Paint mDimmedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mDimmedStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -263,6 +266,11 @@ public class OverlayView extends View {
         mCropGridCorners = RectUtils.getCornersFromRect(mCropViewRect);
         mCropGridCenter = RectUtils.getCenterFromRect(mCropViewRect);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            mDimmedPath.reset();
+            mDimmedPath.addRect(mCropViewRect, Path.Direction.CW);
+        }
+
         mGridPoints = null;
         mCircularPath.reset();
         mCircularPath.addCircle(mCropViewRect.centerX(), mCropViewRect.centerY(),
@@ -453,17 +461,28 @@ public class OverlayView extends View {
      *
      * @param canvas - valid canvas object
      */
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     protected void drawDimmedLayer(@NonNull Canvas canvas) {
-        canvas.save();
-        if (mCircleDimmedLayer) {
-            canvas.clipPath(mCircularPath, Region.Op.DIFFERENCE);
-        } else {
-            canvas.clipRect(mCropViewRect, Region.Op.DIFFERENCE);
-        }
-        canvas.drawColor(mDimmedColor);
-        canvas.restore();
+        boolean isPre19 = Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT;
 
-        if (mCircleDimmedLayer) { // Draw 1px stroke to fix antialias
+        if (isPre19) {
+            canvas.save();
+            if (mCircleDimmedLayer) {
+                canvas.clipPath(mCircularPath, Region.Op.DIFFERENCE);
+            } else {
+                canvas.clipRect(mCropViewRect, Region.Op.DIFFERENCE);
+            }
+            canvas.drawColor(mDimmedColor);
+            canvas.restore();
+        } else {
+            if (mCircleDimmedLayer) {
+                mDimmedPath.op(mCircularPath, Path.Op.DIFFERENCE);
+            }
+            canvas.drawPath(mDimmedPath, mDimmedPaint);
+        }
+
+        // Draw 1px stroke to fix antialias, don't need to draw 1px in 19+ devices anymore.
+        if (mCircleDimmedLayer && isPre19) {
             canvas.drawCircle(mCropViewRect.centerX(), mCropViewRect.centerY(),
                     Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f, mDimmedStrokePaint);
         }
@@ -532,6 +551,8 @@ public class OverlayView extends View {
         mCircleDimmedLayer = a.getBoolean(R.styleable.ucrop_UCropView_ucrop_circle_dimmed_layer, DEFAULT_CIRCLE_DIMMED_LAYER);
         mDimmedColor = a.getColor(R.styleable.ucrop_UCropView_ucrop_dimmed_color,
                 getResources().getColor(R.color.ucrop_color_default_dimmed));
+        mDimmedPaint.setColor(mDimmedColor);
+        mDimmedPaint.setStyle(Paint.Style.FILL);
         mDimmedStrokePaint.setColor(mDimmedColor);
         mDimmedStrokePaint.setStyle(Paint.Style.STROKE);
         mDimmedStrokePaint.setStrokeWidth(1);
