@@ -83,10 +83,14 @@ public class UCropActivity extends AppCompatActivity {
     private static final int TABS_COUNT = 3;
     private static final int SCALE_WIDGET_SENSITIVITY_COEFFICIENT = 15000;
     private static final int ROTATE_WIDGET_SENSITIVITY_COEFFICIENT = 42;
+    private static final float DEFAULT_TOOLBAR_TEXT_SIZE = 14F;
+    private static final int DEFAULT_TOOLBAR_GRAVITY = Gravity.START;
 
     private String mToolbarTitle;
-    private int mGravity = Gravity.START;
-    private Float mToolbarTextSize = 14F;
+    // Toolbar title alignment mode
+    private int mToolbarGravity = DEFAULT_TOOLBAR_GRAVITY;
+    // Toolbar title text size
+    private Float mToolbarTextSize = DEFAULT_TOOLBAR_TEXT_SIZE;
 
     // Enables dynamic coloring
     private int mToolbarColor;
@@ -217,7 +221,7 @@ public class UCropActivity extends AppCompatActivity {
     }
 
     /**
-     * This method extracts {@link UCrop.Options #optionsBundle} from incoming intent
+     * This method extracts {@link com.yalantis.ucrop.UCrop.Options #optionsBundle} from incoming intent
      * and setups Activity, {@link OverlayView} and {@link CropImageView} properly.
      */
     @SuppressWarnings("deprecation")
@@ -295,7 +299,7 @@ public class UCropActivity extends AppCompatActivity {
         mToolbarColor = intent.getIntExtra(UCrop.Options.EXTRA_TOOL_BAR_COLOR, ContextCompat.getColor(this, R.color.ucrop_color_toolbar));
         mActiveControlsWidgetColor = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_COLOR_CONTROLS_WIDGET_ACTIVE, ContextCompat.getColor(this, R.color.ucrop_color_active_controls_color));
 
-        mGravity = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_TITLE_GRAVITY_TOOLBAR, Gravity.START);
+        mToolbarGravity = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_TITLE_GRAVITY_TOOLBAR, Gravity.START);
         mToolbarTextSize = intent.getFloatExtra(UCrop.Options.EXTRA_UCROP_TITLE_SIZE_TOOLBAR, 20F);
         mToolbarWidgetColor = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_WIDGET_COLOR_TOOLBAR, ContextCompat.getColor(this, R.color.ucrop_color_toolbar_widget));
         mToolbarCancelDrawable = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_WIDGET_CANCEL_DRAWABLE, R.drawable.ucrop_ic_cross);
@@ -357,7 +361,7 @@ public class UCropActivity extends AppCompatActivity {
 
         //Set the title alignment mode
         Toolbar.LayoutParams lp = new Toolbar.LayoutParams(Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT);
-        lp.gravity = mGravity;
+        lp.gravity = mToolbarGravity;
         mToolbarTextView.setLayoutParams(lp);
 
         // Color buttons inside the Toolbar
