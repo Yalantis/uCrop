@@ -13,7 +13,7 @@
 
 <a href="https://play.google.com/store/apps/details?id=com.yalantis.ucrop.sample&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="185" height="70"/></a>
 
-1. Include the library as local library project.
+1. Include the library as a local library project.
 
 	```
 	allprojects {
@@ -25,9 +25,9 @@
 	```
 
     ``` implementation 'com.github.yalantis:ucrop:2.2.6' ``` - lightweight general solution
-    
+
     ``` implementation 'com.github.yalantis:ucrop:2.2.6-native' ``` - get power of the native code to preserve image quality (+ about 1.5 MB to an apk size)
-    
+
 2. Add UCropActivity into your AndroidManifest.xml
 
     ```
@@ -73,27 +73,37 @@ If you want to let your users choose crop ratio dynamically, just do not call `w
 
 uCrop builder class has method `withOptions(UCrop.Options options)` which extends library configurations.
 
-Currently you can change:
+Currently, you can change:
 
    * image compression format (e.g. PNG, JPEG, WEBP), compression
    * image compression quality [0 - 100]. PNG which is lossless, will ignore the quality setting.
    * whether all gestures are enabled simultaneously
-   * maximum size for Bitmap that is decoded from source Uri and used within crop view. If you want to override default behaviour.
+   * maximum size for Bitmap that is decoded from source Uri and used within crop view. If you want to override the default behaviour.
    * toggle whether to show crop frame/guidelines
    * setup color/width/count of crop frame/rows/columns
-   * choose whether you want rectangle or oval crop area
+   * choose whether you want rectangle or oval(`options.setCircleDimmedLayer(true)`) crop area
    * the UI colors (Toolbar, StatusBar, active widget state)
    * and more...
-    
+
 # Compatibility
-  
+
   * Library - Android ICS 4.0+ (API 14) (Android GINGERBREAD 2.3+ (API 10) for versions <= 1.3.2)
   * Sample - Android ICS 4.0+ (API 14)
   * CPU - armeabi armeabi-v7a x86 x86_64 arm64-v8a (for versions >= 2.1.2)
-  
+
 # Changelog
 
+### Version: 2.2.8
+
+*   Merged pending pull requests with improvements and bugfixes
+*   Update compileSdk and targetSdk versions up to 31
+*   Add localizations
+*   Fixed [#609](https://github.com/Yalantis/uCrop/issues/609)
+*   Fixed [#794](https://github.com/Yalantis/uCrop/issues/794)
+
+
 ### Version: 2.2.5
+
 *   Fixed [#584](https://github.com/Yalantis/uCrop/issues/584)
 *   Fixed [#598](https://github.com/Yalantis/uCrop/issues/598)
 *   Fixed [#543](https://github.com/Yalantis/uCrop/issues/543)
@@ -106,13 +116,13 @@ Currently you can change:
   * **AndroidX migration**
   * Redesign
   * Several fixes including [#550](https://github.com/Yalantis/uCrop/issues/550)
-  
+
 ### Version: 2.2.3
 
-  * Several fixes including [#445](https://github.com/Yalantis/uCrop/issues/445), [#465](https://github.com/Yalantis/uCrop/issues/465) and more!    
-  * Material design support 
+  * Several fixes including [#445](https://github.com/Yalantis/uCrop/issues/445), [#465](https://github.com/Yalantis/uCrop/issues/465) and more!
+  * Material design support
   * uCrop fragment as child fragment
-  * Added Italian language
+  * Added the Italian language
 
 ### Version: 2.2.2
 
@@ -131,7 +141,7 @@ Currently you can change:
 ### Version: 2.1
 
   * Fixes issue with EXIF data (images taken on front camera with Samsung devices mostly) [#130](https://github.com/Yalantis/uCrop/issues/130) [#111](https://github.com/Yalantis/uCrop/issues/111)
-  * Added API to set custom set of aspect ratio options for user. [#131](https://github.com/Yalantis/uCrop/issues/131)
+  * Added API to set custom set of aspect ratio options for the user. [#131](https://github.com/Yalantis/uCrop/issues/131)
   * Added API to set all configs via UCrop.Options class. [#126](https://github.com/Yalantis/uCrop/issues/126)
   * Added ABI x86_64 support. [#105](https://github.com/Yalantis/uCrop/issues/105)
 
@@ -140,7 +150,7 @@ Currently you can change:
   * Native image crop (able to crop high-resolution images, e.g. 16MP & 32MP images on Nexus 5X).
   * WebP compression format is not supported at the moment (choose JPEG or PNG).
   * Now library copies EXIF data to cropped image (size and orientation are updated).
-  
+
 ### Version: 1.5
 
   * Introduced "Freestyle" crop (you can resize crop rectangle by dragging it corners) [#32](https://github.com/Yalantis/uCrop/issues/32)
@@ -149,8 +159,8 @@ Currently you can change:
 
 ### Version: 1.4
 
-  * Introduced http(s) Uri support!
-  * Image is cropped in background thread.
+  * Introduced HTTP(s) Uri support!
+  * Image is cropped in a background thread.
   * Showing loader while Bitmap is processed (both loading and cropping).
   * Several bug fixes.
   * Couple new things to configure.
@@ -158,12 +168,12 @@ Currently you can change:
 
 ### Version: 1.3
 
-  * Image is loaded in background thread. Better error-handling for image decoding.
+  * Image is loaded in a background thread. Better error-handling for image decoding.
   * Improved EXIF data support (rotation and mirror).
   * Small UI updates.
   * Couple new things to configure.
-  
-  * Sample updated with possibility to choose custom aspect ratio.
+
+  * Sample updated with the possibility to choose custom aspect ratio.
 
 ### Version: 1.2
 
@@ -179,7 +189,7 @@ Currently you can change:
 
 ### Let us know!
 
-We’d be really happy if you sent us links to your projects where you use our component. Just send an email to github@yalantis.com And do let us know if you have any questions or suggestion regarding the library. 
+We’d be really happy if you sent us links to your projects where you use our component. Just send an email to github@yalantis.com And do let us know if you have any questions or suggestion regarding the library.
 
 #### Apps using uCrop
 

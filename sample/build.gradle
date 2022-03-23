@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 31
+    buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "com.yalantis.ucrop.sample"
         minSdkVersion 14
-        targetSdkVersion 29
+        targetSdkVersion 31
         versionCode 13
         versionName "1.2.4"
     }
@@ -38,5 +38,6 @@ dependencies {
     implementation "androidx.appcompat:appcompat:${androidx_appcompat_version}"
     implementation "androidx.core:core:${androidx_core_version}"
     implementation "androidx.constraintlayout:constraintlayout:${constraintlayout_version}"
+    implementation "com.squareup.okhttp3:okhttp:3.12.13"
     implementation project(':ucrop')
 }
