@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ucrop_label_original">Gốc</string>
+    <string name="ucrop_label_edit_photo">Chỉnh Sửa Ảnh</string>
+
+    <string name="ucrop_menu_crop">Cắt</string>
+
+    <string name="ucrop_scale">Tỉ lệ</string>
+    <string name="ucrop_rotate">Xoay</string>
+    <string name="ucrop_crop">Cắt</string>
+</resources>
