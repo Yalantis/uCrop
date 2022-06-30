@@ -267,6 +267,48 @@ public class TransformImageView extends AppCompatImageView {
         }
     }
 
+    /**
+     * This method reflect current image and become a horizontal mirror image.
+     * In order to avoid the effects of other transformations such as translation and scaling being reflected,
+     * the reflection transformation should be performed first, so need to use 'pre' method. {@link Matrix#preConcat}
+     */
+    public void preReflectHorizontal() {
+        Bitmap bitmap = getViewBitmap();
+        if (bitmap == null) {
+            return;
+        }
+        int width = bitmap.getWidth();
+        if (width <= 0) {
+            return;
+        }
+        float[] values = {-1, 0, width, 0, 1, 0, 0, 0, 1};
+        Matrix matrix = new Matrix();
+        matrix.setValues(values);
+        mCurrentImageMatrix.preConcat(matrix);
+        setImageMatrix(mCurrentImageMatrix);
+    }
+
+    /**
+     * This method reflect current image and become a vertical mirror image.
+     *
+     * @see #preReflectHorizontal()
+     */
+    public void preReflectVertical() {
+        Bitmap bitmap = getViewBitmap();
+        if (bitmap == null) {
+            return;
+        }
+        int height = bitmap.getHeight();
+        if (height <= 0) {
+            return;
+        }
+        float[] values = {1, 0, 0, 0, -1, height, 0, 0, 1};
+        Matrix matrix = new Matrix();
+        matrix.setValues(values);
+        mCurrentImageMatrix.preConcat(matrix);
+        setImageMatrix(mCurrentImageMatrix);
+    }
+
     protected void init() {
         setScaleType(ScaleType.MATRIX);
     }
