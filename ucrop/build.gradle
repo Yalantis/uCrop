@@ -10,7 +10,7 @@ android {
         targetSdkVersion 31
         versionCode 26
         versionName "2.2.8-native"
-
+        consumerProguardFiles 'proguard-rules.pro' 
         vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
