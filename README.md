@@ -75,7 +75,7 @@ uCrop builder class has method `withOptions(UCrop.Options options)` which extend
 
 Currently, you can change:
 
-   * image compression format (e.g. PNG, JPEG, WEBP), compression
+   * image compression format (e.g. PNG, JPEG), compression
    * image compression quality [0 - 100]. PNG which is lossless, will ignore the quality setting.
    * whether all gestures are enabled simultaneously
    * maximum size for Bitmap that is decoded from source Uri and used within crop view. If you want to override the default behaviour.
