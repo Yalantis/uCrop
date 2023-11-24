@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.FloatRange;
@@ -155,6 +156,16 @@ public class UCrop {
      */
     public void start(@NonNull Context context, @NonNull Fragment fragment, int requestCode) {
         fragment.startActivityForResult(getIntent(context), requestCode);
+    }
+
+    /**
+     * Send the crop Intent
+     *
+     * @param activityResultLauncher used to launch {@link UCropActivity} and receive a result
+     */
+    public void start(@NonNull Context context,
+                      @NonNull ActivityResultLauncher<Intent> activityResultLauncher) {
+        activityResultLauncher.launch(getIntent(context));
     }
 
     /**
