@@ -45,7 +45,7 @@
                 if (result.getResultCode() == RESULT_OK) {
                     final Uri resultUri = UCrop.getOutput(result.getData());
                 } else if (result.getResultCode() == UCrop.RESULT_ERROR) {
-            final Throwable cropError = UCrop.getError(result.getData());
+                    final Throwable cropError = UCrop.getError(result.getData());
                 }
             });
     ```
