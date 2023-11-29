@@ -37,28 +37,28 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     ```
 
-3. The uCrop configuration is created using the builder pattern.
-
-	```java
-    UCrop.of(sourceUri, destinationUri)
-        .withAspectRatio(16, 9)
-        .withMaxResultSize(maxWidth, maxHeight)
-        .start(context);
-    ```
-
-
-4. Override `onActivityResult` method and handle uCrop result.
+3. Register a callback for the uCrop result.
 
     ```java
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
-            final Uri resultUri = UCrop.getOutput(data);
-        } else if (resultCode == UCrop.RESULT_ERROR) {
-            final Throwable cropError = UCrop.getError(data);
-        }
-    }
+    private ActivityResultLauncher<Intent> activityResultLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    final Uri resultUri = UCrop.getOutput(result.getData());
+                } else if (result.getResultCode() == UCrop.RESULT_ERROR) {
+            final Throwable cropError = UCrop.getError(result.getData());
+                }
+            });
     ```
+
+4. Create the uCrop configuration using the builder pattern.
+
+   ```java
+   UCrop.of(sourceUri, destinationUri)
+       .withAspectRatio(16, 9)
+       .withMaxResultSize(maxWidth, maxHeight)
+       .start(context, activityResultLauncher);
+   ```
+
 5. You may want to add this to your PROGUARD config:
 
     ```
