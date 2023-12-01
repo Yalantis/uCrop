@@ -24,9 +24,9 @@
 	}
 	```
 
-    ``` implementation 'com.github.yalantis:ucrop:2.2.9' ``` - lightweight general solution
+    ``` implementation 'com.github.yalantis:ucrop:2.2.8' ``` - lightweight general solution
 
-    ``` implementation 'com.github.yalantis:ucrop:2.2.9-native' ``` - get power of the native code to preserve image quality (+ about 1.5 MB to an apk size)
+    ``` implementation 'com.github.yalantis:ucrop:2.2.8-native' ``` - get power of the native code to preserve image quality (+ about 1.5 MB to an apk size)
 
 2. Add UCropActivity into your AndroidManifest.xml
 
@@ -37,27 +37,27 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     ```
 
-3. Register a callback for the uCrop result.
-
-    ```java
-    private ActivityResultLauncher<Intent> activityResultLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    final Uri resultUri = UCrop.getOutput(result.getData());
-                } else if (result.getResultCode() == UCrop.RESULT_ERROR) {
-                    final Throwable cropError = UCrop.getError(result.getData());
-                }
-            });
-    ```
-
-4. Create the uCrop configuration using the builder pattern.
+3. The uCrop configuration is created using the builder pattern.
 
    ```java
    UCrop.of(sourceUri, destinationUri)
        .withAspectRatio(16, 9)
        .withMaxResultSize(maxWidth, maxHeight)
-       .start(context, activityResultLauncher);
+       .start(context);
    ```
+
+4. Override `onActivityResult` method and handle uCrop result.
+
+    ```java
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+            final Uri resultUri = UCrop.getOutput(data);
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            final Throwable cropError = UCrop.getError(data);
+        }
+    }
+    ```
 
 5. You may want to add this to your PROGUARD config:
 
@@ -92,13 +92,6 @@ Currently, you can change:
   * CPU - armeabi armeabi-v7a x86 x86_64 arm64-v8a (for versions >= 2.1.2)
 
 # Changelog
-
-### Version: 2.2.9
-
-*   Update compileSdk and targetSdk versions up to 33
-*   Fixed [#867](https://github.com/Yalantis/uCrop/issues/867)
-*   Fixed [#873](https://github.com/Yalantis/uCrop/issues/873)
-*   And other improvements
 
 ### Version: 2.2.8
 
