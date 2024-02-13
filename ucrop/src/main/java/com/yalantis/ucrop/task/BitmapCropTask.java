@@ -204,7 +204,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         }
     }
 
-    private void saveImage(@NonNull Bitmap croppedBitmap) {
+    private void saveImage(@NonNull Bitmap croppedBitmap) throws IOException {
         Context context = mContext.get();
         if (context == null) {
             return;
@@ -220,6 +220,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
             croppedBitmap.recycle();
         } catch (IOException exc) {
             Log.e(TAG, exc.getLocalizedMessage());
+            throw exc;
         } finally {
             BitmapLoadUtils.close(outputStream);
             BitmapLoadUtils.close(outStream);
