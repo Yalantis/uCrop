@@ -3,18 +3,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:visibility="gone"
     tools:showIn="@layout/ucrop_controls"
-    tools:visibility="gone">
+    tools:visibility="visible">
 
     <TextView
         android:id="@+id/text_view_scale"
         style="@style/ucrop_TextViewWidgetText"
+        android:contentDescription="@string/ucrop_ucrop_text_view_scale_content_description"
         android:text="100%" />
 
     <com.yalantis.ucrop.view.widget.HorizontalProgressWheelView
         android:id="@+id/scale_scroll_wheel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/text_view_scale" />
+        android:layout_below="@+id/text_view_scale"
+        android:layout_toStartOf="@+id/wrapper_plus_scale"
+        android:layout_toLeftOf="@+id/wrapper_plus_scale"
+        android:layout_toEndOf="@+id/wrapper_minus_scale"
+        android:layout_toRightOf="@+id/wrapper_minus_scale" />
+
+    <FrameLayout
+        android:id="@+id/wrapper_minus_scale"
+        style="@style/ucrop_WrapperScaleButton"
+        android:layout_centerVertical="true"
+        android:contentDescription="@string/ucrop_wrapper_minus_scale_content_description"
+        android:background="?attr/selectableItemBackground">
+
+        <TextView
+            android:id="@+id/text_view_scale_symbol_minus"
+            style="@style/ucrop_TextViewWidgetScaleText"
+            android:text="-" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/wrapper_plus_scale"
+        style="@style/ucrop_WrapperScaleButton"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:contentDescription="@string/ucrop_wrapper_plus_scale_content_description"
+        android:background="?attr/selectableItemBackground">
+
+        <TextView
+            android:id="@+id/text_view_scale_symbol_plus"
+            style="@style/ucrop_TextViewWidgetScaleText"
+            android:text="+" />
+
+    </FrameLayout>
 
 </RelativeLayout>

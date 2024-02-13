@@ -1,12 +1,28 @@
 <resources>
-
     <string name="ucrop_label_original">Original</string>
     <string name="ucrop_label_edit_photo">Editar Foto</string>
 
-    <string name="ucrop_menu_crop">Cortar</string>
+    <string name="ucrop_menu_crop">Recortar</string>
+
+    <string name="ucrop_navigation_icon_left_content_description">cierra editor de fotos</string>
+    <string name="ucrop_navigation_icon_right_content_description">acepta la imagen recortada. Botón</string>
+    <string name="ucrop_navigation_icon_right_loader_content_description">ruleta de cargando foto</string>
 
     <string name="ucrop_rotate">Rotar</string>
+    <string name="ucrop_rotate_content_description">función para rotar foto. Una vez seleccionado, vuelve atrás en tus acciones y podrás rotar tu foto</string>
+    <string name="ucrop_ucrop_text_view_rotate_content_description">grados de la rotación de la foto</string>
+    <string name="ucrop_wrapper_reset_rotate_content_description">función de reinicio de rotación de foto</string>
+    <string name="ucrop_wrapper_rotate_by_angle_content_description">función de rotación de la foto 90 grados</string>
     <string name="ucrop_scale">Escalar</string>
-    <string name="ucrop_crop">Cortar</string>
-
+    <string name="ucrop_ucrop_text_view_scale_content_description">porcentaje de escalado de la foto</string>
+    <string name="ucrop_wrapper_minus_scale_content_description">desescala un porcentaje de la foto</string>
+    <string name="ucrop_wrapper_plus_scale_content_description">escala un porcentaje de la foto</string>
+    <string name="ucrop_scale_content_description">función para escalar fotos</string>
+    <string name="ucrop_crop">Recortar</string>
+    <string name="ucrop_crop_aspect_ratio_content_description_0">factor forma uno por uno</string>
+    <string name="ucrop_crop_aspect_ratio_content_description_1">factor forma tres cuartos</string>
+    <string name="ucrop_crop_aspect_ratio_content_description_2">factor forma original</string>
+    <string name="ucrop_crop_aspect_ratio_content_description_3">factor forma tres medios</string>
+    <string name="ucrop_crop_aspect_ratio_content_description_4">factor forma 16 novenos</string>
+    <string name="ucrop_crop_content_description">función para recortar fotos. Una vez seleccionado, vuelve atrás en tus acciones y podrás seleccionar distintos formatos de recorte de foto</string>
 </resources>

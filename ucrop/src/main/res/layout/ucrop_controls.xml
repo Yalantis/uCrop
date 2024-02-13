@@ -53,6 +53,7 @@
 
         <LinearLayout
             android:id="@+id/state_aspect_ratio"
+            android:contentDescription="@string/ucrop_crop_content_description"
             style="@style/ucrop_WrapperIconState">
 
             <ImageView
@@ -71,6 +72,7 @@
 
         <LinearLayout
             android:id="@+id/state_rotate"
+            android:contentDescription="@string/ucrop_rotate_content_description"
             style="@style/ucrop_WrapperIconState">
 
             <ImageView
@@ -87,6 +89,7 @@
 
         <LinearLayout
             android:id="@+id/state_scale"
+            android:contentDescription="@string/ucrop_scale_content_description"
             style="@style/ucrop_WrapperIconState">
 
             <ImageView

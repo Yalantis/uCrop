@@ -350,7 +350,7 @@ public class UCropActivity extends AppCompatActivity {
         Drawable stateButtonDrawable = ContextCompat.getDrawable(this, mToolbarCancelDrawable).mutate();
         stateButtonDrawable.setColorFilter(mToolbarWidgetColor, PorterDuff.Mode.SRC_ATOP);
         toolbar.setNavigationIcon(stateButtonDrawable);
-
+        toolbar.setNavigationContentDescription(getString(R.string.ucrop_navigation_icon_left_content_description));
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -455,9 +455,16 @@ public class UCropActivity extends AppCompatActivity {
         AspectRatioTextView aspectRatioTextView;
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT);
         lp.weight = 1;
-        for (AspectRatio aspectRatio : aspectRatioList) {
+        final int size = aspectRatioList.size();
+        for (int i = 0; i < size; i++) {
+            AspectRatio aspectRatio = aspectRatioList.get(i);
             wrapperAspectRatio = (FrameLayout) getLayoutInflater().inflate(R.layout.ucrop_aspect_ratio, null);
             wrapperAspectRatio.setLayoutParams(lp);
+
+            //TODO: me faltan el boton da validar y cerrar, explicacion alomejor de editar foto
+
+            wrapperAspectRatio.setContentDescription(getString(getResources().getIdentifier("ucrop_crop_aspect_ratio_content_description_" + i, "string", getPackageName())));
+
             aspectRatioTextView = ((AspectRatioTextView) wrapperAspectRatio.getChildAt(0));
             aspectRatioTextView.setActiveColor(mActiveControlsWidgetColor);
             aspectRatioTextView.setAspectRatio(aspectRatio);
@@ -550,6 +557,20 @@ public class UCropActivity extends AppCompatActivity {
                 });
         ((HorizontalProgressWheelView) findViewById(R.id.scale_scroll_wheel)).setMiddleLineColor(mActiveControlsWidgetColor);
 
+        findViewById(R.id.wrapper_plus_scale).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scaleByPercent(100);
+            }
+        });
+
+        findViewById(R.id.wrapper_minus_scale).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scaleByPercent(-100);
+            }
+        });
+
         setScaleTextColor(mActiveControlsWidgetColor);
     }
 
@@ -585,6 +606,16 @@ public class UCropActivity extends AppCompatActivity {
     private void rotateByAngle(int angle) {
         mGestureCropImageView.postRotate(angle);
         mGestureCropImageView.setImageToWrapCropBounds();
+    }
+
+    private void scaleByPercent(int percent) {
+        if (percent > 0) {
+            mGestureCropImageView.zoomInImage(mGestureCropImageView.getCurrentScale()
+                    + percent * ((mGestureCropImageView.getMaxScale() - mGestureCropImageView.getMinScale()) / SCALE_WIDGET_SENSITIVITY_COEFFICIENT));
+        } else {
+            mGestureCropImageView.zoomOutImage(mGestureCropImageView.getCurrentScale()
+                    + percent * ((mGestureCropImageView.getMaxScale() - mGestureCropImageView.getMinScale()) / SCALE_WIDGET_SENSITIVITY_COEFFICIENT));
+        }
     }
 
     private final View.OnClickListener mStateClickListener = new View.OnClickListener() {

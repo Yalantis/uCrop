@@ -22,6 +22,7 @@
     <color name="ucrop_color_inactive_aspect_ratio">@color/ucrop_color_ebony_clay</color>
     <color name="ucrop_color_widget_background">@color/ucrop_color_ebony_clay</color>
     <color name="ucrop_color_widget_text">@color/ucrop_color_blaze_orange</color>
+    <color name="ucrop_color_widget_scale_text">@color/ucrop_color_default_control</color>
     <color name="ucrop_color_progress_wheel_line">@color/ucrop_color_ebony_clay</color>
     <color name="ucrop_color_crop_background">@color/ucrop_color_black</color>
 
@@ -30,5 +31,6 @@
     <color name="ucrop_color_default_crop_frame">#ffffff</color>
     <color name="ucrop_color_default_dimmed">#8c000000</color>
     <color name="ucrop_color_default_logo">#4f212121</color>
+    <color name="ucrop_color_default_control">#181B23</color>
 
 </resources>

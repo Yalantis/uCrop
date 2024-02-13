@@ -26,6 +26,17 @@
         <item name="android:clickable">true</item>
     </style>
 
+    <style name="ucrop_ToolbarValidButton">
+        <item name="android:clickable">true</item>
+    </style>
+
+    <style name="ucrop_WrapperScaleButton">
+        <item name="android:layout_width">@dimen/ucrop_size_wrapper_scale_button</item>
+        <item name="android:layout_height">@dimen/ucrop_size_wrapper_scale_button</item>
+        <item name="background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:clickable">true</item>
+    </style>
+
     <style name="ucrop_TextViewCropAspectRatio">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/ucrop_height_crop_aspect_ratio_text</item>
@@ -52,6 +63,18 @@
         <item name="android:textColor">@color/ucrop_color_widget_active</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/ucrop_text_size_controls_text</item>
+    </style>
+
+    <style name="ucrop_TextViewWidgetScaleText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:clickable">true</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:duplicateParentState">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/ucrop_color_widget_scale_text</item>
+        <item name="android:textSize">@dimen/ucrop_text_size_controls_scale_text</item>
     </style>
 
 </resources>
