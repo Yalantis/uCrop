@@ -567,7 +567,10 @@ public class UCropActivity extends AppCompatActivity {
 
     private void setScaleText(float scale) {
         if (mTextViewScalePercent != null) {
-            mTextViewScalePercent.setText(String.format(Locale.getDefault(), "%d%%", (int) (scale * 100)));
+            float initialScale = mGestureCropImageView.getInitialMinScale();
+            mTextViewScalePercent.setText(
+                String.format(Locale.getDefault(), "%.2f%%", (scale/ initialScale * 100))
+            );
         }
     }
 
