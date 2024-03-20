@@ -1,5 +1,4 @@
-/*
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 def sonatypeRepositoryUrl
@@ -21,73 +20,76 @@ def getRepositoryPassword() {
     return hasProperty('nexusPassword') ? nexusPassword : ""
 }
 
-afterEvaluate { project ->
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-                pom.artifactId = POM_ARTIFACT_ID
+tasks.register('androidJavadocs', Javadoc) {
+    source = android.sourceSets.main.java.sourceFiles
+}
 
-                repository(url: sonatypeRepositoryUrl) {
-                    authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+tasks.register('androidJavadocsJar', Jar) {
+    classifier = 'javadoc'
+    //basename = artifact_id
+    from androidJavadocs.destinationDir
+}
+
+tasks.register('androidSourcesJar', Jar) {
+    classifier = 'sources'
+    //basename = artifact_id
+    from android.sourceSets.main.java.sourceFiles
+}
+
+publishing {
+    repositories {
+        maven {
+            url = sonatypeRepositoryUrl
+            credentials {
+                username = getRepositoryUsername()
+                password = getRepositoryPassword()
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            afterEvaluate { project ->
+                from components.release
+                artifact androidSourcesJar
+                artifact androidJavadocsJar
+                version = project.version
+            }
+
+            pom {
+                name = POM_NAME
+                packaging = POM_PACKAGING
+                description = POM_DESCRIPTION
+                url = POM_URL
+                scm {
+                    url = POM_SCM_URL
+                    connection = POM_SCM_CONNECTION
+                    developerConnection = POM_SCM_DEV_CONNECTION
                 }
 
-                pom.project {
-                    name POM_NAME
-                    packaging POM_PACKAGING
-                    description POM_DESCRIPTION
-                    url POM_URL
-
-                    scm {
-                        url POM_SCM_URL
-                        connection POM_SCM_CONNECTION
-                        developerConnection POM_SCM_DEV_CONNECTION
+                licenses {
+                    license {
+                        name = POM_LICENCE_NAME
+                        url = POM_LICENCE_URL
+                        distribution = POM_LICENCE_DIST
                     }
+                }
 
-                    licenses {
-                        license {
-                            name POM_LICENCE_NAME
-                            url POM_LICENCE_URL
-                            distribution POM_LICENCE_DIST
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id POM_DEVELOPER_ID
-                            name POM_DEVELOPER_NAME
-                        }
+                developers {
+                    developer {
+                        id = POM_DEVELOPER_ID
+                        name = POM_DEVELOPER_NAME
                     }
                 }
             }
         }
     }
+}
 
-    signing {
-        required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
-        sign configurations.archives
-    }
 
-    task androidJavadocs(type: Javadoc) {
-        source = android.sourceSets.main.java.sourceFiles
-    }
+signing {
+    required { isReleaseBuild() && gradle.taskGraph.hasTask("publishing") }
+    sign publishing.publications.maven
+    sign configurations.archives
+}
 
-    task androidJavadocsJar(type: Jar) {
-        classifier = 'javadoc'
-        //basename = artifact_id
-        from androidJavadocs.destinationDir
-    }
-
-    task androidSourcesJar(type: Jar) {
-        classifier = 'sources'
-        //basename = artifact_id
-        from android.sourceSets.main.java.sourceFiles
-    }
-
-    artifacts {
-        //archives packageReleaseJar
-        archives androidSourcesJar
-        archives androidJavadocsJar
-    }
-}*/
