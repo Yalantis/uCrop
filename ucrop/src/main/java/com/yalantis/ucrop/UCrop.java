@@ -2,7 +2,6 @@ package com.yalantis.ucrop;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -24,6 +23,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
