@@ -68,6 +68,7 @@ public class UCrop {
 
     private UCrop(@NonNull Uri source, @NonNull Uri destination) {
         mCropIntent = new Intent();
+        mCropIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         mCropOptionsBundle = new Bundle();
         mCropOptionsBundle.putParcelable(EXTRA_INPUT_URI, source);
         mCropOptionsBundle.putParcelable(EXTRA_OUTPUT_URI, destination);
