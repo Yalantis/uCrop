@@ -208,6 +208,9 @@ We’d be really happy if you sent us links to your projects where you use our c
 
     Copyright 2017, Yalantis
 
+    Software doesn't collect, store or transfer data to Yalantis or third parties.
+    Emplacement of this Software is carried out locally at device.
+
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
