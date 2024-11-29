@@ -59,13 +59,7 @@
     }
     ```
 
-5. You may want to add this to your PROGUARD config:
-
-    ```
-    -dontwarn com.yalantis.ucrop**
-    -keep class com.yalantis.ucrop** { *; }
-    -keep interface com.yalantis.ucrop** { *; }
-    ```
+5. The specific rules are [already bundled](ucrop/proguard-rules.pro) into the aar which can be interpreted by R8 automatically.
 
 # Customization
 

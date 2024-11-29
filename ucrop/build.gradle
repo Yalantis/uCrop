@@ -8,7 +8,7 @@ android {
         targetSdkVersion 33
         versionCode 27
         versionName "2.2.9-native"
-
+        consumerProguardFiles 'proguard-rules.pro'
         vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
