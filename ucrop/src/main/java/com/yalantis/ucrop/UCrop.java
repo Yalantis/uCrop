@@ -298,6 +298,8 @@ public class UCrop {
         public static final String EXTRA_UCROP_COLOR_CONTROLS_WIDGET_ACTIVE = EXTRA_PREFIX + ".UcropColorControlsWidgetActive";
 
         public static final String EXTRA_UCROP_WIDGET_COLOR_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarWidgetColor";
+        public static final String EXTRA_UCROP_TITLE_GRAVITY_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarTitleGravity";
+        public static final String EXTRA_UCROP_TITLE_SIZE_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarTitleSize";
         public static final String EXTRA_UCROP_TITLE_TEXT_TOOLBAR = EXTRA_PREFIX + ".UcropToolbarTitleText";
         public static final String EXTRA_UCROP_WIDGET_CANCEL_DRAWABLE = EXTRA_PREFIX + ".UcropToolbarCancelDrawable";
         public static final String EXTRA_UCROP_WIDGET_CROP_DRAWABLE = EXTRA_PREFIX + ".UcropToolbarCropDrawable";
@@ -325,7 +327,7 @@ public class UCrop {
         }
 
         /**
-         * Set one of {@link android.graphics.Bitmap.CompressFormat} that will be used to save resulting Bitmap.
+         * Set one of {@link Bitmap.CompressFormat} that will be used to save resulting Bitmap.
          */
         public void setCompressionFormat(@NonNull Bitmap.CompressFormat format) {
             mOptionBundle.putString(EXTRA_COMPRESSION_FORMAT_NAME, format.name());
@@ -477,6 +479,21 @@ public class UCrop {
          */
         public void setToolbarWidgetColor(@ColorInt int color) {
             mOptionBundle.putInt(EXTRA_UCROP_WIDGET_COLOR_TOOLBAR, color);
+        }
+
+        /**
+         * @param gravity - desired text for Toolbar title alignment mode
+         * @see android.view.Gravity
+         */
+        public void setToolbarTitleTextGravity(@Nullable int gravity) {
+            mOptionBundle.putInt(EXTRA_UCROP_TITLE_GRAVITY_TOOLBAR, gravity);
+        }
+
+        /**
+         * @param textSize - desired text for Toolbar title text size
+         */
+        public void setToolbarTitleTextSize(@Nullable Float textSize) {
+            mOptionBundle.putFloat(EXTRA_UCROP_TITLE_SIZE_TOOLBAR, textSize);
         }
 
         /**
