@@ -101,4 +101,11 @@
 
         </LinearLayout>
     </LinearLayout>
+
+    <View
+        android:id="@+id/bottom_scrim_controls"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/wrapper_states"
+        android:background="@color/ucrop_color_widget_background" />
 </RelativeLayout>
