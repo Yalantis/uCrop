@@ -128,18 +128,13 @@ public class UCropActivity extends AppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        EdgeToEdge.enable(
-                this,
-                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
-                SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
-        );
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ucrop_activity_photobox);
-        applyWindowInsets();
-
         final Intent intent = getIntent();
 
         setupViews(intent);
+        applyWindowInsets();
         setImageData(intent);
         setInitialState();
         addBlockingView();
@@ -203,18 +198,17 @@ public class UCropActivity extends AppCompatActivity {
     }
 
     private void applyWindowInsets() {
-        View root = findViewById(R.id.ucrop_photobox);
-        ViewCompat.setOnApplyWindowInsetsListener(root, (view, windowInsets) -> {
+        View toolbar = findViewById(R.id.toolbar);
+        View wrapperStates = findViewById(R.id.wrapper_states);
+        ViewCompat.setOnApplyWindowInsetsListener(toolbar, (view, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-
-            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
-            layoutParams.leftMargin = insets.left;
-            layoutParams.bottomMargin = insets.bottom;
-            layoutParams.rightMargin = insets.right;
-            layoutParams.topMargin = insets.top;
-            view.setLayoutParams(layoutParams);
-
-            return WindowInsetsCompat.CONSUMED;
+            view.setPadding(insets.left, insets.top, insets.right, 0);
+            return windowInsets;
+        });
+        ViewCompat.setOnApplyWindowInsetsListener(wrapperStates, (view, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            view.setPadding(insets.left, 0, insets.right, insets.bottom);
+            return windowInsets;
         });
     }
 
