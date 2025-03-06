@@ -10,7 +10,6 @@
 
     <!--uCrop Activity-->
     <color name="ucrop_color_toolbar">@color/ucrop_color_white</color>
-    <color name="ucrop_color_statusbar">#f5f5f5</color>
     <color name="ucrop_color_toolbar_widget">@color/ucrop_color_black</color>
     <color name="ucrop_color_widget">@color/ucrop_color_black</color>
     <color name="ucrop_color_widget_active">@color/ucrop_color_white</color>
