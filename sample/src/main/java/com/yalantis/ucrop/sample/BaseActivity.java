@@ -34,21 +34,6 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected void applyWindowInsets(View target) {
-        ViewCompat.setOnApplyWindowInsetsListener(target, (view, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-
-            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
-            layoutParams.leftMargin = insets.left;
-            layoutParams.bottomMargin = insets.bottom;
-            layoutParams.rightMargin = insets.right;
-            layoutParams.topMargin = insets.top;
-            view.setLayoutParams(layoutParams);
-
-            return WindowInsetsCompat.CONSUMED;
-        });
-    }
-
     /**
      * Requests given permission.
      * If the permission has been denied previously, a Dialog will prompt the user to grant the

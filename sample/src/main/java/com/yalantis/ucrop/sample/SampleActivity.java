@@ -82,14 +82,12 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        EdgeToEdge.enable(
-                this,
+        EdgeToEdge.enable(this,
                 SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
                 SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
         );
         super.onCreate(savedInstanceState);
         setContentView(com.yalantis.ucrop.sample.R.layout.activity_sample);
-        applyWindowInsets(findViewById(R.id.root_sample));
         setupUI();
     }
 
