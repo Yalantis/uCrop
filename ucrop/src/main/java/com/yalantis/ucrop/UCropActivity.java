@@ -56,6 +56,10 @@ import androidx.transition.AutoTransition;
 import androidx.transition.Transition;
 import androidx.transition.TransitionManager;
 
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
  */
@@ -350,6 +354,22 @@ public class UCropActivity extends AppCompatActivity {
         Drawable stateButtonDrawable = ContextCompat.getDrawable(this, mToolbarCancelDrawable).mutate();
         stateButtonDrawable.setColorFilter(mToolbarWidgetColor, PorterDuff.Mode.SRC_ATOP);
         toolbar.setNavigationIcon(stateButtonDrawable);
+
+        //Adjust Toolbar padding so that it does not overlap system bars when edge to edge display is enabled
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.ucrop_photobox), (v, insets )-> {
+            Insets sysBar = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars());
+
+            v.setPadding(
+                    sysBar.left,
+                    sysBar.top,
+                    sysBar.right,
+                    sysBar.bottom);
+
+            v.setBackgroundColor(mToolbarColor);
+
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
