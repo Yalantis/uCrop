@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply from: '../mavenpush.gradle'
 
 android {
-    compileSdk 35
+    compileSdk 36
     namespace "com.yalantis.ucrop"
 
     defaultConfig {
