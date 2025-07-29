@@ -10,6 +10,14 @@ android {
         versionName "2.2.9-native"
 
         vectorDrawables.useSupportLibrary = true
+
+        externalNativeBuild {
+        // For ndk-build, instead use the ndkBuild block.
+            cmake {
+                // Passes optional arguments to CMake.
+                arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+            }
+        }
     }
     buildTypes {
         release {
