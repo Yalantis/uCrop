@@ -469,6 +469,8 @@ public class CropImageView extends TransformImageView {
 
         mMinScale = Math.min(widthScale, heightScale);
         mMaxScale = mMinScale * mMaxScaleMultiplier;
+        float currentScale = getCurrentScale();
+        if (mMaxScale < currentScale) mMaxScale = currentScale;
     }
 
     /**
