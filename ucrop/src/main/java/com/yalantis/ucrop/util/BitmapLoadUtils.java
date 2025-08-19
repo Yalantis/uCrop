@@ -53,6 +53,19 @@ public class BitmapLoadUtils {
         return bitmap;
     }
 
+    public static void decodeDimensions(@NonNull Context context, @NonNull Uri uri, @NonNull BitmapFactory.Options options) {
+        options.inJustDecodeBounds = true;
+        try {
+            InputStream is = context.getContentResolver().openInputStream(uri);
+            try {
+                BitmapFactory.decodeStream(is, null, options);
+            } finally {
+                BitmapLoadUtils.close(is);
+            }
+        } catch (IOException ignored) {
+        }
+    }
+
     public static int calculateInSampleSize(@NonNull BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
