@@ -8,7 +8,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 36
         versionCode 13
-        versionName "1.2.4"
+        versionName "1.2.5"
     }
     flavorDimensions "default"
     buildTypes {
