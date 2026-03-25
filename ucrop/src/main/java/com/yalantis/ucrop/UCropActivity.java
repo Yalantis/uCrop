@@ -285,6 +285,16 @@ public class UCropActivity extends AppCompatActivity {
             mGestureCropImageView.setMaxResultImageSizeX(maxSizeX);
             mGestureCropImageView.setMaxResultImageSizeY(maxSizeY);
         }
+
+        // Initial crop rect — position the crop rectangle from Intent extras
+        float cropRectX      = intent.getFloatExtra(UCrop.EXTRA_CROP_RECT_X,      -1f);
+        float cropRectY      = intent.getFloatExtra(UCrop.EXTRA_CROP_RECT_Y,      -1f);
+        float cropRectWidth  = intent.getFloatExtra(UCrop.EXTRA_CROP_RECT_WIDTH,  -1f);
+        float cropRectHeight = intent.getFloatExtra(UCrop.EXTRA_CROP_RECT_HEIGHT, -1f);
+
+        if (cropRectX >= 0 && cropRectY >= 0 && cropRectWidth > 0 && cropRectHeight > 0) {
+            mOverlayView.setCropRect(cropRectX, cropRectY, cropRectWidth, cropRectHeight);
+        }
     }
 
     private void setupSystemBars(@NonNull Intent intent) {

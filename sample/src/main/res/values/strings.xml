@@ -15,6 +15,11 @@
     <string name="label_resize_image_to_max_size">Resize image to max size</string>
     <string name="label_hide_bottom_ui_controls">Hide bottom UI controls</string>
     <string name="label_freestyle_crop">Freestyle crop</string>
+    <string name="label_initial_crop_rect">Initial crop rect (x, y, width, height)</string>
+    <string name="label_crop_x">X</string>
+    <string name="label_crop_y">Y</string>
+    <string name="label_crop_w">Width</string>
+    <string name="label_crop_h">Height</string>
     <string name="label_select_picture">Select Picture</string>
     <string name="label_cancel">Cancel</string>
     <string name="label_ok">OK</string>

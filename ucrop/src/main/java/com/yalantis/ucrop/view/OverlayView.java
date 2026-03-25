@@ -73,6 +73,7 @@ public class OverlayView extends View {
 
     private boolean mShouldSetupCropBounds;
     private boolean mShouldSetupCustomCropBounds;
+    private boolean mHasCustomCropBounds;
     private float mPendingCropX, mPendingCropY, mPendingCropWidth, mPendingCropHeight;
 
     {
@@ -231,6 +232,10 @@ public class OverlayView extends View {
         mTargetAspectRatio = targetAspectRatio;
         if (mThisWidth > 0) {
             setupCropBounds();
+            // Re-apply custom rect immediately if set — overrides the aspect-ratio-based bounds
+            if (mHasCustomCropBounds) {
+                applyCustomCropBounds(mPendingCropX, mPendingCropY, mPendingCropWidth, mPendingCropHeight);
+            }
             postInvalidate();
         } else {
             mShouldSetupCropBounds = true;
@@ -271,14 +276,15 @@ public class OverlayView extends View {
      * @param height desired height (must be > 0)
      */
     public void setCropRect(float x, float y, float width, float height) {
+        mPendingCropX = x;
+        mPendingCropY = y;
+        mPendingCropWidth = width;
+        mPendingCropHeight = height;
+        mHasCustomCropBounds = true;
         if (mThisWidth > 0) {
             applyCustomCropBounds(x, y, width, height);
         } else {
             mShouldSetupCustomCropBounds = true;
-            mPendingCropX = x;
-            mPendingCropY = y;
-            mPendingCropWidth = width;
-            mPendingCropHeight = height;
         }
     }
 
@@ -329,7 +335,11 @@ public class OverlayView extends View {
             if (mShouldSetupCropBounds) {
                 mShouldSetupCropBounds = false;
                 setTargetAspectRatio(mTargetAspectRatio);
-            } else if (mShouldSetupCustomCropBounds) {
+            }
+            // Custom rect always runs after (and overrides) the aspect-ratio bounds.
+            // mShouldSetupCustomCropBounds handles the first deferred call;
+            // mHasCustomCropBounds re-applies on every subsequent layout (e.g. after image load).
+            if (mShouldSetupCustomCropBounds || mHasCustomCropBounds) {
                 mShouldSetupCustomCropBounds = false;
                 applyCustomCropBounds(mPendingCropX, mPendingCropY, mPendingCropWidth, mPendingCropHeight);
             }

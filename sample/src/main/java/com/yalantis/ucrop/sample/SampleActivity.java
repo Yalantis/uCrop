@@ -66,6 +66,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
     private TextView mTextViewQuality;
     private CheckBox mCheckBoxHideBottomControls;
     private CheckBox mCheckBoxFreeStyleCrop;
+    private EditText mEditTextCropX, mEditTextCropY, mEditTextCropWidth, mEditTextCropHeight;
     private Toolbar toolbar;
     private ScrollView settingsView;
     private int requestMode = BuildConfig.RequestMode;
@@ -185,6 +186,11 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         mCheckBoxHideBottomControls = findViewById(R.id.checkbox_hide_bottom_controls);
         mCheckBoxFreeStyleCrop = findViewById(R.id.checkbox_freestyle_crop);
 
+        mEditTextCropX      = findViewById(R.id.edit_text_crop_x);
+        mEditTextCropY      = findViewById(R.id.edit_text_crop_y);
+        mEditTextCropWidth  = findViewById(R.id.edit_text_crop_width);
+        mEditTextCropHeight = findViewById(R.id.edit_text_crop_height);
+
         mRadioGroupAspectRatio.check(R.id.radio_dynamic);
         mEditTextRatioX.addTextChangedListener(mAspectRatioTextWatcher);
         mEditTextRatioY.addTextChangedListener(mAspectRatioTextWatcher);
@@ -289,6 +295,24 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
             } catch (NumberFormatException e) {
                 Log.e(TAG, "Number please", e);
             }
+        }
+
+        // Apply initial crop rect if all 4 fields are filled
+        try {
+            String sX = mEditTextCropX.getText().toString().trim();
+            String sY = mEditTextCropY.getText().toString().trim();
+            String sW = mEditTextCropWidth.getText().toString().trim();
+            String sH = mEditTextCropHeight.getText().toString().trim();
+            if (!sX.isEmpty() && !sY.isEmpty() && !sW.isEmpty() && !sH.isEmpty()) {
+                uCrop = uCrop.withInitialCropRect(
+                        Float.parseFloat(sX),
+                        Float.parseFloat(sY),
+                        Float.parseFloat(sW),
+                        Float.parseFloat(sH)
+                );
+            }
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Invalid crop rect values", e);
         }
 
         return uCrop;

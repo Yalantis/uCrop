@@ -194,6 +194,74 @@
                 android:layout_margin="5dp"
                 android:background="@color/colorAccent" />
 
+            <!-- Initial Crop Rectangle -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/label_initial_crop_rect"
+                android:textAppearance="?android:textAppearanceSmall" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/edit_text_crop_x"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:hint="@string/label_crop_x"
+                    android:inputType="numberDecimal"
+                    android:maxLength="6" />
+
+                <EditText
+                    android:id="@+id/edit_text_crop_y"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:hint="@string/label_crop_y"
+                    android:inputType="numberDecimal"
+                    android:maxLength="6" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/edit_text_crop_width"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:hint="@string/label_crop_w"
+                    android:inputType="numberDecimal"
+                    android:maxLength="6" />
+
+                <EditText
+                    android:id="@+id/edit_text_crop_height"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:hint="@string/label_crop_h"
+                    android:inputType="numberDecimal"
+                    android:maxLength="6" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_margin="5dp"
+                android:background="@color/colorAccent" />
+
             <RadioGroup
                 android:id="@+id/radio_group_compression_settings"
                 android:layout_width="match_parent"
