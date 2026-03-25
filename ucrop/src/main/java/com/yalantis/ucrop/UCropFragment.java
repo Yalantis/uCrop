@@ -1,5 +1,7 @@
 package com.yalantis.ucrop;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -11,11 +13,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.IdRes;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.transition.AutoTransition;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
 
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.model.AspectRatio;
@@ -33,20 +49,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import androidx.annotation.ColorInt;
-import androidx.annotation.IdRes;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.transition.AutoTransition;
-import androidx.transition.Transition;
-import androidx.transition.TransitionManager;
-
-import static android.app.Activity.RESULT_OK;
 
 @SuppressWarnings("ConstantConditions")
 public class UCropFragment extends Fragment {
@@ -90,6 +92,9 @@ public class UCropFragment extends Fragment {
     private List<ViewGroup> mCropAspectRatioViews = new ArrayList<>();
     private TextView mTextViewRotateAngle, mTextViewScalePercent;
     private View mBlockingView;
+
+    private EditText mEditCropX, mEditCropY, mEditCropWidth, mEditCropHeight;
+    private Button mBtnApplyCropRect;
 
     private Bitmap.CompressFormat mCompressFormat = DEFAULT_COMPRESS_FORMAT;
     private int mCompressQuality = DEFAULT_COMPRESS_QUALITY;
@@ -264,6 +269,16 @@ public class UCropFragment extends Fragment {
             mGestureCropImageView.setMaxResultImageSizeX(maxSizeX);
             mGestureCropImageView.setMaxResultImageSizeY(maxSizeY);
         }
+
+        // Initial crop rect (user-defined top-left x, y + width, height)
+        float cropRectX      = bundle.getFloat(UCrop.EXTRA_CROP_RECT_X,      -1f);
+        float cropRectY      = bundle.getFloat(UCrop.EXTRA_CROP_RECT_Y,      -1f);
+        float cropRectWidth  = bundle.getFloat(UCrop.EXTRA_CROP_RECT_WIDTH,  -1f);
+        float cropRectHeight = bundle.getFloat(UCrop.EXTRA_CROP_RECT_HEIGHT, -1f);
+
+        if (cropRectX >= 0 && cropRectY >= 0 && cropRectWidth > 0 && cropRectHeight > 0) {
+            mOverlayView.setCropRect(cropRectX, cropRectY, cropRectWidth, cropRectHeight);
+        }
     }
 
     private void initiateRootViews(View view) {
@@ -276,6 +291,43 @@ public class UCropFragment extends Fragment {
         ((ImageView) view.findViewById(R.id.image_view_logo)).setColorFilter(mLogoColor, PorterDuff.Mode.SRC_ATOP);
 
         view.findViewById(R.id.ucrop_frame).setBackgroundColor(mRootViewBackgroundColor);
+
+        setupCropRectInputPanel(view, getArguments());
+    }
+
+    private void setupCropRectInputPanel(@NonNull View rootView, @Nullable Bundle args) {
+        mEditCropX      = rootView.findViewById(R.id.edit_crop_x);
+        mEditCropY      = rootView.findViewById(R.id.edit_crop_y);
+        mEditCropWidth  = rootView.findViewById(R.id.edit_crop_width);
+        mEditCropHeight = rootView.findViewById(R.id.edit_crop_height);
+        mBtnApplyCropRect = rootView.findViewById(R.id.btn_apply_crop_rect);
+
+        // Pre-fill from initial values if provided
+        if (args != null) {
+            float x = args.getFloat(UCrop.EXTRA_CROP_RECT_X,      -1f);
+            float y = args.getFloat(UCrop.EXTRA_CROP_RECT_Y,      -1f);
+            float w = args.getFloat(UCrop.EXTRA_CROP_RECT_WIDTH,  -1f);
+            float h = args.getFloat(UCrop.EXTRA_CROP_RECT_HEIGHT, -1f);
+            if (x >= 0) mEditCropX.setText(String.valueOf((int) x));
+            if (y >= 0) mEditCropY.setText(String.valueOf((int) y));
+            if (w  > 0) mEditCropWidth.setText(String.valueOf((int) w));
+            if (h  > 0) mEditCropHeight.setText(String.valueOf((int) h));
+        }
+
+        mBtnApplyCropRect.setOnClickListener(v -> {
+            String sX = mEditCropX.getText().toString().trim();
+            String sY = mEditCropY.getText().toString().trim();
+            String sW = mEditCropWidth.getText().toString().trim();
+            String sH = mEditCropHeight.getText().toString().trim();
+            if (sX.isEmpty() || sY.isEmpty() || sW.isEmpty() || sH.isEmpty()) return;
+            try {
+                float x = Float.parseFloat(sX);
+                float y = Float.parseFloat(sY);
+                float w = Float.parseFloat(sW);
+                float h = Float.parseFloat(sH);
+                mOverlayView.setCropRect(x, y, w, h);
+            } catch (NumberFormatException ignored) { }
+        });
     }
 
     private TransformImageView.TransformImageListener mImageListener = new TransformImageView.TransformImageListener() {

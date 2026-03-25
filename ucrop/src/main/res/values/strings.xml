@@ -11,4 +11,10 @@
     <string name="ucrop_scale">Scale</string>
     <string name="ucrop_crop">Crop</string>
 
+    <string name="ucrop_label_x">X</string>
+    <string name="ucrop_label_y">Y</string>
+    <string name="ucrop_label_width">W</string>
+    <string name="ucrop_label_height">H</string>
+    <string name="ucrop_apply_crop_rect">Apply</string>
+
 </resources>

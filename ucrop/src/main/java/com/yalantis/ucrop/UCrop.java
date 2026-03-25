@@ -53,6 +53,11 @@ public class UCrop {
     public static final String EXTRA_MAX_SIZE_X = EXTRA_PREFIX + ".MaxSizeX";
     public static final String EXTRA_MAX_SIZE_Y = EXTRA_PREFIX + ".MaxSizeY";
 
+    public static final String EXTRA_CROP_RECT_X      = EXTRA_PREFIX + ".CropRectX";
+    public static final String EXTRA_CROP_RECT_Y      = EXTRA_PREFIX + ".CropRectY";
+    public static final String EXTRA_CROP_RECT_WIDTH  = EXTRA_PREFIX + ".CropRectWidth";
+    public static final String EXTRA_CROP_RECT_HEIGHT = EXTRA_PREFIX + ".CropRectHeight";
+
     private Intent mCropIntent;
     private Bundle mCropOptionsBundle;
 
@@ -83,6 +88,23 @@ public class UCrop {
     public UCrop withAspectRatio(float x, float y) {
         mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_X, x);
         mCropOptionsBundle.putFloat(EXTRA_ASPECT_RATIO_Y, y);
+        return this;
+    }
+
+    /**
+     * Set an initial crop rectangle defined by its top-left corner and dimensions
+     * (all values are in view-space pixels).
+     *
+     * @param x      left edge of the desired crop rect
+     * @param y      top edge of the desired crop rect
+     * @param width  width of the crop rect
+     * @param height height of the crop rect
+     */
+    public UCrop withInitialCropRect(float x, float y, float width, float height) {
+        mCropOptionsBundle.putFloat(EXTRA_CROP_RECT_X,      x);
+        mCropOptionsBundle.putFloat(EXTRA_CROP_RECT_Y,      y);
+        mCropOptionsBundle.putFloat(EXTRA_CROP_RECT_WIDTH,  width);
+        mCropOptionsBundle.putFloat(EXTRA_CROP_RECT_HEIGHT, height);
         return this;
     }
 

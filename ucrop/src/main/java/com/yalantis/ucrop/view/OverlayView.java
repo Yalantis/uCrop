@@ -12,17 +12,17 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
+
 import com.yalantis.ucrop.R;
 import com.yalantis.ucrop.callback.OverlayViewChangeListener;
 import com.yalantis.ucrop.util.RectUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
-import androidx.annotation.ColorInt;
-import androidx.annotation.IntDef;
-import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -72,6 +72,8 @@ public class OverlayView extends View {
     private OverlayViewChangeListener mCallback;
 
     private boolean mShouldSetupCropBounds;
+    private boolean mShouldSetupCustomCropBounds;
+    private float mPendingCropX, mPendingCropY, mPendingCropWidth, mPendingCropHeight;
 
     {
         mTouchPointThreshold = getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_rect_corner_touch_threshold);
@@ -259,6 +261,44 @@ public class OverlayView extends View {
         updateGridPoints();
     }
 
+    /**
+     * Sets the crop rectangle from user-supplied coordinates (view-space pixels).
+     * If the view has not been laid out yet, the call is deferred until {@link #onLayout}.
+     *
+     * @param x      left edge of the desired crop rect
+     * @param y      top edge of the desired crop rect
+     * @param width  desired width  (must be > 0)
+     * @param height desired height (must be > 0)
+     */
+    public void setCropRect(float x, float y, float width, float height) {
+        if (mThisWidth > 0) {
+            applyCustomCropBounds(x, y, width, height);
+        } else {
+            mShouldSetupCustomCropBounds = true;
+            mPendingCropX = x;
+            mPendingCropY = y;
+            mPendingCropWidth = width;
+            mPendingCropHeight = height;
+        }
+    }
+
+    private void applyCustomCropBounds(float x, float y, float width, float height) {
+        float maxRight  = mThisWidth  - getPaddingRight();
+        float maxBottom = mThisHeight - getPaddingBottom();
+
+        x = Math.max(getPaddingLeft(), x);
+        y = Math.max(getPaddingTop(),  y);
+        width  = Math.max(mCropRectMinSize, Math.min(width,  maxRight  - x));
+        height = Math.max(mCropRectMinSize, Math.min(height, maxBottom - y));
+
+        mCropViewRect.set(x, y, x + width, y + height);
+        updateGridPoints();
+        postInvalidate();
+        if (mCallback != null) {
+            mCallback.onCropRectUpdated(mCropViewRect);
+        }
+    }
+
     private void updateGridPoints() {
         mCropGridCorners = RectUtils.getCornersFromRect(mCropViewRect);
         mCropGridCenter = RectUtils.getCenterFromRect(mCropViewRect);
@@ -289,6 +329,9 @@ public class OverlayView extends View {
             if (mShouldSetupCropBounds) {
                 mShouldSetupCropBounds = false;
                 setTargetAspectRatio(mTargetAspectRatio);
+            } else if (mShouldSetupCustomCropBounds) {
+                mShouldSetupCustomCropBounds = false;
+                applyCustomCropBounds(mPendingCropX, mPendingCropY, mPendingCropWidth, mPendingCropHeight);
             }
         }
     }

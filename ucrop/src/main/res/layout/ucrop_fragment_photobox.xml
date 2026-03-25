@@ -9,7 +9,7 @@
         android:id="@+id/ucrop_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/controls_wrapper"
+        android:layout_above="@+id/crop_rect_input_panel"
         android:layout_marginBottom="-12dp"
         android:background="@color/ucrop_color_crop_background">
 
@@ -34,7 +34,15 @@
         android:id="@+id/controls_wrapper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/crop_rect_input_panel"
         android:visibility="gone" />
 
+    <include
+        android:id="@+id/crop_rect_input_panel"
+        layout="@layout/ucrop_crop_rect_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
 </RelativeLayout>
+
