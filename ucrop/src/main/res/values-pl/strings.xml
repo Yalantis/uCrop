@@ -1,0 +1,12 @@
+<resources>
+
+    <string name="ucrop_label_original">Oryginał</string>
+    <string name="ucrop_label_edit_photo">Edytuj zdjęcie</string>
+
+    <string name="ucrop_menu_crop">Przytnij</string>
+
+    <string name="ucrop_rotate">Obróć</string>
+    <string name="ucrop_scale">Skaluj</string>
+    <string name="ucrop_crop">Przytnij</string>
+
+</resources>
