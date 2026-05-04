@@ -1,26 +1,6 @@
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
-def sonatypeRepositoryUrl
-if (isReleaseBuild()) {
-    println 'RELEASE BUILD'
-    sonatypeRepositoryUrl = hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
-            : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-} else {
-    println 'DEBUG BUILD'
-    sonatypeRepositoryUrl = hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
-            : "https://oss.sonatype.org/content/repositories/snapshots/"
-}
-
-def getRepositoryUsername() {
-    return hasProperty('nexusUsername') ? nexusUsername : ""
-}
-
-def getRepositoryPassword() {
-    return hasProperty('nexusPassword') ? nexusPassword : ""
-}
-
-
 tasks.register('androidJavadocs', Javadoc) {
     source = android.sourceSets.main.java.sourceFiles
     classpath += project.files(android.getBootClasspath())
@@ -28,26 +8,15 @@ tasks.register('androidJavadocs', Javadoc) {
 
 tasks.register('androidJavadocsJar', Jar) {
     archiveClassifier.set("javadoc")
-    //basename = artifact_id
     from tasks.named('androidJavadocs').get().destinationDir
 }
 
 tasks.register('androidSourcesJar', Jar) {
     archiveClassifier.set("sources")
-    //basename = artifact_id
     from android.sourceSets.main.java.sourceFiles
 }
 
 publishing {
-    repositories {
-        maven {
-            url = sonatypeRepositoryUrl
-            credentials {
-                username = getRepositoryUsername()
-                password = getRepositoryPassword()
-            }
-        }
-    }
     publications {
         maven(MavenPublication) {
             afterEvaluate { project ->
@@ -55,7 +24,6 @@ publishing {
                 if (releaseComponent) {
                     from releaseComponent
                 }
-                artifact tasks.named("bundleReleaseAar")
                 artifact tasks.named('androidSourcesJar').get()
                 artifact tasks.named('androidJavadocsJar').get()
                 version = project.version
@@ -91,9 +59,12 @@ publishing {
     }
 }
 
-
 signing {
     required { isReleaseBuild() && gradle.taskGraph.hasTask("publishing") }
+    def signingInMemoryKey = findProperty('signingInMemoryKey')
+    def signingInMemoryKeyPassword = findProperty('signingInMemoryKeyPassword') ?: ''
+    if (signingInMemoryKey) {
+        useInMemoryPgpKeys(signingInMemoryKey, signingInMemoryKeyPassword)
+    }
     sign publishing.publications.maven
 }
-
