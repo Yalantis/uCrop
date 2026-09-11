@@ -160,7 +160,17 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         mCroppedImageWidth = Math.round(mCropRect.width() / mCurrentScale);
         mCroppedImageHeight = Math.round(mCropRect.height() / mCurrentScale);
 
-        boolean shouldCrop = shouldCrop(mCroppedImageWidth, mCroppedImageHeight);
+        // Rounding the values above can push the crop area a pixel outside of the
+        // source bitmap, which makes Bitmap.createBitmap() throw
+        // "x + width must be <= bitmap.width()" (see issue #408). Clamp the crop
+        // rectangle to the bitmap bounds so it always stays within them.
+        cropOffsetX = Math.max(0, Math.min(cropOffsetX, mViewBitmap.getWidth()));
+        cropOffsetY = Math.max(0, Math.min(cropOffsetY, mViewBitmap.getHeight()));
+        mCroppedImageWidth = Math.max(0, Math.min(mCroppedImageWidth, mViewBitmap.getWidth() - cropOffsetX));
+        mCroppedImageHeight = Math.max(0, Math.min(mCroppedImageHeight, mViewBitmap.getHeight() - cropOffsetY));
+
+        boolean shouldCrop = shouldCrop(mCroppedImageWidth, mCroppedImageHeight)
+                && mCroppedImageWidth > 0 && mCroppedImageHeight > 0;
         Log.i(TAG, "Should crop: " + shouldCrop);
 
         if (shouldCrop) {
