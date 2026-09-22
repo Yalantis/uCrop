@@ -49,19 +49,28 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
     private final String mImageInputPath, mImageOutputPath;
     private final ExifInfo mExifInfo;
     private final BitmapCropCallback mCropCallback;
+    private final boolean mImageLocked;
+    private final boolean mUseAxisMapping;
+    private int mImageWidth, mImageHeight;
 
     private int mCroppedImageWidth, mCroppedImageHeight;
     private int cropOffsetX, cropOffsetY;
 
     public BitmapCropTask(@Nullable Bitmap viewBitmap, @NonNull ImageState imageState, @NonNull CropParameters cropParameters,
                           @Nullable BitmapCropCallback cropCallback) {
+        this(viewBitmap, imageState, cropParameters, cropCallback, false);
+    }
 
+    public BitmapCropTask(@Nullable Bitmap viewBitmap, @NonNull ImageState imageState, @NonNull CropParameters cropParameters,
+                          @Nullable BitmapCropCallback cropCallback, boolean imageLocked) {
+        mImageLocked = imageLocked;
         mViewBitmap = viewBitmap;
         mCropRect = imageState.getCropRect();
         mCurrentImageRect = imageState.getCurrentImageRect();
 
         mCurrentScale = imageState.getCurrentScale();
         mCurrentAngle = imageState.getCurrentAngle();
+        mUseAxisMapping = imageLocked || mCurrentAngle == 0;
         mMaxResultImageSizeX = cropParameters.getMaxResultImageSizeX();
         mMaxResultImageSizeY = cropParameters.getMaxResultImageSizeY();
 
@@ -86,9 +95,8 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
             return new NullPointerException("CurrentImageRect is empty");
         }
 
-        float resizeScale = resize();
-
         try {
+            float resizeScale = resize();
             crop(resizeScale);
             mViewBitmap = null;
         } catch (Throwable throwable) {
@@ -98,10 +106,13 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         return null;
     }
 
-    private float resize() {
+    private float resize() throws IOException {
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(mImageInputPath, options);
+        if (mUseAxisMapping && (options.outWidth <= 0 || options.outHeight <= 0)) {
+            throw new IOException("Cannot read input image dimensions");
+        }
 
         boolean swapSides = mExifInfo.getExifDegrees() == 90 || mExifInfo.getExifDegrees() == 270;
         float scaleX = (swapSides ? options.outHeight : options.outWidth) / (float) mViewBitmap.getWidth();
@@ -115,6 +126,12 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         if (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0) {
             float cropWidth = mCropRect.width() / mCurrentScale;
             float cropHeight = mCropRect.height() / mCurrentScale;
+            if (mUseAxisMapping) {
+                cropWidth = mCropRect.width() / mCurrentImageRect.width()
+                        * (swapSides ? options.outHeight : options.outWidth);
+                cropHeight = mCropRect.height() / mCurrentImageRect.height()
+                        * (swapSides ? options.outWidth : options.outHeight);
+            }
 
             if (cropWidth > mMaxResultImageSizeX || cropHeight > mMaxResultImageSizeY) {
 
@@ -123,6 +140,14 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
                 resizeScale = Math.min(scaleX, scaleY);
 
                 mCurrentScale /= resizeScale;
+            }
+        }
+        if (mUseAxisMapping) {
+            // Native resizing truncates the full image dimensions before cropping.
+            mImageWidth = (int) ((swapSides ? options.outHeight : options.outWidth) * resizeScale);
+            mImageHeight = (int) ((swapSides ? options.outWidth : options.outHeight) * resizeScale);
+            if (mImageWidth < 1 || mImageHeight < 1) {
+                throw new IOException("Maximum result size would reduce an image dimension below one pixel");
             }
         }
         return resizeScale;
@@ -135,6 +160,29 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
         cropOffsetY = Math.round((mCropRect.top - mCurrentImageRect.top) / mCurrentScale);
         mCroppedImageWidth = Math.round(mCropRect.width() / mCurrentScale);
         mCroppedImageHeight = Math.round(mCropRect.height() / mCurrentScale);
+        if (mUseAxisMapping) {
+            // Sampling rounds each axis independently, including in unrotated normal mode.
+            cropOffsetX = Math.max(0, Math.min(Math.round(
+                    (mCropRect.left - mCurrentImageRect.left) / mCurrentImageRect.width() * mImageWidth), mImageWidth));
+            cropOffsetY = Math.max(0, Math.min(Math.round(
+                    (mCropRect.top - mCurrentImageRect.top) / mCurrentImageRect.height() * mImageHeight), mImageHeight));
+            int cropRight = Math.max(0, Math.min(mImageWidth, Math.round(
+                    (mCropRect.right - mCurrentImageRect.left) / mCurrentImageRect.width() * mImageWidth)));
+            int cropBottom = Math.max(0, Math.min(mImageHeight, Math.round(
+                    (mCropRect.bottom - mCurrentImageRect.top) / mCurrentImageRect.height() * mImageHeight)));
+            if (mImageLocked) {
+                mCroppedImageWidth = cropRight - cropOffsetX;
+                mCroppedImageHeight = cropBottom - cropOffsetY;
+                if (mCroppedImageWidth <= 0 || mCroppedImageHeight <= 0) {
+                    throw new IOException("Locked crop rectangle is empty after pixel quantization");
+                }
+            } else {
+                cropOffsetX = Math.min(cropOffsetX, mImageWidth - 1);
+                cropOffsetY = Math.min(cropOffsetY, mImageHeight - 1);
+                mCroppedImageWidth = Math.max(1, cropRight - cropOffsetX);
+                mCroppedImageHeight = Math.max(1, cropBottom - cropOffsetY);
+            }
+        }
 
         boolean shouldCrop = shouldCrop(mCroppedImageWidth, mCroppedImageHeight);
         Log.i(TAG, "Should crop: " + shouldCrop);
@@ -144,6 +192,9 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
                     cropOffsetX, cropOffsetY, mCroppedImageWidth, mCroppedImageHeight,
                     mCurrentAngle, resizeScale, mCompressFormat.ordinal(), mCompressQuality,
                     mExifInfo.getExifDegrees(), mExifInfo.getExifTranslation());
+            if (mImageLocked && !cropped) {
+                throw new IOException("Native image crop failed");
+            }
             if (cropped && mCompressFormat.equals(Bitmap.CompressFormat.JPEG)) {
                 ImageHeaderParser.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, mImageOutputPath);
             }
@@ -163,6 +214,12 @@ public class BitmapCropTask extends AsyncTask<Void, Void, Throwable> {
      * @return - true if image must be cropped, false - if original image fits requirements
      */
     private boolean shouldCrop(int width, int height) {
+        if (mImageLocked) {
+            // Display-space tolerances can swallow real crops when the whole image is fit-center.
+            return (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0)
+                    || cropOffsetX != 0 || cropOffsetY != 0
+                    || width != mImageWidth || height != mImageHeight;
+        }
         int pixelError = 1;
         pixelError += Math.round(Math.max(width, height) / 1000f);
         return (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0)

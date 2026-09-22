@@ -15,6 +15,16 @@
     <string name="label_resize_image_to_max_size">Resize image to max size</string>
     <string name="label_hide_bottom_ui_controls">Hide bottom UI controls</string>
     <string name="label_freestyle_crop">Freestyle crop</string>
+    <string name="label_image_locked">Lock image (drag corners, edges, or interior)</string>
+    <string name="label_initial_crop">Use initial crop coordinates</string>
+    <string name="label_crop_left">Left</string>
+    <string name="label_crop_top">Top</string>
+    <string name="label_crop_right">Right</string>
+    <string name="label_crop_bottom">Bottom</string>
+    <string name="description_initial_crop">Original image pixels after orientation correction. Left/top are the start; right/bottom are endpoints, not width/height. Coordinates must fit within the image. Disable this option to use the default selection.</string>
+    <string name="error_crop_coordinate">Enter a finite, non-negative coordinate (no blanks).</string>
+    <string name="error_crop_right">Right must be greater than left.</string>
+    <string name="error_crop_bottom">Bottom must be greater than top.</string>
     <string name="label_select_picture">Select Picture</string>
     <string name="label_cancel">Cancel</string>
     <string name="label_ok">OK</string>

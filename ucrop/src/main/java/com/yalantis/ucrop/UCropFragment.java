@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.model.AspectRatio;
+import com.yalantis.ucrop.util.CropWindowInsets;
 import com.yalantis.ucrop.util.SelectedStateListDrawable;
 import com.yalantis.ucrop.view.CropImageView;
 import com.yalantis.ucrop.view.GestureCropImageView;
@@ -140,7 +141,8 @@ public class UCropFragment extends Fragment {
     public void setupViews(View view, Bundle args) {
         mActiveControlsWidgetColor = args.getInt(UCrop.Options.EXTRA_UCROP_COLOR_CONTROLS_WIDGET_ACTIVE, ContextCompat.getColor(getContext(), R.color.ucrop_color_widget_active));
         mLogoColor = args.getInt(UCrop.Options.EXTRA_UCROP_LOGO_COLOR, ContextCompat.getColor(getContext(), R.color.ucrop_color_default_logo));
-        mShowBottomControls = !args.getBoolean(UCrop.Options.EXTRA_HIDE_BOTTOM_CONTROLS, false);
+        mShowBottomControls = !args.getBoolean(UCrop.Options.EXTRA_HIDE_BOTTOM_CONTROLS, false)
+                && !args.getBoolean(UCrop.Options.EXTRA_IMAGE_LOCKED, false);
         mRootViewBackgroundColor = args.getInt(UCrop.Options.EXTRA_UCROP_ROOT_VIEW_BACKGROUND_COLOR, ContextCompat.getColor(getContext(), R.color.ucrop_color_crop_background));
 
         initiateRootViews(view);
@@ -175,6 +177,8 @@ public class UCropFragment extends Fragment {
             params.bottomMargin = 0;
             view.findViewById(R.id.ucrop_frame).requestLayout();
         }
+        view.setBackgroundColor(mRootViewBackgroundColor);
+        CropWindowInsets.install(view, null);
     }
 
     private void setImageData(@NonNull Bundle bundle) {
@@ -235,6 +239,9 @@ public class UCropFragment extends Fragment {
         mOverlayView.setCropGridColumnCount(bundle.getInt(UCrop.Options.EXTRA_CROP_GRID_COLUMN_COUNT, OverlayView.DEFAULT_CROP_GRID_COLUMN_COUNT));
         mOverlayView.setCropGridColor(bundle.getInt(UCrop.Options.EXTRA_CROP_GRID_COLOR, getResources().getColor(R.color.ucrop_color_default_crop_grid)));
         mOverlayView.setCropGridStrokeWidth(bundle.getInt(UCrop.Options.EXTRA_CROP_GRID_STROKE_WIDTH, getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_grid_stoke_width)));
+
+        mUCropView.setImageLocked(bundle.getBoolean(UCrop.Options.EXTRA_IMAGE_LOCKED, false));
+        mUCropView.setInitialCropRect(bundle.getParcelable(UCrop.Options.EXTRA_INITIAL_CROP_RECT));
 
         // Aspect ratio options
         float aspectRatioX = bundle.getFloat(UCrop.EXTRA_ASPECT_RATIO_X, -1);
@@ -520,6 +527,11 @@ public class UCropFragment extends Fragment {
     }
 
     private void setAllowedGestures(int tab) {
+        if (mGestureCropImageView.isImageLocked()) {
+            mGestureCropImageView.setScaleEnabled(false);
+            mGestureCropImageView.setRotateEnabled(false);
+            return;
+        }
         mGestureCropImageView.setScaleEnabled(mAllowedGestures[tab] == ALL || mAllowedGestures[tab] == SCALE);
         mGestureCropImageView.setRotateEnabled(mAllowedGestures[tab] == ALL || mAllowedGestures[tab] == ROTATE);
     }
@@ -587,4 +599,3 @@ public class UCropFragment extends Fragment {
     }
 
 }
-

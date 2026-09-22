@@ -141,6 +141,130 @@
                 android:layout_margin="5dp"
                 android:background="@color/colorAccent" />
 
+            <CheckBox
+                android:id="@+id/checkbox_initial_crop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/label_initial_crop"
+                android:textAppearance="?android:textAppearanceMedium" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/description_initial_crop"
+                android:textAppearance="?android:textAppearanceSmall" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:labelFor="@+id/edit_text_crop_left"
+                    android:text="@string/label_crop_left" />
+
+                <EditText
+                    android:id="@+id/edit_text_crop_left"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:inputType="numberDecimal|numberSigned"
+                    android:minHeight="48dp"
+                    android:singleLine="true"
+                    android:text="0"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:labelFor="@+id/edit_text_crop_top"
+                    android:text="@string/label_crop_top" />
+
+                <EditText
+                    android:id="@+id/edit_text_crop_top"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:inputType="numberDecimal|numberSigned"
+                    android:minHeight="48dp"
+                    android:singleLine="true"
+                    android:text="0"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:labelFor="@+id/edit_text_crop_right"
+                    android:text="@string/label_crop_right" />
+
+                <EditText
+                    android:id="@+id/edit_text_crop_right"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:inputType="numberDecimal|numberSigned"
+                    android:minHeight="48dp"
+                    android:singleLine="true"
+                    android:text="1080"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:labelFor="@+id/edit_text_crop_bottom"
+                    android:text="@string/label_crop_bottom" />
+
+                <EditText
+                    android:id="@+id/edit_text_crop_bottom"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:inputType="numberDecimal|numberSigned"
+                    android:minHeight="48dp"
+                    android:singleLine="true"
+                    android:text="1080"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_margin="5dp"
+                android:background="@color/colorAccent" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -84,6 +84,72 @@ Currently, you can change:
    * the UI colors (Toolbar, StatusBar, active widget state)
    * and more...
 
+### Initial image-locked selection
+
+Image-locked mode keeps the image fixed at fit-center. Drag the rectangle's
+**corners** to resize both axes, any of its four **edge segments** to move only
+that edge (parallel finger motion is ignored), or its **interior** to move the
+whole selection. Resizing and translation stay inside the displayed image, with
+independent minimum width and height. Small midpoint handles follow crop-frame
+visibility, color, and stroke width. Corner/edge hit regions adapt to small
+selections so their edge midpoints and center remain reachable. Normal unlocked
+modes are unchanged.
+
+```java
+UCrop.Options options = new UCrop.Options();
+options.setImageLocked(true);
+options.setInitialCropRect(new RectF(400, 300, 2000, 1500));
+```
+
+The optional rectangle uses **EXIF-corrected, full-resolution source pixels**,
+not raw sensor orientation, sampled preview pixels, or view coordinates. The
+library supplies no default rectangle. Output maximum dimensions do not change
+the initial selection. Both rectangle setters defensively copy their input;
+`setInitialCropRect(left, top, right, bottom)` is also available.
+
+Coordinates must be finite, non-negative, ordered, and inside the corrected
+source dimensions. `Options` rejects malformed shapes immediately. Invalid image
+bounds or a rectangle supplied without image-locked mode report through the
+existing Activity/Fragment error callbacks and prevent saving.
+
+Reusable views support `UCropView.setInitialCropRect(RectF)` (or `null` to omit it).
+Set it before loading the image. Initialization waits for decoding, fit-center,
+and both child layouts. Each new bitmap/URI revalidates the original rectangle;
+ordinary layout and size changes preserve the **current edited source region**.
+The rectangle may be smaller than the touch minimum and remains fractional until
+cropping. Saving rounds its edges to integer output pixels (after any maximum-size
+resizing). If either pair of edges collapses, saving reports an `IOException`
+through the crop failure callback instead of expanding or replacing the selection.
+Selection state is not persisted across destruction/recreation of the
+view; callers must retain and supply any desired selection for a new instance.
+
+Both Activity and Fragment crop pages keep the image and touch handles inside
+the window's system-bar, mandatory-gesture, and display-cutout safe area,
+including side navigation in landscape. Backgrounds remain edge-to-edge.
+This applies with visible controls as well as `setHideBottomControls(true)` or
+image-locked mode; navigation space is reserved once, not again in the controls.
+The existing crop-frame padding remains additional drag clearance inside that
+area. Only the available display size changes: the full source image (including
+its bottom edge) stays selectable, and relayout preserves edited source coordinates.
+Embedded fragments account for their actual window position and the host's
+remaining insets, avoiding duplicate space below a toolbar or inside an already
+inset parent. Hosts should pass through remaining insets or consume those they
+have handled; do not independently add the same insets to the crop page itself.
+
+Requested-size preview downsampling is enabled only when loading in image-locked
+mode. Normal-mode loads and the original `BitmapLoadTask` constructor /
+`BitmapLoadUtils.decodeBitmapInBackground` overload retain legacy sampling:
+start at sample size 1, increasing only for OOM or the 100 MB bitmap cap. Source
+dimensions are still read in the background in both modes. The new boolean loader
+overloads explicitly opt into requested-size sampling for axis-aligned cropping.
+
+Unlocking a requested-size sampled view reloads the resolved source asynchronously
+with legacy sampling before it can be saved or used for rotated output, including
+when unlocked during decoding. Wait for `onLoadComplete`; load failures use
+`onLoadFailure`. Mode changes reset the crop; clear the initial-rectangle option
+before leaving locked mode. No decoding is performed on the UI thread. Legacy
+OOM/cap-driven sampling and its native rotation limitations are unchanged.
+
 # Compatibility
 
   * Library - Android Lollipop 5.0+ (API 21) (Android ICS 4.0+ (API 14) for versions < 2.2.11)

@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 
+import java.io.File;
+
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
  * <p/>
@@ -54,6 +56,11 @@ public class TransformImageView extends AppCompatImageView {
 
     private String mImageInputPath, mImageOutputPath;
     private ExifInfo mExifInfo;
+    private int mSourceImageWidth, mSourceImageHeight, mImageGeneration;
+    protected Exception mImageLoadError;
+    private boolean mLoadCompleteNotified;
+    private boolean mRequestedSizeSampled;
+    Runnable mImageChangedListener, mImageLayoutListener;
 
     /**
      * Interface for rotation and scale change notifying.
@@ -99,6 +106,8 @@ public class TransformImageView extends AppCompatImageView {
     /**
      * Setter for {@link #mMaxBitmapSize} value.
      * Be sure to call it before {@link #setImageURI(Uri)} or other image setters.
+     * Requested-size sampling is opt-in (enabled by CropImageView in locked mode);
+     * otherwise only legacy OOM/100 MB safeguards trigger sampling.
      *
      * @param maxBitmapSize - max size for both width and height of bitmap that will be used in the view.
      */
@@ -115,7 +124,52 @@ public class TransformImageView extends AppCompatImageView {
 
     @Override
     public void setImageBitmap(final Bitmap bitmap) {
+        beginImage();
+        mSourceImageWidth = bitmap.getWidth();
+        mSourceImageHeight = bitmap.getHeight();
+        mBitmapDecoded = true;
         setImageDrawable(new FastBitmapDrawable(bitmap));
+        requestLayout();
+    }
+
+    /** Returns EXIF-corrected full-resolution source pixels, or zero while loading. */
+    public int getSourceImageWidth() {
+        return mSourceImageWidth;
+    }
+
+    /** Returns EXIF-corrected full-resolution source pixels, or zero while loading. */
+    public int getSourceImageHeight() {
+        return mSourceImageHeight;
+    }
+
+    private void beginImage() {
+        mImageGeneration++;
+        mSourceImageWidth = mSourceImageHeight = 0;
+        mBitmapDecoded = mBitmapLaidOut = mLoadCompleteNotified = false;
+        mImageLoadError = null;
+        mImageInputPath = mImageOutputPath = null;
+        mExifInfo = null;
+        mRequestedSizeSampled = false;
+        if (mImageChangedListener != null) {
+            mImageChangedListener.run();
+        }
+    }
+
+    void reportImageFailure(@NonNull Exception error) {
+        mImageLoadError = error;
+        Log.e(TAG, "Image initialization failed", error);
+        if (mTransformImageListener != null) {
+            mTransformImageListener.onLoadFailure(error);
+        }
+    }
+
+    void notifyImageLoaded() {
+        if (mBitmapLaidOut && mImageLoadError == null && !mLoadCompleteNotified) {
+            mLoadCompleteNotified = true;
+            if (mTransformImageListener != null) {
+                mTransformImageListener.onLoadComplete();
+            }
+        }
     }
 
     public String getImageInputPath() {
@@ -131,12 +185,36 @@ public class TransformImageView extends AppCompatImageView {
     }
 
     /**
-     * This method takes an Uri as a parameter, then calls method to decode it into Bitmap with specified size.
+     * Decodes a URI asynchronously, using requested-size sampling only when opted in.
      *
      * @param imageUri - image Uri
      * @throws Exception - can throw exception if having problems with decoding Uri or OOM.
      */
     public void setImageUri(@NonNull Uri imageUri, @Nullable Uri outputUri) throws Exception {
+        loadImage(imageUri, outputUri, shouldSampleToRequiredSize());
+    }
+
+    protected boolean shouldSampleToRequiredSize() {
+        return false;
+    }
+
+    protected boolean isRequestedSizeSampled() {
+        return mRequestedSizeSampled;
+    }
+
+    /**
+     * Reloads the resolved local source asynchronously, without downloading/copying it again.
+     * The existing bitmap is not crop-ready until the replacement has decoded and laid out.
+     */
+    protected void reloadImageWithoutRequestedSampling() {
+        Uri input = Uri.fromFile(new File(mImageInputPath));
+        Uri output = mImageOutputPath == null ? null : Uri.fromFile(new File(mImageOutputPath));
+        loadImage(input, output, false);
+    }
+
+    private void loadImage(@NonNull Uri imageUri, @Nullable Uri outputUri, boolean sampleToRequiredSize) {
+        beginImage();
+        final int generation = mImageGeneration;
         int maxBitmapSize = getMaxBitmapSize();
 
         BitmapLoadUtils.decodeBitmapInBackground(getContext(), imageUri, outputUri, maxBitmapSize, maxBitmapSize,
@@ -144,22 +222,44 @@ public class TransformImageView extends AppCompatImageView {
 
                     @Override
                     public void onBitmapLoaded(@NonNull Bitmap bitmap, @NonNull ExifInfo exifInfo, @NonNull String imageInputPath, @Nullable String imageOutputPath) {
+                        onFailure(new IllegalStateException("Original source image dimensions are required"));
+                    }
+
+                    @Override
+                    public void onBitmapLoaded(@NonNull Bitmap bitmap, @NonNull ExifInfo exifInfo,
+                                               @NonNull String imageInputPath, @Nullable String imageOutputPath,
+                                               int sourceWidth, int sourceHeight) {
+                        if (generation != mImageGeneration) {
+                            return;
+                        }
+                        boolean sampled = sampleToRequiredSize
+                                && (bitmap.getWidth() != sourceWidth || bitmap.getHeight() != sourceHeight);
+                        if (sampled && !shouldSampleToRequiredSize()) {
+                            // Lock may have been disabled while decoding. Never publish that preview
+                            // to normal mode's scalar native rotation pipeline.
+                            bitmap.recycle();
+                            loadImage(Uri.fromFile(new File(imageInputPath)),
+                                    imageOutputPath == null ? null : Uri.fromFile(new File(imageOutputPath)), false);
+                            return;
+                        }
                         mImageInputPath = imageInputPath;
                         mImageOutputPath = imageOutputPath;
                         mExifInfo = exifInfo;
-
+                        mSourceImageWidth = sourceWidth;
+                        mSourceImageHeight = sourceHeight;
+                        mRequestedSizeSampled = sampled;
                         mBitmapDecoded = true;
-                        setImageBitmap(bitmap);
+                        setImageDrawable(new FastBitmapDrawable(bitmap));
+                        requestLayout();
                     }
 
                     @Override
                     public void onFailure(@NonNull Exception bitmapWorkerException) {
-                        Log.e(TAG, "onFailure: setImageUri", bitmapWorkerException);
-                        if (mTransformImageListener != null) {
-                            mTransformImageListener.onLoadFailure(bitmapWorkerException);
+                        if (generation == mImageGeneration) {
+                            reportImageFailure(bitmapWorkerException);
                         }
                     }
-                });
+                }, sampleToRequiredSize);
     }
 
     /**
@@ -263,7 +363,9 @@ public class TransformImageView extends AppCompatImageView {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        if (changed || (mBitmapDecoded && !mBitmapLaidOut)) {
+        if (mBitmapDecoded && (changed || !mBitmapLaidOut
+                || mThisWidth != getWidth() - getPaddingLeft() - getPaddingRight()
+                || mThisHeight != getHeight() - getPaddingTop() - getPaddingBottom())) {
 
             left = getPaddingLeft();
             top = getPaddingTop();
@@ -273,6 +375,11 @@ public class TransformImageView extends AppCompatImageView {
             mThisHeight = bottom - top;
 
             onImageLaidOut();
+            if (mImageLayoutListener != null) {
+                mImageLayoutListener.run();
+            } else {
+                notifyImageLoaded();
+            }
         }
     }
 
@@ -297,9 +404,6 @@ public class TransformImageView extends AppCompatImageView {
 
         mBitmapLaidOut = true;
 
-        if (mTransformImageListener != null) {
-            mTransformImageListener.onLoadComplete();
-        }
     }
 
     /**

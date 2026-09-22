@@ -42,9 +42,27 @@ public class OverlayView extends View {
     public static final int DEFAULT_FREESTYLE_CROP_MODE = FREESTYLE_CROP_MODE_DISABLE;
     public static final int DEFAULT_CROP_GRID_ROW_COUNT = 2;
     public static final int DEFAULT_CROP_GRID_COLUMN_COUNT = 2;
+    private static final float DEFAULT_LOCKED_CROP_MIN_SOURCE_SIZE = 100f;
+
+    private static final int TOUCH_NONE = -1;
+    private static final int TOUCH_TOP_LEFT = 0;
+    private static final int TOUCH_TOP_RIGHT = 1;
+    private static final int TOUCH_BOTTOM_RIGHT = 2;
+    private static final int TOUCH_BOTTOM_LEFT = 3;
+    private static final int TOUCH_INTERIOR = 4;
+    private static final int TOUCH_LEFT_EDGE = 5;
+    private static final int TOUCH_TOP_EDGE = 6;
+    private static final int TOUCH_RIGHT_EDGE = 7;
+    private static final int TOUCH_BOTTOM_EDGE = 8;
 
     private final RectF mCropViewRect = new RectF();
     private final RectF mTempRect = new RectF();
+    private final RectF mImageBounds = new RectF();
+    private boolean mImageLocked;
+    private float mLockedCropMinWidth, mLockedCropMinHeight;
+    private float mLockedCropMinSourceWidth = DEFAULT_LOCKED_CROP_MIN_SOURCE_SIZE;
+    private float mLockedCropMinSourceHeight = DEFAULT_LOCKED_CROP_MIN_SOURCE_SIZE;
+    private int mSourceImageWidth, mSourceImageHeight;
 
     protected int mThisWidth, mThisHeight;
     protected float[] mCropGridCorners;
@@ -64,7 +82,7 @@ public class OverlayView extends View {
     @FreestyleMode
     private int mFreestyleCropMode = DEFAULT_FREESTYLE_CROP_MODE;
     private float mPreviousTouchX = -1, mPreviousTouchY = -1;
-    private int mCurrentTouchCornerIndex = -1;
+    private int mCurrentTouchTarget = TOUCH_NONE;
     private int mTouchPointThreshold;
     private int mCropRectMinSize;
     private int mCropRectCornerTouchAreaLineLength;
@@ -105,12 +123,76 @@ public class OverlayView extends View {
         return mCropViewRect;
     }
 
+    void setImageLocked(boolean imageLocked) {
+        if (mImageLocked != imageLocked) {
+            mImageLocked = imageLocked;
+            mImageBounds.setEmpty();
+            resetLockedCropMinimum();
+            mCurrentTouchTarget = TOUCH_NONE;
+            postInvalidate();
+        }
+    }
+
+    void resetLockedCropMinimum() {
+        mLockedCropMinSourceWidth = DEFAULT_LOCKED_CROP_MIN_SOURCE_SIZE;
+        mLockedCropMinSourceHeight = DEFAULT_LOCKED_CROP_MIN_SOURCE_SIZE;
+    }
+
+    void setLockedCropMinimumSourceSize(float width, float height) {
+        mLockedCropMinSourceWidth = Math.min(DEFAULT_LOCKED_CROP_MIN_SOURCE_SIZE, width);
+        mLockedCropMinSourceHeight = Math.min(DEFAULT_LOCKED_CROP_MIN_SOURCE_SIZE, height);
+        updateLockedMinimums();
+    }
+
+    boolean setImageBounds(@NonNull RectF imageBounds, int sourceImageWidth, int sourceImageHeight) {
+        boolean changed = !mImageBounds.equals(imageBounds);
+        mImageBounds.set(imageBounds);
+        mSourceImageWidth = sourceImageWidth;
+        mSourceImageHeight = sourceImageHeight;
+        updateLockedMinimums();
+        return changed;
+    }
+
+    /**
+     * Sets an exact locked selection in this overlay's coordinates, without enlarging it to
+     * the touch minimum. Notifies the same listener used by interactive edits.
+     */
+    public void setCropViewRect(@NonNull RectF rect) {
+        // Permit only matrix round-off at the displayed boundary, never clamp the selection.
+        final float epsilon = 0.002f;
+        if (!mImageLocked || !RectUtils.isFiniteRect(rect) || rect.isEmpty()
+                || mImageBounds.isEmpty() || rect.left < mImageBounds.left - epsilon
+                || rect.top < mImageBounds.top - epsilon || rect.right > mImageBounds.right + epsilon
+                || rect.bottom > mImageBounds.bottom + epsilon) {
+            throw new IllegalArgumentException("Crop rectangle " + rect + " outside locked image " + mImageBounds);
+        }
+        mShouldSetupCropBounds = false;
+        mCropViewRect.set(rect);
+        mTargetAspectRatio = rect.width() / rect.height();
+        updateLockedMinimums();
+        updateGridPoints();
+        if (mCallback != null) {
+            mCallback.onCropRectUpdated(mCropViewRect);
+        }
+        postInvalidate();
+    }
+
+    private void updateLockedMinimums() {
+        if (mImageBounds.isEmpty() || mSourceImageWidth <= 0 || mSourceImageHeight <= 0) {
+            return;
+        }
+        mLockedCropMinWidth = Math.min(mImageBounds.width(),
+                mImageBounds.width() * mLockedCropMinSourceWidth / mSourceImageWidth);
+        mLockedCropMinHeight = Math.min(mImageBounds.height(),
+                mImageBounds.height() * mLockedCropMinSourceHeight / mSourceImageHeight);
+    }
+
     @Deprecated
     /***
      * Please use the new method {@link #getFreestyleCropMode() getFreestyleCropMode} method as we have more than 1 freestyle crop mode.
      */
     public boolean isFreestyleCropEnabled() {
-        return mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE;
+        return getFreestyleCropMode() == FREESTYLE_CROP_MODE_ENABLE;
     }
 
     @Deprecated
@@ -123,7 +205,7 @@ public class OverlayView extends View {
 
     @FreestyleMode
     public int getFreestyleCropMode() {
-        return mFreestyleCropMode;
+        return mImageLocked ? FREESTYLE_CROP_MODE_ENABLE : mFreestyleCropMode;
     }
 
     public void setFreestyleCropMode(@FreestyleMode int mFreestyleCropMode) {
@@ -227,7 +309,7 @@ public class OverlayView extends View {
      */
     public void setTargetAspectRatio(final float targetAspectRatio) {
         mTargetAspectRatio = targetAspectRatio;
-        if (mThisWidth > 0) {
+        if (mThisWidth > 0 || (mImageLocked && !mImageBounds.isEmpty())) {
             setupCropBounds();
             postInvalidate();
         } else {
@@ -240,6 +322,25 @@ public class OverlayView extends View {
      * {@link #mCropViewRect} is used to draw crop bounds - uses padding.
      */
     public void setupCropBounds() {
+        if (mImageLocked) {
+            if (mImageBounds.isEmpty() || mTargetAspectRatio <= 0) {
+                return;
+            }
+            float width = Math.min(mImageBounds.width(), mImageBounds.height() * mTargetAspectRatio);
+            float height = Math.min(mImageBounds.height(), width / mTargetAspectRatio);
+            width = Math.min(mImageBounds.width(), Math.max(mLockedCropMinWidth, width));
+            height = Math.min(mImageBounds.height(), Math.max(mLockedCropMinHeight, height));
+            mCropViewRect.set(mImageBounds.centerX() - width / 2, mImageBounds.centerY() - height / 2,
+                    mImageBounds.centerX() + width / 2, mImageBounds.centerY() + height / 2);
+            mCropViewRect.intersect(mImageBounds);
+            // Each axis has its own minimum so even a letterboxed panorama can be resized.
+            updateLockedMinimums();
+            updateGridPoints();
+            if (mCallback != null) {
+                mCallback.onCropRectUpdated(mCropViewRect);
+            }
+            return;
+        }
         int height = (int) (mThisWidth / mTargetAspectRatio);
         if (height > mThisHeight) {
             int width = (int) (mThisHeight * mTargetAspectRatio);
@@ -303,8 +404,87 @@ public class OverlayView extends View {
         drawCropGrid(canvas);
     }
 
+    private boolean onLockedTouchEvent(MotionEvent event) {
+        if (mCropViewRect.isEmpty() || mImageBounds.isEmpty()) {
+            return false;
+        }
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                mCurrentTouchTarget = getCurrentTouchIndex(event.getX(), event.getY());
+                if (mCurrentTouchTarget == TOUCH_NONE) {
+                    return false;
+                }
+                mPreviousTouchX = event.getX();
+                mPreviousTouchY = event.getY();
+                if (getParent() != null) {
+                    getParent().requestDisallowInterceptTouchEvent(true);
+                }
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                if (event.getPointerCount() == 1 && mCurrentTouchTarget != TOUCH_NONE) {
+                    updateLockedCropRect(event.getX() - mPreviousTouchX, event.getY() - mPreviousTouchY);
+                    mPreviousTouchX = event.getX();
+                    mPreviousTouchY = event.getY();
+                }
+                return true;
+            case MotionEvent.ACTION_POINTER_DOWN:
+                // End the drag rather than jumping to another pointer when a finger is lifted.
+                mCurrentTouchTarget = TOUCH_NONE;
+                return true;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                mCurrentTouchTarget = TOUCH_NONE;
+                mPreviousTouchX = mPreviousTouchY = -1;
+                if (getParent() != null) {
+                    getParent().requestDisallowInterceptTouchEvent(false);
+                }
+                return true;
+            default:
+                return true;
+        }
+    }
+
+    private void updateLockedCropRect(float deltaX, float deltaY) {
+        if (mCurrentTouchTarget == TOUCH_INTERIOR) {
+            mCropViewRect.offset(
+                    clamp(deltaX, mImageBounds.left - mCropViewRect.left, mImageBounds.right - mCropViewRect.right),
+                    clamp(deltaY, mImageBounds.top - mCropViewRect.top, mImageBounds.bottom - mCropViewRect.bottom));
+        } else {
+            if (mCurrentTouchTarget == TOUCH_TOP_LEFT || mCurrentTouchTarget == TOUCH_BOTTOM_LEFT
+                    || mCurrentTouchTarget == TOUCH_LEFT_EDGE) {
+                mCropViewRect.left = clamp(mCropViewRect.left + deltaX,
+                        mImageBounds.left, mCropViewRect.right - mLockedCropMinWidth);
+            } else if (mCurrentTouchTarget == TOUCH_TOP_RIGHT || mCurrentTouchTarget == TOUCH_BOTTOM_RIGHT
+                    || mCurrentTouchTarget == TOUCH_RIGHT_EDGE) {
+                mCropViewRect.right = clamp(mCropViewRect.right + deltaX,
+                        mCropViewRect.left + mLockedCropMinWidth, mImageBounds.right);
+            }
+            if (mCurrentTouchTarget == TOUCH_TOP_LEFT || mCurrentTouchTarget == TOUCH_TOP_RIGHT
+                    || mCurrentTouchTarget == TOUCH_TOP_EDGE) {
+                mCropViewRect.top = clamp(mCropViewRect.top + deltaY,
+                        mImageBounds.top, mCropViewRect.bottom - mLockedCropMinHeight);
+            } else if (mCurrentTouchTarget == TOUCH_BOTTOM_LEFT || mCurrentTouchTarget == TOUCH_BOTTOM_RIGHT
+                    || mCurrentTouchTarget == TOUCH_BOTTOM_EDGE) {
+                mCropViewRect.bottom = clamp(mCropViewRect.bottom + deltaY,
+                        mCropViewRect.top + mLockedCropMinHeight, mImageBounds.bottom);
+            }
+        }
+        updateGridPoints();
+        postInvalidate();
+        if (mCallback != null) {
+            mCallback.onCropRectUpdated(mCropViewRect);
+        }
+    }
+
+    private static float clamp(float value, float min, float max) {
+        return Math.max(min, Math.min(value, max));
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (mImageLocked) {
+            return onLockedTouchEvent(event);
+        }
         if (mCropViewRect.isEmpty() || mFreestyleCropMode == FREESTYLE_CROP_MODE_DISABLE) {
             return false;
         }
@@ -313,8 +493,8 @@ public class OverlayView extends View {
         float y = event.getY();
 
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
-            mCurrentTouchCornerIndex = getCurrentTouchIndex(x, y);
-            boolean shouldHandle = mCurrentTouchCornerIndex != -1;
+            mCurrentTouchTarget = getCurrentTouchIndex(x, y);
+            boolean shouldHandle = mCurrentTouchTarget != TOUCH_NONE;
             if (!shouldHandle) {
                 mPreviousTouchX = -1;
                 mPreviousTouchY = -1;
@@ -326,7 +506,7 @@ public class OverlayView extends View {
         }
 
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE) {
-            if (event.getPointerCount() == 1 && mCurrentTouchCornerIndex != -1) {
+            if (event.getPointerCount() == 1 && mCurrentTouchTarget != TOUCH_NONE) {
 
                 x = Math.min(Math.max(x, getPaddingLeft()), getWidth() - getPaddingRight());
                 y = Math.min(Math.max(y, getPaddingTop()), getHeight() - getPaddingBottom());
@@ -343,7 +523,7 @@ public class OverlayView extends View {
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
             mPreviousTouchX = -1;
             mPreviousTouchY = -1;
-            mCurrentTouchCornerIndex = -1;
+            mCurrentTouchTarget = TOUCH_NONE;
 
             if (mCallback != null) {
                 mCallback.onCropRectUpdated(mCropViewRect);
@@ -364,22 +544,22 @@ public class OverlayView extends View {
     private void updateCropViewRect(float touchX, float touchY) {
         mTempRect.set(mCropViewRect);
 
-        switch (mCurrentTouchCornerIndex) {
+        switch (mCurrentTouchTarget) {
             // resize rectangle
-            case 0:
+            case TOUCH_TOP_LEFT:
                 mTempRect.set(touchX, touchY, mCropViewRect.right, mCropViewRect.bottom);
                 break;
-            case 1:
+            case TOUCH_TOP_RIGHT:
                 mTempRect.set(mCropViewRect.left, touchY, touchX, mCropViewRect.bottom);
                 break;
-            case 2:
+            case TOUCH_BOTTOM_RIGHT:
                 mTempRect.set(mCropViewRect.left, mCropViewRect.top, touchX, touchY);
                 break;
-            case 3:
+            case TOUCH_BOTTOM_LEFT:
                 mTempRect.set(touchX, mCropViewRect.top, mCropViewRect.right, touchY);
                 break;
             // move rectangle
-            case 4:
+            case TOUCH_INTERIOR:
                 mTempRect.offset(touchX - mPreviousTouchX, touchY - mPreviousTouchY);
                 if (mTempRect.left > getLeft() && mTempRect.top > getTop()
                         && mTempRect.right < getRight() && mTempRect.bottom < getBottom()) {
@@ -404,20 +584,22 @@ public class OverlayView extends View {
         }
     }
 
-    /**
-     * * The order of the corners in the float array is:
-     * 0------->1
-     * ^        |
-     * |   4    |
-     * |        v
-     * 3<-------2
-     *
-     * @return - index of corner that is being dragged
-     */
+    /** Corners take priority, then locked edges, then the movable interior. */
     private int getCurrentTouchIndex(float touchX, float touchY) {
-        int closestPointIndex = -1;
+        int closestPointIndex = TOUCH_NONE;
         double closestPointDistance = mTouchPointThreshold;
         for (int i = 0; i < 8; i += 2) {
+            if (mImageLocked) {
+                boolean left = i / 2 == TOUCH_TOP_LEFT || i / 2 == TOUCH_BOTTOM_LEFT;
+                boolean top = i / 2 == TOUCH_TOP_LEFT || i / 2 == TOUCH_TOP_RIGHT;
+                float inwardX = left ? touchX - mCropViewRect.left : mCropViewRect.right - touchX;
+                float inwardY = top ? touchY - mCropViewRect.top : mCropViewRect.bottom - touchY;
+                // Limit inward corner reach independently on each axis. Even a tiny or
+                // narrow crop retains edge midpoints and an interior; outward slop is unchanged.
+                if (inwardX > mCropViewRect.width() / 4 || inwardY > mCropViewRect.height() / 4) {
+                    continue;
+                }
+            }
             double distanceToCorner = Math.sqrt(Math.pow(touchX - mCropGridCorners[i], 2)
                     + Math.pow(touchY - mCropGridCorners[i + 1], 2));
             if (distanceToCorner < closestPointDistance) {
@@ -426,26 +608,44 @@ public class OverlayView extends View {
             }
         }
 
-        if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE && closestPointIndex < 0 && mCropViewRect.contains(touchX, touchY)) {
-            return 4;
+        if (closestPointIndex != TOUCH_NONE) {
+            return closestPointIndex;
         }
-
-//        for (int i = 0; i <= 8; i += 2) {
-//
-//            double distanceToCorner;
-//            if (i < 8) { // corners
-//                distanceToCorner = Math.sqrt(Math.pow(touchX - mCropGridCorners[i], 2)
-//                        + Math.pow(touchY - mCropGridCorners[i + 1], 2));
-//            } else { // center
-//                distanceToCorner = Math.sqrt(Math.pow(touchX - mCropGridCenter[0], 2)
-//                        + Math.pow(touchY - mCropGridCenter[1], 2));
-//            }
-//            if (distanceToCorner < closestPointDistance) {
-//                closestPointDistance = distanceToCorner;
-//                closestPointIndex = i / 2;
-//            }
-//        }
+        if (mImageLocked) {
+            closestPointIndex = getLockedEdgeTarget(touchX, touchY);
+        }
+        if (getFreestyleCropMode() == FREESTYLE_CROP_MODE_ENABLE && closestPointIndex == TOUCH_NONE
+                && mCropViewRect.contains(touchX, touchY)) {
+            return TOUCH_INTERIOR;
+        }
         return closestPointIndex;
+    }
+
+    private int getLockedEdgeTarget(float touchX, float touchY) {
+        int target = TOUCH_NONE;
+        double closestDistance = mTouchPointThreshold;
+        for (int edge = TOUCH_LEFT_EDGE; edge <= TOUCH_BOTTOM_EDGE; edge++) {
+            boolean vertical = edge == TOUCH_LEFT_EDGE || edge == TOUCH_RIGHT_EDGE;
+            float edgeX = edge == TOUCH_LEFT_EDGE ? mCropViewRect.left : mCropViewRect.right;
+            float edgeY = edge == TOUCH_TOP_EDGE ? mCropViewRect.top : mCropViewRect.bottom;
+            float inwardDistance = vertical
+                    ? (edge == TOUCH_LEFT_EDGE ? touchX - edgeX : edgeX - touchX)
+                    : (edge == TOUCH_TOP_EDGE ? touchY - edgeY : edgeY - touchY);
+            // Shrink only the inward band, so the central half remains draggable without
+            // stealing actual edge hits. Projection keeps hit testing on finite segments.
+            if (inwardDistance > (vertical ? mCropViewRect.width() : mCropViewRect.height()) / 4) {
+                continue;
+            }
+            float nearestX = vertical ? edgeX : clamp(touchX, mCropViewRect.left, mCropViewRect.right);
+            float nearestY = vertical ? clamp(touchY, mCropViewRect.top, mCropViewRect.bottom) : edgeY;
+            double distance = Math.hypot(touchX - nearestX, touchY - nearestY);
+            // Strict comparison makes equal-distance ties stable in left/top/right/bottom order.
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                target = edge;
+            }
+        }
+        return target;
     }
 
     /**
@@ -455,7 +655,7 @@ public class OverlayView extends View {
      */
     protected void drawDimmedLayer(@NonNull Canvas canvas) {
         canvas.save();
-        if (mCircleDimmedLayer) {
+        if (mCircleDimmedLayer && !mImageLocked) {
             canvas.clipPath(mCircularPath, Region.Op.DIFFERENCE);
         } else {
             canvas.clipRect(mCropViewRect, Region.Op.DIFFERENCE);
@@ -463,7 +663,7 @@ public class OverlayView extends View {
         canvas.drawColor(mDimmedColor);
         canvas.restore();
 
-        if (mCircleDimmedLayer) { // Draw 1px stroke to fix antialias
+        if (mCircleDimmedLayer && !mImageLocked) { // Draw 1px stroke to fix antialias
             canvas.drawCircle(mCropViewRect.centerX(), mCropViewRect.centerY(),
                     Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f, mDimmedStrokePaint);
         }
@@ -504,9 +704,24 @@ public class OverlayView extends View {
 
         if (mShowCropFrame) {
             canvas.drawRect(mCropViewRect, mCropFramePaint);
+            if (mImageLocked && mCropFramePaint.getStrokeWidth() > 0) {
+                float halfWidth = Math.min(mCropRectCornerTouchAreaLineLength / 2f, mCropViewRect.width() / 8);
+                float halfHeight = Math.min(mCropRectCornerTouchAreaLineLength / 2f, mCropViewRect.height() / 8);
+                float strokeWidth = mCropFramePaint.getStrokeWidth();
+                mCropFramePaint.setStrokeWidth(strokeWidth * 3);
+                canvas.drawLine(mCropViewRect.centerX() - halfWidth, mCropViewRect.top,
+                        mCropViewRect.centerX() + halfWidth, mCropViewRect.top, mCropFramePaint);
+                canvas.drawLine(mCropViewRect.centerX() - halfWidth, mCropViewRect.bottom,
+                        mCropViewRect.centerX() + halfWidth, mCropViewRect.bottom, mCropFramePaint);
+                canvas.drawLine(mCropViewRect.left, mCropViewRect.centerY() - halfHeight,
+                        mCropViewRect.left, mCropViewRect.centerY() + halfHeight, mCropFramePaint);
+                canvas.drawLine(mCropViewRect.right, mCropViewRect.centerY() - halfHeight,
+                        mCropViewRect.right, mCropViewRect.centerY() + halfHeight, mCropFramePaint);
+                mCropFramePaint.setStrokeWidth(strokeWidth);
+            }
         }
 
-        if (mFreestyleCropMode != FREESTYLE_CROP_MODE_DISABLE) {
+        if (getFreestyleCropMode() != FREESTYLE_CROP_MODE_DISABLE && (!mImageLocked || mShowCropFrame)) {
             canvas.save();
 
             mTempRect.set(mCropViewRect);
