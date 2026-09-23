@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -21,7 +22,6 @@ import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioGroup;
-import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +31,7 @@ import androidx.activity.SystemBarStyle;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -66,8 +67,11 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
     private TextView mTextViewQuality;
     private CheckBox mCheckBoxHideBottomControls;
     private CheckBox mCheckBoxFreeStyleCrop;
+    private CheckBox mCheckBoxImageLocked;
+    private CheckBox mCheckBoxInitialCrop;
+    private EditText mEditTextCropLeft, mEditTextCropTop, mEditTextCropRight, mEditTextCropBottom;
     private Toolbar toolbar;
-    private ScrollView settingsView;
+    private View settingsView;
     private int requestMode = BuildConfig.RequestMode;
 
     private UCropFragment fragment;
@@ -92,7 +96,24 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
             view.setPaddingRelative(insets.left, insets.top, insets.right, insets.bottom);
             return windowInsets;
         });
+        View cropToolbar = findViewById(R.id.toolbar);
+        Insets toolbarPadding = Insets.of(cropToolbar.getPaddingLeft(), cropToolbar.getPaddingTop(),
+                cropToolbar.getPaddingRight(), cropToolbar.getPaddingBottom());
+        ViewCompat.setOnApplyWindowInsetsListener(cropToolbar, (view, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars()
+                    | WindowInsetsCompat.Type.displayCutout()
+                    | WindowInsetsCompat.Type.mandatorySystemGestures());
+            view.setPadding(toolbarPadding.left + insets.left, toolbarPadding.top + insets.top,
+                    toolbarPadding.right + insets.right, toolbarPadding.bottom);
+            return windowInsets;
+        });
         setupUI();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        updateInitialCropControls();
     }
 
     @Override
@@ -184,6 +205,15 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         mTextViewQuality = findViewById(R.id.text_view_quality);
         mCheckBoxHideBottomControls = findViewById(R.id.checkbox_hide_bottom_controls);
         mCheckBoxFreeStyleCrop = findViewById(R.id.checkbox_freestyle_crop);
+        mCheckBoxImageLocked = findViewById(R.id.checkbox_image_locked);
+        mCheckBoxInitialCrop = findViewById(R.id.checkbox_initial_crop);
+        mEditTextCropLeft = findViewById(R.id.edit_text_crop_left);
+        mEditTextCropTop = findViewById(R.id.edit_text_crop_top);
+        mEditTextCropRight = findViewById(R.id.edit_text_crop_right);
+        mEditTextCropBottom = findViewById(R.id.edit_text_crop_bottom);
+        mCheckBoxImageLocked.setOnCheckedChangeListener((buttonView, isChecked) -> updateInitialCropControls());
+        mCheckBoxInitialCrop.setOnCheckedChangeListener((buttonView, isChecked) -> updateInitialCropControls());
+        updateInitialCropControls();
 
         mRadioGroupAspectRatio.check(R.id.radio_dynamic);
         mEditTextRatioX.addTextChangedListener(mAspectRatioTextWatcher);
@@ -232,6 +262,30 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
     }
 
     private void startCrop(@NonNull Uri uri) {
+        RectF initialCropRect = null;
+        if (mCheckBoxImageLocked.isChecked() && mCheckBoxInitialCrop.isChecked()) {
+            mEditTextCropLeft.setError(null);
+            mEditTextCropTop.setError(null);
+            mEditTextCropRight.setError(null);
+            mEditTextCropBottom.setError(null);
+            try {
+                float left = readInitialCropCoordinate(mEditTextCropLeft);
+                float top = readInitialCropCoordinate(mEditTextCropTop);
+                float right = readInitialCropCoordinate(mEditTextCropRight);
+                float bottom = readInitialCropCoordinate(mEditTextCropBottom);
+                if (right <= left) {
+                    throw initialCropInputError(mEditTextCropRight, R.string.error_crop_right);
+                }
+                if (bottom <= top) {
+                    throw initialCropInputError(mEditTextCropBottom, R.string.error_crop_bottom);
+                }
+                initialCropRect = new RectF(left, top, right, bottom);
+            } catch (IllegalArgumentException e) {
+                Toast.makeText(SampleActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
+
         String destinationFileName = SAMPLE_CROPPED_IMAGE_NAME;
         int checkedId = mRadioGroupCompressionSettings.getCheckedRadioButtonId();
         if (checkedId == R.id.radio_png) {
@@ -243,7 +297,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), destinationFileName)));
 
         uCrop = basisConfig(uCrop);
-        uCrop = advancedConfig(uCrop);
+        uCrop = advancedConfig(uCrop, initialCropRect);
 
         if (requestMode == REQUEST_SELECT_PICTURE_FOR_FRAGMENT) {       //if build variant = fragment
             setupFragment(uCrop);
@@ -251,6 +305,36 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
             uCrop.start(SampleActivity.this);
         }
 
+    }
+
+    private void updateInitialCropControls() {
+        boolean imageLocked = mCheckBoxImageLocked.isChecked();
+        mCheckBoxInitialCrop.setEnabled(imageLocked);
+        boolean enabled = imageLocked && mCheckBoxInitialCrop.isChecked();
+        mEditTextCropLeft.setEnabled(enabled);
+        mEditTextCropTop.setEnabled(enabled);
+        mEditTextCropRight.setEnabled(enabled);
+        mEditTextCropBottom.setEnabled(enabled);
+    }
+
+    private float readInitialCropCoordinate(@NonNull EditText field) {
+        final float value;
+        try {
+            value = Float.parseFloat(field.getText().toString().trim());
+        } catch (NumberFormatException e) {
+            throw initialCropInputError(field, R.string.error_crop_coordinate);
+        }
+        if (Float.isNaN(value) || Float.isInfinite(value) || value < 0) {
+            throw initialCropInputError(field, R.string.error_crop_coordinate);
+        }
+        return value;
+    }
+
+    private IllegalArgumentException initialCropInputError(@NonNull EditText field, int messageRes) {
+        String message = getString(messageRes);
+        field.setError(message);
+        field.requestFocus();
+        return new IllegalArgumentException(message);
     }
 
     /**
@@ -298,9 +382,10 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
      * Sometimes you want to adjust more options, it's done via {@link com.yalantis.ucrop.UCrop.Options} class.
      *
      * @param uCrop - ucrop builder instance
+     * @param initialCropRect - validated original-image coordinates, or null to use the default selection
      * @return - ucrop builder instance
      */
-    private UCrop advancedConfig(@NonNull UCrop uCrop) {
+    private UCrop advancedConfig(@NonNull UCrop uCrop, @Nullable RectF initialCropRect) {
         UCrop.Options options = new UCrop.Options();
 
         int checkedId = mRadioGroupCompressionSettings.getCheckedRadioButtonId();
@@ -313,6 +398,10 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
 
         options.setHideBottomControls(mCheckBoxHideBottomControls.isChecked());
         options.setFreeStyleCropEnabled(mCheckBoxFreeStyleCrop.isChecked());
+        options.setImageLocked(mCheckBoxImageLocked.isChecked());
+        if (initialCropRect != null) {
+            options.setInitialCropRect(initialCropRect);
+        }
 
         /*
         If you want to configure how gestures work for all UCropActivity tabs
@@ -447,6 +536,7 @@ public class SampleActivity extends BaseActivity implements UCropFragmentCallbac
         toolbar.setBackgroundColor(mToolbarColor);
         toolbar.setTitleTextColor(mToolbarWidgetColor);
         toolbar.setVisibility(View.VISIBLE);
+        ViewCompat.requestApplyInsets(toolbar);
         final TextView toolbarTitle = toolbar.findViewById(R.id.toolbar_title);
         toolbarTitle.setTextColor(mToolbarWidgetColor);
         toolbarTitle.setText(mToolbarTitle);

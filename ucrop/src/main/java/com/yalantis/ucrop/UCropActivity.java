@@ -34,15 +34,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.transition.AutoTransition;
 import androidx.transition.Transition;
 import androidx.transition.TransitionManager;
 
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.model.AspectRatio;
+import com.yalantis.ucrop.util.CropWindowInsets;
 import com.yalantis.ucrop.util.SelectedStateListDrawable;
 import com.yalantis.ucrop.view.CropImageView;
 import com.yalantis.ucrop.view.GestureCropImageView;
@@ -257,6 +255,9 @@ public class UCropActivity extends AppCompatActivity {
         mOverlayView.setCropGridCornerColor(intent.getIntExtra(UCrop.Options.EXTRA_CROP_GRID_CORNER_COLOR, getResources().getColor(R.color.ucrop_color_default_crop_grid)));
         mOverlayView.setCropGridStrokeWidth(intent.getIntExtra(UCrop.Options.EXTRA_CROP_GRID_STROKE_WIDTH, getResources().getDimensionPixelSize(R.dimen.ucrop_default_crop_grid_stoke_width)));
 
+        mUCropView.setImageLocked(intent.getBooleanExtra(UCrop.Options.EXTRA_IMAGE_LOCKED, false));
+        mUCropView.setInitialCropRect(intent.getParcelableExtra(UCrop.Options.EXTRA_INITIAL_CROP_RECT));
+
         // Aspect ratio options
         float aspectRatioX = intent.getFloatExtra(UCrop.EXTRA_ASPECT_RATIO_X, -1);
         float aspectRatioY = intent.getFloatExtra(UCrop.EXTRA_ASPECT_RATIO_Y, -1);
@@ -311,16 +312,17 @@ public class UCropActivity extends AppCompatActivity {
         mToolbarTitle = intent.getStringExtra(UCrop.Options.EXTRA_UCROP_TITLE_TEXT_TOOLBAR);
         mToolbarTitle = mToolbarTitle != null ? mToolbarTitle : getResources().getString(R.string.ucrop_label_edit_photo);
         mLogoColor = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_LOGO_COLOR, ContextCompat.getColor(this, R.color.ucrop_color_default_logo));
-        mShowBottomControls = !intent.getBooleanExtra(UCrop.Options.EXTRA_HIDE_BOTTOM_CONTROLS, false);
+        mShowBottomControls = !intent.getBooleanExtra(UCrop.Options.EXTRA_HIDE_BOTTOM_CONTROLS, false)
+                && !intent.getBooleanExtra(UCrop.Options.EXTRA_IMAGE_LOCKED, false);
         mRootViewBackgroundColor = intent.getIntExtra(UCrop.Options.EXTRA_UCROP_ROOT_VIEW_BACKGROUND_COLOR, ContextCompat.getColor(this, R.color.ucrop_color_crop_background));
 
         setupAppBar();
         initiateRootViews();
+        ViewGroup root = findViewById(R.id.ucrop_photobox);
 
         if (mShowBottomControls) {
 
-            ViewGroup viewGroup = findViewById(R.id.ucrop_photobox);
-            ViewGroup wrapper = viewGroup.findViewById(R.id.controls_wrapper);
+            ViewGroup wrapper = root.findViewById(R.id.controls_wrapper);
             wrapper.setVisibility(View.VISIBLE);
             LayoutInflater.from(this).inflate(R.layout.ucrop_controls, wrapper, true);
 
@@ -338,24 +340,13 @@ public class UCropActivity extends AppCompatActivity {
             mLayoutRotate = findViewById(R.id.layout_rotate_wheel);
             mLayoutScale = findViewById(R.id.layout_scale_wheel);
 
-            View controlsWrapper = findViewById(R.id.controls_wrapper);
-            int wrapperStatesHeight = getResources().getDimensionPixelSize(R.dimen.ucrop_height_wrapper_states);
-            ViewCompat.setOnApplyWindowInsetsListener(controlsWrapper.findViewById(R.id.wrapper_states), (view, windowInsets) -> {
-                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-                view.setPaddingRelative(insets.left, 0, insets.right, insets.bottom);
-                ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-                int newWrapperStatesHeight = wrapperStatesHeight + insets.bottom;
-                if (layoutParams.height != newWrapperStatesHeight) {
-                    layoutParams.height = newWrapperStatesHeight;
-                    view.setLayoutParams(layoutParams);
-                }
-                return windowInsets;
-            });
             setupAspectRatioWidget(intent);
             setupRotateWidget();
             setupScaleWidget();
             setupStatesWrapper();
         }
+        root.setBackgroundColor(mRootViewBackgroundColor);
+        CropWindowInsets.install(root, findViewById(R.id.toolbar));
     }
 
     /**
@@ -363,12 +354,6 @@ public class UCropActivity extends AppCompatActivity {
      */
     private void setupAppBar() {
         final Toolbar toolbar = findViewById(R.id.toolbar);
-
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar, (view, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            view.setPaddingRelative(insets.left, insets.top, insets.right, 0);
-            return windowInsets;
-        });
 
         // Set all of the Toolbar coloring
         toolbar.setBackgroundColor(mToolbarColor);
@@ -655,6 +640,11 @@ public class UCropActivity extends AppCompatActivity {
     }
 
     private void setAllowedGestures(int tab) {
+        if (mGestureCropImageView.isImageLocked()) {
+            mGestureCropImageView.setScaleEnabled(false);
+            mGestureCropImageView.setRotateEnabled(false);
+            return;
+        }
         mGestureCropImageView.setScaleEnabled(mAllowedGestures[tab] == ALL || mAllowedGestures[tab] == SCALE);
         mGestureCropImageView.setRotateEnabled(mAllowedGestures[tab] == ALL || mAllowedGestures[tab] == ROTATE);
     }

@@ -76,6 +76,9 @@ public class GestureCropImageView extends CropImageView {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (isImageLocked()) {
+            return true;
+        }
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
             cancelAllAnimations();
         }

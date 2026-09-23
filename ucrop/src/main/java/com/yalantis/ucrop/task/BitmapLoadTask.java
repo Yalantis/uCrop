@@ -31,7 +31,7 @@ import okio.Sink;
 
 /**
  * Creates and returns a Bitmap for a given Uri(String url).
- * inSampleSize is calculated based on requiredWidth property. However can be adjusted if OOM occurs.
+ * Requested-size sampling is opt-in. All loads retain the legacy OOM/100 MB sampling safeguards.
  * If any EXIF config is found - bitmap is transformed properly.
  */
 public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapWorkerResult> {
@@ -45,6 +45,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
     private Uri mOutputUri;
     private final int mRequiredWidth;
     private final int mRequiredHeight;
+    private final boolean mSampleToRequiredSize;
 
     private final BitmapLoadCallback mBitmapLoadCallback;
 
@@ -52,6 +53,7 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
 
         Bitmap mBitmapResult;
         ExifInfo mExifInfo;
+        int mSourceWidth, mSourceHeight;
         Exception mBitmapWorkerException;
 
         public BitmapWorkerResult(@NonNull Bitmap bitmapResult, @NonNull ExifInfo exifInfo) {
@@ -63,17 +65,37 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
             mBitmapWorkerException = bitmapWorkerException;
         }
 
+        public BitmapWorkerResult(@NonNull Bitmap bitmapResult, @NonNull ExifInfo exifInfo,
+                                  int sourceWidth, int sourceHeight) {
+            this(bitmapResult, exifInfo);
+            mSourceWidth = sourceWidth;
+            mSourceHeight = sourceHeight;
+        }
+
     }
 
     public BitmapLoadTask(@NonNull Context context,
                           @NonNull Uri inputUri, @Nullable Uri outputUri,
                           int requiredWidth, int requiredHeight,
                           BitmapLoadCallback loadCallback) {
+        this(context, inputUri, outputUri, requiredWidth, requiredHeight, loadCallback, false);
+    }
+
+    /**
+     * Opts into requested-size sampling for axis-aligned cropping. The original constructor
+     * deliberately starts at sample size 1, preserving normal-mode rotation behavior.
+     * Sampled axes may have different source ratios; reload without this opt-in before rotation.
+     */
+    public BitmapLoadTask(@NonNull Context context,
+                          @NonNull Uri inputUri, @Nullable Uri outputUri,
+                          int requiredWidth, int requiredHeight,
+                          BitmapLoadCallback loadCallback, boolean sampleToRequiredSize) {
         mContext = context;
         mInputUri = inputUri;
         mOutputUri = outputUri;
         mRequiredWidth = requiredWidth;
         mRequiredHeight = requiredHeight;
+        mSampleToRequiredSize = sampleToRequiredSize;
         mBitmapLoadCallback = loadCallback;
     }
 
@@ -92,7 +114,21 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
 
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        options.inSampleSize = BitmapLoadUtils.calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
+        try (InputStream stream = mContext.getContentResolver().openInputStream(mInputUri)) {
+            BitmapFactory.decodeStream(stream, null, options);
+        } catch (IOException e) {
+            return new BitmapWorkerResult(e);
+        }
+        if (options.outWidth <= 0 || options.outHeight <= 0) {
+            return new BitmapWorkerResult(new IllegalArgumentException(
+                    "Bounds for bitmap could not be retrieved from the Uri: [" + mInputUri + "]"));
+        }
+        final int originalWidth = options.outWidth;
+        final int originalHeight = options.outHeight;
+        options.inSampleSize = mSampleToRequiredSize
+                ? BitmapLoadUtils.calculateInSampleSize(options,
+                        Math.max(1, mRequiredWidth), Math.max(1, mRequiredHeight))
+                : 1;
         options.inJustDecodeBounds = false;
 
         Bitmap decodeSampledBitmap = null;
@@ -129,6 +165,8 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         int exifTranslation = BitmapLoadUtils.exifToTranslation(exifOrientation);
 
         ExifInfo exifInfo = new ExifInfo(exifOrientation, exifDegrees, exifTranslation);
+        int sourceWidth = exifDegrees == 90 || exifDegrees == 270 ? originalHeight : originalWidth;
+        int sourceHeight = exifDegrees == 90 || exifDegrees == 270 ? originalWidth : originalHeight;
 
         Matrix matrix = new Matrix();
         if (exifDegrees != 0) {
@@ -138,10 +176,11 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
             matrix.postScale(exifTranslation, 1);
         }
         if (!matrix.isIdentity()) {
-            return new BitmapWorkerResult(BitmapLoadUtils.transformBitmap(decodeSampledBitmap, matrix), exifInfo);
+            return new BitmapWorkerResult(BitmapLoadUtils.transformBitmap(decodeSampledBitmap, matrix),
+                    exifInfo, sourceWidth, sourceHeight);
         }
 
-        return new BitmapWorkerResult(decodeSampledBitmap, exifInfo);
+        return new BitmapWorkerResult(decodeSampledBitmap, exifInfo, sourceWidth, sourceHeight);
     }
 
     private void processInputUri() throws NullPointerException, IOException {
@@ -253,7 +292,8 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
     @Override
     protected void onPostExecute(@NonNull BitmapWorkerResult result) {
         if (result.mBitmapWorkerException == null) {
-            mBitmapLoadCallback.onBitmapLoaded(result.mBitmapResult, result.mExifInfo, mInputUri.getPath(), (mOutputUri == null) ? null : mOutputUri.getPath());
+            mBitmapLoadCallback.onBitmapLoaded(result.mBitmapResult, result.mExifInfo, mInputUri.getPath(),
+                    (mOutputUri == null) ? null : mOutputUri.getPath(), result.mSourceWidth, result.mSourceHeight);
         } else {
             mBitmapLoadCallback.onFailure(result.mBitmapWorkerException);
         }

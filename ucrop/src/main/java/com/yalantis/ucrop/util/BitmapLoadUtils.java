@@ -32,12 +32,23 @@ public class BitmapLoadUtils {
 
     private static final String TAG = "BitmapLoadUtils";
 
+    /** Uses legacy sampling (OOM/100 MB only), irrespective of the requested dimensions. */
     public static void decodeBitmapInBackground(@NonNull Context context,
                                                 @NonNull Uri uri, @Nullable Uri outputUri,
                                                 int requiredWidth, int requiredHeight,
                                                 BitmapLoadCallback loadCallback) {
 
-        new BitmapLoadTask(context, uri, outputUri, requiredWidth, requiredHeight, loadCallback)
+        decodeBitmapInBackground(context, uri, outputUri, requiredWidth, requiredHeight,
+                loadCallback, false);
+    }
+
+    /** Requested-size sampling is safe for axis-aligned cropping, not the native rotation path. */
+    public static void decodeBitmapInBackground(@NonNull Context context,
+                                                @NonNull Uri uri, @Nullable Uri outputUri,
+                                                int requiredWidth, int requiredHeight,
+                                                BitmapLoadCallback loadCallback, boolean sampleToRequiredSize) {
+        new BitmapLoadTask(context, uri, outputUri, requiredWidth, requiredHeight, loadCallback,
+                sampleToRequiredSize)
                 .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 

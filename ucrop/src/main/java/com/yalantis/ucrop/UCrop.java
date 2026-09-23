@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -307,6 +308,8 @@ public class UCrop {
 
         public static final String EXTRA_HIDE_BOTTOM_CONTROLS = EXTRA_PREFIX + ".HideBottomControls";
         public static final String EXTRA_FREE_STYLE_CROP = EXTRA_PREFIX + ".FreeStyleCrop";
+        public static final String EXTRA_IMAGE_LOCKED = EXTRA_PREFIX + ".ImageLocked";
+        public static final String EXTRA_INITIAL_CROP_RECT = EXTRA_PREFIX + ".InitialCropRect";
 
         public static final String EXTRA_ASPECT_RATIO_SELECTED_BY_DEFAULT = EXTRA_PREFIX + ".AspectRatioSelectedByDefault";
         public static final String EXTRA_ASPECT_RATIO_OPTIONS = EXTRA_PREFIX + ".AspectRatioOptions";
@@ -367,7 +370,8 @@ public class UCrop {
         }
 
         /**
-         * Setter for max size for both width and height of bitmap that will be decoded from an input Uri and used in the view.
+         * Requested preview size for both axes when loading in image-locked mode.
+         * Normal mode retains legacy sampling (OOM/100 MB only), regardless of this value.
          *
          * @param maxBitmapSize - size in pixels
          */
@@ -527,6 +531,42 @@ public class UCrop {
          */
         public void setFreeStyleCropEnabled(boolean enabled) {
             mOptionBundle.putBoolean(EXTRA_FREE_STYLE_CROP, enabled);
+        }
+
+        /**
+         * Keeps the image fixed at fit-center with a freely movable/resizable crop rectangle
+         * constrained to the image, and hides bottom controls. Defaults to false.
+         * Drag corners to resize both axes, any edge segment to resize only that edge,
+         * or the interior to move the rectangle. Edge drags ignore tangential motion.
+         *
+         * @param imageLocked true to enable image-locked cropping
+         */
+        public void setImageLocked(boolean imageLocked) {
+            mOptionBundle.putBoolean(EXTRA_IMAGE_LOCKED, imageLocked);
+        }
+
+        /**
+         * Sets the optional initial selection in EXIF-corrected full-resolution source pixels,
+         * not raw sensor orientation, sampled preview, or view coordinates. Requires
+         * {@link #setImageLocked(boolean) setImageLocked(true)}. No rectangle is supplied by default.
+         * Image bounds are validated after decoding; failures use the Activity/Fragment error callback.
+         * Output maximum dimensions do not affect this selection.
+         * When saving, each edge is independently rounded to the nearest integer pixel
+         * ({@link Math#round(float)}) and clamped to the image bounds on the pixel grid after
+         * any maximum-size downscaling. Fractional selections may therefore change at pixel edges.
+         * If the quantized width or height is zero, saving fails with an {@link java.io.IOException}
+         * through the existing error callback before writing output, rather than expanding to one pixel.
+         *
+         * @throws IllegalArgumentException for nonfinite, negative, empty, or inverted coordinates
+         */
+        public void setInitialCropRect(@NonNull RectF rect) {
+            com.yalantis.ucrop.util.RectUtils.validateSourceRect(rect);
+            mOptionBundle.putParcelable(EXTRA_INITIAL_CROP_RECT, new RectF(rect));
+        }
+
+        /** See {@link #setInitialCropRect(RectF)}; arguments are source-pixel edges. */
+        public void setInitialCropRect(float left, float top, float right, float bottom) {
+            setInitialCropRect(new RectF(left, top, right, bottom));
         }
 
         /**

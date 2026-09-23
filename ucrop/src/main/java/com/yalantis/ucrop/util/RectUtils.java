@@ -4,6 +4,21 @@ import android.graphics.RectF;
 
 public class RectUtils {
 
+    /** Validates a rectangle in EXIF-corrected source pixels, without image bounds. */
+    public static void validateSourceRect(RectF rect) {
+        if (rect == null || !isFiniteRect(rect) || rect.left < 0 || rect.top < 0
+                || rect.right <= rect.left || rect.bottom <= rect.top) {
+            throw new IllegalArgumentException("Invalid initial crop rectangle: " + rect);
+        }
+    }
+
+    public static boolean isFiniteRect(RectF rect) {
+        return !Float.isNaN(rect.left) && !Float.isInfinite(rect.left)
+                && !Float.isNaN(rect.top) && !Float.isInfinite(rect.top)
+                && !Float.isNaN(rect.right) && !Float.isInfinite(rect.right)
+                && !Float.isNaN(rect.bottom) && !Float.isInfinite(rect.bottom);
+    }
+
     /**
      * Gets a float array of the 2D coordinates representing a rectangles
      * corners.
